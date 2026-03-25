@@ -944,7 +944,7 @@ function renderWeek() {
           if (nowMins < cutoffMins) badge = '<span class="week-cutoff-badge badge-open">הזמן עד ' + sup.cutoff + '</span>';
           else badge = '<span class="week-cutoff-badge" style="background:var(--surface2);color:var(--text3);">הגיע</span>';
         }
-        html += '<div class="week-sup-row" onclick="switchTab('order');setTimeout(function(){expandedSups.add('' + sup.id + '');renderOrder();},50)">';
+        html += '<div class="week-sup-row" onclick="switchTab(&quot;order&quot;);setTimeout(function(){expandedSups.add(&quot;' + sup.id + '&quot;);renderOrder();},50)">';
         html += '<div><div class="week-sup-name">' + sup.name + '</div>';
         html += '<div class="week-sup-meta">' + prods.length + ' פריטים · ' + (sup.phone || '') + '</div></div>';
         html += badge + '</div>';
@@ -965,7 +965,7 @@ function renderWeek() {
         } else {
           badge = '<span style="font-size:11px;color:var(--text3);">עד ' + sup.cutoff + '</span>';
         }
-        html += '<div class="week-sup-row" onclick="switchTab('order');setTimeout(function(){expandedSups.add('' + sup.id + '');renderOrder();},50)">';
+        html += '<div class="week-sup-row" onclick="switchTab(&quot;order&quot;);setTimeout(function(){expandedSups.add(&quot;' + sup.id + '&quot;);renderOrder();},50)">';
         html += '<div><div class="week-sup-name">' + sup.name + '</div>';
         html += '<div class="week-sup-meta">' + prods.length + ' פריטים · ' + (sup.phone || '') + '</div></div>';
         html += badge + '</div>';
@@ -1294,7 +1294,9 @@ function confirmOrder() {
   switchTab('history');
 }
 
-function updateOrderStatus(orderId, status) {
+function updateOrderStatus(btn) {
+  var orderId = btn.getAttribute('data-id');
+  var status = btn.getAttribute('data-status');
   var history = [];
   try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
   history.forEach(function(o) { if (o.id === orderId) o.status = status; });
@@ -1302,15 +1304,18 @@ function updateOrderStatus(orderId, status) {
   renderHistory();
 }
 
+
+
 function renderHistory() {
-  var q = (document.getElementById('historySearch') ? document.getElementById('historySearch').value.trim().toLowerCase() : '');
+  var searchEl = document.getElementById('historySearch');
+  var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
   var history = [];
   try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
-  
+
   if (q) {
     history = history.filter(function(o) {
-      return o.supplier_name.toLowerCase().includes(q) ||
-        o.items.some(function(i) { return i.name.toLowerCase().includes(q); });
+      return o.supplier_name.toLowerCase().indexOf(q) !== -1 ||
+        o.items.some(function(item) { return item.name.toLowerCase().indexOf(q) !== -1; });
     });
   }
 
@@ -1325,27 +1330,22 @@ function renderHistory() {
   var html = '';
   history.forEach(function(o) {
     var itemsHtml = o.items.map(function(item) {
-      return '<div class="order-card-item">' +
-        '<span class="order-card-item-name">' + item.name + '</span>' +
-        '<span class="order-card-item-qty">' + item.qty + ' ' + item.unit + '</span>' +
-      '</div>';
+      return '<div class="order-card-item"><span class="order-card-item-name">' + item.name + '</span><span class="order-card-item-qty">' + item.qty + ' ' + item.unit + '</span></div>';
     }).join('');
 
-    html += '<div class="order-card">' +
-      '<div class="order-card-header">' +
-        '<div>' +
-          '<div class="order-card-sup">' + o.supplier_name + '</div>' +
-          '<div class="order-card-date">' + o.date + (o.time ? ' · ' + o.time : '') + '</div>' +
-        '</div>' +
-        '<span class="order-status ' + (statusCls[o.status] || 'status-sent') + '">' + (statusLabel[o.status] || o.status) + '</span>' +
-      '</div>' +
-      '<div class="order-card-items">' + itemsHtml + '</div>' +
-      '<div class="order-actions">' +
-        '<button class="order-action-btn green" onclick="updateOrderStatus('' + o.id + '','received')">✓ התקבל</button>' +
-        '<button class="order-action-btn amber" onclick="updateOrderStatus('' + o.id + '','partial')">חלקי</button>' +
-        '<button class="order-action-btn red" onclick="updateOrderStatus('' + o.id + '','issue')">בעיה</button>' +
-      '</div>' +
-    '</div>';
+    var st = o.status || 'sent';
+    html += '<div class="order-card">';
+    html += '<div class="order-card-header">';
+    html += '<div><div class="order-card-sup">' + o.supplier_name + '</div>';
+    html += '<div class="order-card-date">' + o.date + (o.time ? ' · ' + o.time : '') + '</div></div>';
+    html += '<span class="order-status ' + (statusCls[st] || 'status-sent') + '">' + (statusLabel[st] || st) + '</span>';
+    html += '</div>';
+    html += '<div class="order-card-items">' + itemsHtml + '</div>';
+    html += '<div class="order-actions">';
+    html += '<button class="order-action-btn green" onclick="updateOrderStatus(this)" data-id="' + o.id + '" data-status="received">✓ התקבל</button>';
+    html += '<button class="order-action-btn amber" onclick="updateOrderStatus(this)" data-id="' + o.id + '" data-status="partial">חלקי</button>';
+    html += '<button class="order-action-btn red" onclick="updateOrderStatus(this)" data-id="' + o.id + '" data-status="issue">בעיה</button>';
+    html += '</div></div>';
   });
 
   document.getElementById('historyList').innerHTML = html;
