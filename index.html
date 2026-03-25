@@ -722,12 +722,6 @@ color:var(–text2); font-family:“Heebo”,sans-serif; text-align:center; }
   <div id="anomaliesContent" style="padding-bottom:20px;"></div>
 </div>
 
-<!-- ANOMALIES TAB -->
-
-<div id="view-anomalies" class="main" style="display:none;">
-  <div id="anomaliesContent"></div>
-</div>
-
 <!-- HISTORY TAB -->
 
 <div id="view-history" class="main" style="display:none;">
@@ -1019,19 +1013,16 @@ function switchTab(tab) {
   document.getElementById('view-history').style.display = tab === 'history' ? 'block' : 'none';
   document.getElementById('view-budget').style.display = tab === 'budget' ? 'block' : 'none';
   document.getElementById('view-anomalies').style.display = tab === 'anomalies' ? 'block' : 'none';
-  document.getElementById('view-anomalies').style.display = tab === 'anomalies' ? 'block' : 'none';
   document.getElementById('view-prices').style.display = tab === 'prices' ? 'block' : 'none';
   document.getElementById('tab-order').className = 'tab' + (tab === 'order' ? ' active' : '');
   document.getElementById('tab-week').className = 'tab' + (tab === 'week' ? ' active' : '');
   document.getElementById('tab-history').className = 'tab' + (tab === 'history' ? ' active' : '');
   document.getElementById('tab-budget').className = 'tab' + (tab === 'budget' ? ' active' : '');
   document.getElementById('tab-anomalies').className = 'tab' + (tab === 'anomalies' ? ' active' : '');
-  document.getElementById('tab-anomalies').className = 'tab' + (tab === 'anomalies' ? ' active' : '');
   document.getElementById('tab-prices').className = 'tab' + (tab === 'prices' ? ' active' : '');
   if (tab === 'week') renderWeek();
   if (tab === 'history') renderHistory();
   if (tab === 'budget') renderBudget();
-  if (tab === 'anomalies') renderAnomalies();
   if (tab === 'anomalies') renderAnomalies();
 }
 
@@ -1642,143 +1633,6 @@ function budgetNextMonth() {
 }
 
 
-// ═══════════════════════════════════════
-// BUDGET TRACKER
-// ═══════════════════════════════════════
-var budgetMonth = new Date().getMonth();
-var budgetYear = new Date().getFullYear();
-
-var SUP_COLORS = [
-  '#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7',
-  '#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6',
-  '#8b5cf6','#fb923c','#10b981'
-];
-
-function renderBudget() {
-  var history = [];
-  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
-
-  var monthNames = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-
-  // Filter by selected month
-  var monthStr = budgetYear + '-' + String(budgetMonth + 1).padStart(2, '0');
-  var filtered = history.filter(function(o) { return o.date && o.date.startsWith(monthStr); });
-
-  // Calc totals per supplier
-  var supTotals = {};
-  var supCounts = {};
-  filtered.forEach(function(o) {
-    var cost = 0;
-    o.items.forEach(function(item) {
-      // Find product price
-      var prod = PRODUCTS.find(function(p) { return p.name === item.name && p.sid === o.supplier_id; });
-      if (prod && prod.price) cost += (prod.price * parseFloat(item.qty || 0));
-    });
-    if (!supTotals[o.supplier_name]) { supTotals[o.supplier_name] = 0; supCounts[o.supplier_name] = 0; }
-    supTotals[o.supplier_name] += cost;
-    supCounts[o.supplier_name]++;
-  });
-
-  var totalCost = Object.values(supTotals).reduce(function(a,b){ return a+b; }, 0);
-  var totalOrders = filtered.length;
-
-  // Sort suppliers by cost
-  var supList = Object.keys(supTotals).sort(function(a,b){ return supTotals[b] - supTotals[a]; });
-  var maxCost = supList.length ? supTotals[supList[0]] : 1;
-
-  var prevMonth = budgetMonth === 0 ? 11 : budgetMonth - 1;
-  var prevYear = budgetMonth === 0 ? budgetYear - 1 : budgetYear;
-  var prevStr = prevYear + '-' + String(prevMonth + 1).padStart(2, '0');
-  var prevFiltered = history.filter(function(o) { return o.date && o.date.startsWith(prevStr); });
-  var prevCost = 0;
-  prevFiltered.forEach(function(o) {
-    o.items.forEach(function(item) {
-      var prod = PRODUCTS.find(function(p) { return p.name === item.name && p.sid === o.supplier_id; });
-      if (prod && prod.price) prevCost += (prod.price * parseFloat(item.qty || 0));
-    });
-  });
-
-  var diff = totalCost - prevCost;
-  var diffStr = diff === 0 ? '' : (diff > 0 ? '▲ +₪' : '▼ ₪') + Math.abs(diff).toFixed(0) + ' לעומת חודש קודם';
-  var diffColor = diff > 0 ? 'var(--red)' : 'var(--green)';
-
-  var html = '';
-
-  // Month selector
-  html += '<div class="budget-wrap">';
-  html += '<div class="budget-month-selector">';
-  html += '<button class="budget-month-btn" onclick="budgetPrevMonth()">‹</button>';
-  html += '<div class="budget-month-label">' + monthNames[budgetMonth] + ' ' + budgetYear + '</div>';
-  html += '<button class="budget-month-btn" onclick="budgetNextMonth()">›</button>';
-  html += '</div>';
-
-  // Big total
-  html += '<div class="budget-total-big">₪' + (totalCost > 0 ? totalCost.toFixed(0) : '—') + '</div>';
-  html += '<div class="budget-total-sub">' + totalOrders + ' הזמנות';
-  if (diffStr) html += ' &nbsp;·&nbsp; <span style="color:' + diffColor + '">' + diffStr + '</span>';
-  html += '</div>';
-
-  if (supList.length === 0) {
-    html += '<div style="color:var(--text3);font-size:13px;padding:20px 0 10px;">אין נתונים לחודש זה עדיין — נתונים יופיעו לאחר שליחת הזמנות ואישורן</div>';
-  } else {
-    // Per supplier bars
-    html += '<div class="budget-title">פירוט לפי ספק</div>';
-    html += '<div class="budget-suppliers">';
-    supList.forEach(function(name, i) {
-      var pct = maxCost > 0 ? (supTotals[name] / maxCost * 100) : 0;
-      var color = SUP_COLORS[i % SUP_COLORS.length];
-      html += '<div class="budget-sup-row">';
-      html += '<div class="budget-sup-dot" style="background:' + color + '"></div>';
-      html += '<div class="budget-sup-name">' + name + '</div>';
-      html += '<div class="budget-sup-bar"><div class="budget-sup-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
-      html += '<div class="budget-sup-amt">₪' + supTotals[name].toFixed(0) + '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-  }
-
-  html += '</div>';
-
-  // Quick stats
-  html += '<div class="budget-wrap">';
-  html += '<div class="budget-title">ספקים פעילים החודש</div>';
-  if (supList.length === 0) {
-    html += '<div style="color:var(--text3);font-size:13px;">—</div>';
-  } else {
-    supList.forEach(function(name, i) {
-      html += '<div class="budget-row">';
-      html += '<span class="budget-label">' + name + ' (' + supCounts[name] + ' הזמנות)</span>';
-      html += '<span class="budget-amount">₪' + supTotals[name].toFixed(0) + '</span>';
-      html += '</div>';
-    });
-  }
-  html += '</div>';
-
-  document.getElementById('budgetContent').innerHTML = html;
-}
-
-function budgetPrevMonth() {
-  if (budgetMonth === 0) { budgetMonth = 11; budgetYear--; }
-  else budgetMonth--;
-  renderBudget();
-}
-
-function budgetNextMonth() {
-  var now = new Date();
-  if (budgetYear > now.getFullYear() || (budgetYear === now.getFullYear() && budgetMonth >= now.getMonth())) return;
-  if (budgetMonth === 11) { budgetMonth = 0; budgetYear++; }
-  else budgetMonth++;
-  renderBudget();
-}
-
-
-// ═══════════════════════════════════════
-// PRICE ANOMALIES
-// ═══════════════════════════════════════
-
-
-
-
 
 
 // ═══════════════════════════════════════
@@ -1792,16 +1646,27 @@ async function renderAnomalies() {
   var el = document.getElementById('anomaliesContent');
   el.innerHTML = '<div class="no-data" style="padding:40px 0">טוען...</div>';
   try {
-    var r = await fetch('https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/price_anomalies_full?select=*', {
+    var r = await fetch('https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/rpc/get_price_anomalies', {
+      method: 'POST',
       headers: {
+        'Content-Type': 'application/json',
         'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMjk5NTcsImV4cCI6MjA1NzgwNTk1N30.xPm1aFsGSVGkEBbCKHpLzMdVhCRHkDsBJSAh-4IXKF0',
         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDIyMjk5NTcsImV4cCI6MjA1NzgwNTk1N30.xPm1aFsGSVGkEBbCKHpLzMdVhCRHkDsBJSAh-4IXKF0'
-      }
+      },
+      body: '{}'
     });
+    if (!r.ok) {
+      var errText = await r.text();
+      el.innerHTML = '<div class="no-data">שגיאה ' + r.status + ': ' + errText.slice(0,100) + '</div>';
+      return;
+    }
     anmData = await r.json();
-    if (!Array.isArray(anmData)) throw new Error('bad response');
+    if (!Array.isArray(anmData)) {
+      el.innerHTML = '<div class="no-data">תגובה לא צפויה: ' + JSON.stringify(anmData).slice(0,100) + '</div>';
+      return;
+    }
   } catch(e) {
-    el.innerHTML = '<div class="no-data">שגיאה בטעינת נתונים</div>';
+    el.innerHTML = '<div class="no-data">שגיאת רשת: ' + e.message + '</div>';
     return;
   }
   buildAnmHTML();
