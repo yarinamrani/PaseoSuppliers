@@ -27,7 +27,8 @@
 –red-bg: rgba(231,76,60,0.1);
 }
 
-body.light-mode {
+body.light-mode,
+html.light-mode {
 –bg: #f5f5f7;
 –surface: #ffffff;
 –surface2: #e8e8ed;
@@ -46,7 +47,7 @@ body.light-mode {
 –red-bg: rgba(220,38,38,0.08);
 }
 
-html { background: var(–bg); }
+html { background: var(–bg); color: var(–text); }
 html, body { background: var(–bg) !important; color: var(–text) !important; }
 
 .theme-btn {
@@ -290,23 +291,27 @@ white-space: nowrap;
 /* === DRAFT MODAL === */
 .modal-overlay {
 position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.7);
-z-index: 300;
+top: 0; left: 0; right: 0; bottom: 0;
+background: rgba(0,0,0,0.75);
+z-index: 1000;
 display: none;
 align-items: flex-end;
 justify-content: center;
+-webkit-overflow-scrolling: touch;
 }
 .modal-overlay.vis { display: flex; }
 
 .modal {
 background: var(–surface);
 border-radius: 20px 20px 0 0;
-padding: 20px 16px 32px;
+padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
 width: 100%;
 max-width: 480px;
-max-height: 80vh;
+max-height: 85vh;
 overflow-y: auto;
+-webkit-overflow-scrolling: touch;
+position: relative;
+z-index: 1001;
 }
 
 .modal-handle {
@@ -415,6 +420,47 @@ direction: rtl;
 
 .no-data { padding: 32px 16px; text-align: center; color: var(–text3); font-size: 14px; }
 
+/* STATUS BADGE on supplier */
+.status-dot {
+width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+display: inline-block; margin-left: 6px;
+}
+.status-open { background: var(–green); }
+.status-late { background: var(–red); }
+.status-off   { background: var(–text3); }
+
+/* WEEKLY VIEW */
+.week-header {
+padding: 12px 16px 6px;
+font-size: 13px; font-weight: 700;
+color: var(–text2); letter-spacing: 0.5px;
+border-bottom: 1px solid var(–border);
+background: var(–bg);
+position: sticky; top: 0; z-index: 10;
+}
+.week-today-header {
+background: var(–accent-bg);
+color: var(–accent);
+border-bottom: 1px solid var(–accent);
+}
+.week-day-block { border-bottom: 2px solid var(–border2); margin-bottom: 0; }
+.week-sup-row {
+display: flex; align-items: center; justify-content: space-between;
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+cursor: pointer;
+}
+.week-sup-row:active { background: var(–surface2); }
+.week-sup-name { font-size: 14px; font-weight: 500; color: var(–text); }
+.week-sup-meta { font-size: 12px; color: var(–text3); margin-top: 2px; }
+.week-cutoff-badge {
+font-size: 11px; font-weight: 700; padding: 3px 8px;
+border-radius: 8px; white-space: nowrap;
+}
+.badge-open { background: var(–green-bg); color: var(–green); }
+.badge-late { background: var(–red-bg); color: var(–red); }
+.week-empty { padding: 12px 16px; font-size: 13px; color: var(–text3); font-style: italic; }
+
 /* Excel export btn */
 .export-bar {
 padding: 10px 16px;
@@ -453,6 +499,7 @@ font-family: ‘Heebo’, sans-serif;
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('order')" id="tab-order">הזמנות</div>
+    <div class="tab" onclick="switchTab('week')" id="tab-week">שבועי</div>
     <div class="tab" onclick="switchTab('prices')" id="tab-prices">מחירון</div>
   </div>
 </div>
@@ -465,6 +512,12 @@ font-family: ‘Heebo’, sans-serif;
   </div>
   <div class="pills" id="orderPills"></div>
   <div id="orderList"></div>
+</div>
+
+<!-- WEEKLY TAB -->
+
+<div id="view-week" class="main" style="display:none;">
+  <div id="weekList"></div>
 </div>
 
 <!-- PRICES TAB -->
@@ -670,6 +723,10 @@ const PRODUCTS = [
   {id:"hav00029",sid:"51596",name:"מארז ציפס מטוגנים חום קראפט 350 יח",sku:"29",unit:"יח'",cat:"חד פעמי",price:0.43},
   {id:"hav00044",sid:"51596",name:"מיכל פלסטיק 1 ליטר שחור ארוז 135 יח",sku:"44",unit:"יח'",cat:"חד פעמי",price:68.85},
   {id:"hav00430",sid:"51596",name:"מתקן קיר למגבת נייר תעשייתי",sku:"430",unit:"יח'",cat:"ציוד",price:null},
+  {id:"hav00049",sid:"51596",name:"מיכל 4.5 ליטר שקוף מחוקק",sku:"49",unit:"יח'",cat:"ציוד",price:null},
+  {id:"hav00505",sid:"51596",name:"סופר מגבת איכותי 3 קג = אסוטא",sku:"505",unit:"יח'",cat:"חד פעמי",price:null},
+  {id:"hav00283",sid:"51596",name:"סיר ניילון PVC צהוב/לבן",sku:"283",unit:"יח'",cat:"חד פעמי",price:null},
+  {id:"hav00gaz",sid:"51596",name:"גז לברנר",sku:"gaz",unit:"יח'",cat:"ציוד",price:null},
   {id:"aa0207bc",sid:"90001",name:"אנגוס אנטריקוט",sku:"1042",unit:"ק\"ג",cat:"בקר",price:135.00},
   {id:"b3cf85e3",sid:"90001",name:"המבורגר קצבים",sku:"4593",unit:"ק\"ג",cat:"בקר",price:44.00},
   {id:"b03dc39b",sid:"90001",name:"קרפצ'ו סינטה צלחת",sku:"1819",unit:"יח'",cat:"בקר",price:14.60,min:100,step:100},
@@ -729,9 +786,12 @@ function getPriceCats() {
 function switchTab(tab) {
   activeTab = tab;
   document.getElementById('view-order').style.display = tab === 'order' ? 'block' : 'none';
+  document.getElementById('view-week').style.display = tab === 'week' ? 'block' : 'none';
   document.getElementById('view-prices').style.display = tab === 'prices' ? 'block' : 'none';
   document.getElementById('tab-order').className = 'tab' + (tab === 'order' ? ' active' : '');
+  document.getElementById('tab-week').className = 'tab' + (tab === 'week' ? ' active' : '');
   document.getElementById('tab-prices').className = 'tab' + (tab === 'prices' ? ' active' : '');
+  if (tab === 'week') renderWeek();
 }
 
 // ═══════════════════════════════════════
@@ -747,6 +807,74 @@ function renderOrderPills() {
 }
 
 function setOrderFilter(f) { orderFilter = f; renderOrderPills(); renderOrder(); }
+
+// ═══════════════════════════════════════
+// SUPPLIER STATUS
+// ═══════════════════════════════════════
+const DAY_MAP = {0:'sun',1:'mon',2:'tue',3:'wed',4:'thu',5:'fri',6:'sat'};
+const DAY_HE = {'sun':'א','mon':'ב','tue':'ג','wed':'ד','thu':'ה','fri':'ו','sat':'ש'};
+const DAY_FULL = {'sun':'ראשון','mon':'שני','tue':'שלישי','wed':'רביעי','thu':'חמישי','fri':'שישי','sat':'שבת'};
+
+function getSupplierStatus(sup) {
+  const now = new Date();
+  const todayKey = DAY_MAP[now.getDay()];
+  const [ch, cm] = (sup.cutoff || '23:59').split(':').map(Number);
+  const cutoffMins = ch * 60 + cm;
+  const nowMins = now.getHours() * 60 + now.getMinutes();
+  const orderToday = !sup.days || sup.days.includes(todayKey);
+
+  if (!orderToday) return { dot: 'status-off', label: '', cls: '' };
+  if (nowMins < cutoffMins) return { dot: 'status-open', label: 'פתוח עד ' + sup.cutoff, cls: 'badge-open' };
+  return { dot: 'status-late', label: 'פג תוקף', cls: 'badge-late' };
+}
+
+// ═══════════════════════════════════════
+// WEEKLY VIEW
+// ═══════════════════════════════════════
+function renderWeek() {
+  const days = ['sun','mon','tue','wed','thu','fri'];
+  const dayNames = {sun:'ראשון',mon:'שני',tue:'שלישי',wed:'רביעי',thu:'חמישי',fri:'שישי'};
+  const now = new Date();
+  const todayKey = DAY_MAP[now.getDay()];
+
+  let html = '';
+  days.forEach(day => {
+    const sups = SUPPLIERS.filter(s => s.days && s.days.includes(day));
+    const isToday = day === todayKey;
+    html += `<div class="week-day-block">
+      <div class="week-header ${isToday ? 'week-today-header' : ''}">
+        ${isToday ? '📍 ' : ''}יום ${dayNames[day]}${isToday ? ' — היום' : ''}
+      </div>`;
+
+    if (sups.length === 0) {
+      html += `<div class="week-empty">אין הזמנות</div>`;
+    } else {
+      sups.forEach(sup => {
+        const [ch, cm] = (sup.cutoff || '23:59').split(':').map(Number);
+        const cutoffMins = ch * 60 + cm;
+        const nowMins = now.getHours() * 60 + now.getMinutes();
+        let badge = '';
+        if (isToday) {
+          if (nowMins < cutoffMins) badge = `<span class="week-cutoff-badge badge-open">עד ${sup.cutoff}</span>`;
+          else badge = `<span class="week-cutoff-badge badge-late">פג תוקף</span>`;
+        } else {
+          badge = `<span style="font-size:12px;color:var(--text3);">עד ${sup.cutoff}</span>`;
+        }
+        const prods = PRODUCTS.filter(p => p.sid === sup.id);
+        html += `<div class="week-sup-row" onclick="switchTab('order');setTimeout(()=>{expandedSups.add('${sup.id}');renderOrder();},50)">
+          <div>
+            <div class="week-sup-name">${sup.name}</div>
+            <div class="week-sup-meta">${prods.length} פריטים · ${sup.phone || ''}</div>
+          </div>
+          ${badge}
+        </div>`;
+      });
+    }
+    html += `</div>`;
+  });
+
+  document.getElementById('weekList').innerHTML = html;
+}
 
 function renderOrder() {
   const q = document.getElementById('orderSearch').value.trim().toLowerCase();
@@ -770,14 +898,16 @@ function renderOrder() {
     const isOpen = expandedSups.has(sup.id) || (q.length > 0);
     const inCart = prods.filter(p => cart[p.id] > 0).length;
     const daysStr = sup.days ? sup.days.join(' ') : 'לפי צורך';
+    const st = getSupplierStatus(sup);
 
     html += `<div class="supplier-block">
       <div class="supplier-header" onclick="toggleSup('${sup.id}')">
         <div class="sup-left">
-          <div class="sup-name">${sup.name}</div>
+          <div class="sup-name"><span class="status-dot ${st.dot}"></span>${sup.name}</div>
           <div class="sup-meta">${sup.phone} &nbsp;·&nbsp; עד ${sup.cutoff} &nbsp;·&nbsp; ${daysStr}</div>
         </div>
         <div class="sup-right">
+          ${st.label ? `<span class="week-cutoff-badge ${st.cls}">${st.label}</span>` : ''}
           ${inCart > 0 ? `<span class="badge badge-accent">${inCart}</span>` : ''}
           <span class="chevron ${isOpen?'open':''}">▶</span>
         </div>
@@ -907,7 +1037,8 @@ function copyDraft(sid) {
 }
 
 function toggleTheme() {
-  const isLight = document.body.classList.toggle('light-mode');
+  const isLight = document.documentElement.classList.toggle('light-mode');
+  document.body.classList.toggle('light-mode', isLight);
   document.getElementById('themeBtn').textContent = isLight ? '🌑' : '🌙';
   try { localStorage.setItem('paseo-theme', isLight ? 'light' : 'dark'); } catch(e) {}
 }
@@ -1039,6 +1170,7 @@ function init() {
   // טען theme שמור
   try {
     if (localStorage.getItem('paseo-theme') === 'light') {
+      document.documentElement.classList.add('light-mode');
       document.body.classList.add('light-mode');
       document.getElementById('themeBtn').textContent = '🌑';
     }
