@@ -4,27 +4,28 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="color-scheme" content="dark">
 <title>פסאו — הזמנות ספקים</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap');
 
 :root {
-–bg: #0f1117;
-–surface: #1a1d27;
-–surface2: #222635;
-–border: rgba(255,255,255,0.08);
-–border2: rgba(255,255,255,0.14);
-–text: #f0f0f0;
-–text2: #8a8fa8;
-–text3: #555a70;
-–accent: #4e7fff;
-–accent-bg: rgba(78,127,255,0.12);
-–green: #2ecc71;
-–green-bg: rgba(46,204,113,0.12);
-–amber: #f0a500;
-–amber-bg: rgba(240,165,0,0.12);
-–red: #e74c3c;
-–red-bg: rgba(231,76,60,0.1);
+–bg: #18181b;
+–surface: #232326;
+–surface2: #2c2c30;
+–border: rgba(255,255,255,0.07);
+–border2: rgba(255,255,255,0.12);
+–text: #fafafa;
+–text2: #a1a1aa;
+–text3: #52525b;
+–accent: #3b82f6;
+–accent-bg: rgba(59,130,246,0.15);
+–green: #22c55e;
+–green-bg: rgba(34,197,94,0.13);
+–amber: #f59e0b;
+–amber-bg: rgba(245,158,11,0.13);
+–red: #ef4444;
+–red-bg: rgba(239,68,68,0.12);
 }
 
 body.light-mode,
@@ -188,10 +189,15 @@ color: var(–accent);
 display: flex;
 align-items: center;
 justify-content: space-between;
-padding: 13px 16px;
+padding: 14px 16px;
 cursor: pointer;
 background: var(–surface);
 user-select: none;
+border-right: 3px solid transparent;
+transition: border-color 0.15s;
+}
+.supplier-header:has(.badge-accent) {
+border-right-color: var(–accent);
 }
 
 .supplier-header:active { background: var(–surface2); }
@@ -226,7 +232,7 @@ flex-shrink: 0;
 .product-row {
 display: flex;
 align-items: center;
-padding: 10px 16px;
+padding: 11px 16px;
 border-bottom: 1px solid var(–border);
 gap: 10px;
 background: var(–bg);
@@ -240,7 +246,7 @@ background: var(–bg);
 
 .qty-ctrl { display: flex; align-items: center; gap: 6px; }
 .qty-btn {
-width: 28px; height: 28px;
+width: 30px; height: 30px;
 border-radius: 8px;
 background: var(–surface2);
 border: 1px solid var(–border2);
@@ -249,7 +255,7 @@ font-size: 18px;
 cursor: pointer;
 display: flex; align-items: center; justify-content: center;
 line-height: 1;
-font-weight: 300;
+font-weight: 400;
 transition: background 0.12s;
 }
 .qty-btn:active { background: var(–surface); }
@@ -491,6 +497,27 @@ font-family: ‘Heebo’, sans-serif;
 }
 .export-btn:active { opacity: 0.8; }
 
+/* BUDGET TRACKER */
+.budget-wrap { padding: 14px 16px; border-bottom: 1px solid var(–border); }
+.budget-title { font-size: 11px; font-weight: 700; color: var(–text3); letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; }
+.budget-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.budget-label { font-size: 13px; color: var(–text2); }
+.budget-amount { font-size: 13px; font-weight: 700; color: var(–text); }
+.budget-bar-wrap { height: 6px; background: var(–surface2); border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
+.budget-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
+.budget-suppliers { display: flex; flex-direction: column; gap: 6px; }
+.budget-sup-row { display: flex; align-items: center; gap: 8px; }
+.budget-sup-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.budget-sup-name { font-size: 12px; color: var(–text2); flex: 1; }
+.budget-sup-bar { flex: 2; height: 4px; background: var(–surface2); border-radius: 2px; overflow: hidden; }
+.budget-sup-fill { height: 100%; border-radius: 2px; }
+.budget-sup-amt { font-size: 12px; font-weight: 600; color: var(–text); min-width: 60px; text-align: left; }
+.budget-month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+.budget-month-btn { background: var(–surface2); border: 1px solid var(–border2); color: var(–text2); border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; font-family: “Heebo”, sans-serif; }
+.budget-month-label { font-size: 14px; font-weight: 600; color: var(–text); }
+.budget-total-big { font-size: 28px; font-weight: 700; color: var(–text); margin-bottom: 2px; }
+.budget-total-sub { font-size: 12px; color: var(–text3); margin-bottom: 14px; }
+
 /* HISTORY TAB */
 .order-card {
 background: var(–surface);
@@ -529,7 +556,8 @@ font-family: “Heebo”, sans-serif;
 position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
 width: 100%; max-width: 480px;
 background: var(–surface); border-top: 2px solid var(–accent);
-padding: 12px 16px; display: none; flex-direction: column; gap: 8px; z-index: 200;
+padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
+display: none; flex-direction: column; gap: 8px; z-index: 500;
 }
 .confirm-bar.vis { display: flex; }
 .confirm-bar-title { font-size: 13px; font-weight: 700; color: var(–text); }
@@ -557,6 +585,7 @@ background: var(–accent); color: #fff;
     <div class="tab active" onclick="switchTab('order')" id="tab-order">הזמנות</div>
     <div class="tab" onclick="switchTab('week')" id="tab-week">שבועי</div>
     <div class="tab" onclick="switchTab('history')" id="tab-history">היסטוריה</div>
+    <div class="tab" onclick="switchTab('budget')" id="tab-budget">💰</div>
     <div class="tab" onclick="switchTab('prices')" id="tab-prices">מחירון</div>
   </div>
 </div>
@@ -575,6 +604,12 @@ background: var(–accent); color: #fff;
 
 <div id="view-week" class="main" style="display:none;">
   <div id="weekList"></div>
+</div>
+
+<!-- BUDGET TAB -->
+
+<div id="view-budget" class="main" style="display:none;">
+  <div id="budgetContent"></div>
 </div>
 
 <!-- HISTORY TAB -->
@@ -866,13 +901,16 @@ function switchTab(tab) {
   document.getElementById('view-order').style.display = tab === 'order' ? 'block' : 'none';
   document.getElementById('view-week').style.display = tab === 'week' ? 'block' : 'none';
   document.getElementById('view-history').style.display = tab === 'history' ? 'block' : 'none';
+  document.getElementById('view-budget').style.display = tab === 'budget' ? 'block' : 'none';
   document.getElementById('view-prices').style.display = tab === 'prices' ? 'block' : 'none';
   document.getElementById('tab-order').className = 'tab' + (tab === 'order' ? ' active' : '');
   document.getElementById('tab-week').className = 'tab' + (tab === 'week' ? ' active' : '');
   document.getElementById('tab-history').className = 'tab' + (tab === 'history' ? ' active' : '');
+  document.getElementById('tab-budget').className = 'tab' + (tab === 'budget' ? ' active' : '');
   document.getElementById('tab-prices').className = 'tab' + (tab === 'prices' ? ' active' : '');
   if (tab === 'week') renderWeek();
   if (tab === 'history') renderHistory();
+  if (tab === 'budget') renderBudget();
 }
 
 // ═══════════════════════════════════════
@@ -1351,6 +1389,136 @@ function renderHistory() {
   document.getElementById('historyList').innerHTML = html;
 }
 
+
+// ═══════════════════════════════════════
+// BUDGET TRACKER
+// ═══════════════════════════════════════
+var budgetMonth = new Date().getMonth();
+var budgetYear = new Date().getFullYear();
+
+var SUP_COLORS = [
+  '#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7',
+  '#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6',
+  '#8b5cf6','#fb923c','#10b981'
+];
+
+function renderBudget() {
+  var history = [];
+  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
+
+  var monthNames = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+
+  // Filter by selected month
+  var monthStr = budgetYear + '-' + String(budgetMonth + 1).padStart(2, '0');
+  var filtered = history.filter(function(o) { return o.date && o.date.startsWith(monthStr); });
+
+  // Calc totals per supplier
+  var supTotals = {};
+  var supCounts = {};
+  filtered.forEach(function(o) {
+    var cost = 0;
+    o.items.forEach(function(item) {
+      // Find product price
+      var prod = PRODUCTS.find(function(p) { return p.name === item.name && p.sid === o.supplier_id; });
+      if (prod && prod.price) cost += (prod.price * parseFloat(item.qty || 0));
+    });
+    if (!supTotals[o.supplier_name]) { supTotals[o.supplier_name] = 0; supCounts[o.supplier_name] = 0; }
+    supTotals[o.supplier_name] += cost;
+    supCounts[o.supplier_name]++;
+  });
+
+  var totalCost = Object.values(supTotals).reduce(function(a,b){ return a+b; }, 0);
+  var totalOrders = filtered.length;
+
+  // Sort suppliers by cost
+  var supList = Object.keys(supTotals).sort(function(a,b){ return supTotals[b] - supTotals[a]; });
+  var maxCost = supList.length ? supTotals[supList[0]] : 1;
+
+  var prevMonth = budgetMonth === 0 ? 11 : budgetMonth - 1;
+  var prevYear = budgetMonth === 0 ? budgetYear - 1 : budgetYear;
+  var prevStr = prevYear + '-' + String(prevMonth + 1).padStart(2, '0');
+  var prevFiltered = history.filter(function(o) { return o.date && o.date.startsWith(prevStr); });
+  var prevCost = 0;
+  prevFiltered.forEach(function(o) {
+    o.items.forEach(function(item) {
+      var prod = PRODUCTS.find(function(p) { return p.name === item.name && p.sid === o.supplier_id; });
+      if (prod && prod.price) prevCost += (prod.price * parseFloat(item.qty || 0));
+    });
+  });
+
+  var diff = totalCost - prevCost;
+  var diffStr = diff === 0 ? '' : (diff > 0 ? '▲ +₪' : '▼ ₪') + Math.abs(diff).toFixed(0) + ' לעומת חודש קודם';
+  var diffColor = diff > 0 ? 'var(--red)' : 'var(--green)';
+
+  var html = '';
+
+  // Month selector
+  html += '<div class="budget-wrap">';
+  html += '<div class="budget-month-selector">';
+  html += '<button class="budget-month-btn" onclick="budgetPrevMonth()">‹</button>';
+  html += '<div class="budget-month-label">' + monthNames[budgetMonth] + ' ' + budgetYear + '</div>';
+  html += '<button class="budget-month-btn" onclick="budgetNextMonth()">›</button>';
+  html += '</div>';
+
+  // Big total
+  html += '<div class="budget-total-big">₪' + (totalCost > 0 ? totalCost.toFixed(0) : '—') + '</div>';
+  html += '<div class="budget-total-sub">' + totalOrders + ' הזמנות';
+  if (diffStr) html += ' &nbsp;·&nbsp; <span style="color:' + diffColor + '">' + diffStr + '</span>';
+  html += '</div>';
+
+  if (supList.length === 0) {
+    html += '<div style="color:var(--text3);font-size:13px;padding:20px 0 10px;">אין נתונים לחודש זה עדיין — נתונים יופיעו לאחר שליחת הזמנות ואישורן</div>';
+  } else {
+    // Per supplier bars
+    html += '<div class="budget-title">פירוט לפי ספק</div>';
+    html += '<div class="budget-suppliers">';
+    supList.forEach(function(name, i) {
+      var pct = maxCost > 0 ? (supTotals[name] / maxCost * 100) : 0;
+      var color = SUP_COLORS[i % SUP_COLORS.length];
+      html += '<div class="budget-sup-row">';
+      html += '<div class="budget-sup-dot" style="background:' + color + '"></div>';
+      html += '<div class="budget-sup-name">' + name + '</div>';
+      html += '<div class="budget-sup-bar"><div class="budget-sup-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
+      html += '<div class="budget-sup-amt">₪' + supTotals[name].toFixed(0) + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  html += '</div>';
+
+  // Quick stats
+  html += '<div class="budget-wrap">';
+  html += '<div class="budget-title">ספקים פעילים החודש</div>';
+  if (supList.length === 0) {
+    html += '<div style="color:var(--text3);font-size:13px;">—</div>';
+  } else {
+    supList.forEach(function(name, i) {
+      html += '<div class="budget-row">';
+      html += '<span class="budget-label">' + name + ' (' + supCounts[name] + ' הזמנות)</span>';
+      html += '<span class="budget-amount">₪' + supTotals[name].toFixed(0) + '</span>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+
+  document.getElementById('budgetContent').innerHTML = html;
+}
+
+function budgetPrevMonth() {
+  if (budgetMonth === 0) { budgetMonth = 11; budgetYear--; }
+  else budgetMonth--;
+  renderBudget();
+}
+
+function budgetNextMonth() {
+  var now = new Date();
+  if (budgetYear > now.getFullYear() || (budgetYear === now.getFullYear() && budgetMonth >= now.getMonth())) return;
+  if (budgetMonth === 11) { budgetMonth = 0; budgetYear++; }
+  else budgetMonth++;
+  renderBudget();
+}
+
 function exportEmail() {
   try {
     var q = document.getElementById('priceSearch').value.trim();
@@ -1396,12 +1564,17 @@ function init() {
   // תאריך
   try { document.getElementById('todayDate').textContent = new Date().toLocaleDateString('he-IL'); } catch(e) {}
 
-  // טען theme שמור
+  // Dark mode הוא ברירת המחדל — עובר ל-light רק אם המשתמש בחר כך
   try {
     if (localStorage.getItem('paseo-theme') === 'light') {
       document.documentElement.classList.add('light-mode');
       document.body.classList.add('light-mode');
       document.getElementById('themeBtn').textContent = '🌑';
+    } else {
+      // ודא dark mode פעיל
+      document.documentElement.classList.remove('light-mode');
+      document.body.classList.remove('light-mode');
+      document.getElementById('themeBtn').textContent = '🌙';
     }
   } catch(e) {}
 
