@@ -47,8 +47,14 @@ html.light-mode {
 –red-bg: rgba(220,38,38,0.08);
 }
 
-html { background: var(–bg); color: var(–text); }
-html, body { background: var(–bg) !important; color: var(–text) !important; }
+html, body {
+background: var(–bg) !important;
+color: var(–text) !important;
+color-scheme: dark;
+}
+html.light-mode, html.light-mode body {
+color-scheme: light;
+}
 
 .theme-btn {
 background: var(–surface2);
@@ -484,6 +490,56 @@ cursor: pointer;
 font-family: ‘Heebo’, sans-serif;
 }
 .export-btn:active { opacity: 0.8; }
+
+/* HISTORY TAB */
+.order-card {
+background: var(–surface);
+border-bottom: 1px solid var(–border);
+padding: 14px 16px;
+}
+.order-card-header {
+display: flex; justify-content: space-between; align-items: flex-start;
+margin-bottom: 8px;
+}
+.order-card-sup { font-size: 15px; font-weight: 600; color: var(–text); }
+.order-card-date { font-size: 12px; color: var(–text3); margin-top: 2px; }
+.order-card-items { font-size: 13px; color: var(–text2); line-height: 1.6; }
+.order-card-item { display: flex; justify-content: space-between; padding: 2px 0; }
+.order-card-item-name { color: var(–text); }
+.order-card-item-qty { color: var(–accent); font-weight: 600; white-space: nowrap; }
+.order-status {
+font-size: 11px; font-weight: 700; padding: 3px 10px;
+border-radius: 10px; white-space: nowrap;
+}
+.status-sent { background: var(–accent-bg); color: var(–accent); }
+.status-received { background: var(–green-bg); color: var(–green); }
+.status-partial { background: var(–amber-bg); color: var(–amber); }
+.status-issue { background: var(–red-bg); color: var(–red); }
+.order-actions { display: flex; gap: 8px; margin-top: 10px; }
+.order-action-btn {
+flex: 1; padding: 7px; border-radius: 8px; font-size: 12px; font-weight: 600;
+cursor: pointer; border: 1px solid var(–border2);
+background: var(–surface2); color: var(–text2);
+font-family: “Heebo”, sans-serif;
+}
+.order-action-btn.green { background: var(–green-bg); border-color: var(–green); color: var(–green); }
+.order-action-btn.amber { background: var(–amber-bg); border-color: var(–amber); color: var(–amber); }
+.order-action-btn.red { background: var(–red-bg); border-color: var(–red); color: var(–red); }
+.confirm-bar {
+position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+width: 100%; max-width: 480px;
+background: var(–surface); border-top: 2px solid var(–accent);
+padding: 12px 16px; display: none; flex-direction: column; gap: 8px; z-index: 200;
+}
+.confirm-bar.vis { display: flex; }
+.confirm-bar-title { font-size: 13px; font-weight: 700; color: var(–text); }
+.confirm-bar-sub { font-size: 12px; color: var(–text2); }
+.confirm-bar-btn {
+width: 100%; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700;
+cursor: pointer; border: none; font-family: “Heebo”, sans-serif;
+background: var(–accent); color: #fff;
+}
+.confirm-bar-skip { font-size: 12px; color: var(–text3); text-align: center; cursor: pointer; }
 </style>
 
 </head>
@@ -500,6 +556,7 @@ font-family: ‘Heebo’, sans-serif;
   <div class="tabs">
     <div class="tab active" onclick="switchTab('order')" id="tab-order">הזמנות</div>
     <div class="tab" onclick="switchTab('week')" id="tab-week">שבועי</div>
+    <div class="tab" onclick="switchTab('history')" id="tab-history">היסטוריה</div>
     <div class="tab" onclick="switchTab('prices')" id="tab-prices">מחירון</div>
   </div>
 </div>
@@ -520,6 +577,15 @@ font-family: ‘Heebo’, sans-serif;
   <div id="weekList"></div>
 </div>
 
+<!-- HISTORY TAB -->
+
+<div id="view-history" class="main" style="display:none;">
+  <div class="search-wrap">
+    <input class="search-input" type="text" id="historySearch" placeholder="חיפוש לפי ספק..." oninput="renderHistory()" />
+  </div>
+  <div id="historyList" style="padding-bottom:20px;"></div>
+</div>
+
 <!-- PRICES TAB -->
 
 <div id="view-prices" class="main" style="display:none;">
@@ -533,6 +599,17 @@ font-family: ‘Heebo’, sans-serif;
     </button>
   </div>
   <div id="priceList"></div>
+</div>
+
+<!-- CONFIRM BAR -->
+
+<div class="confirm-bar" id="confirmBar">
+  <div>
+    <div class="confirm-bar-title" id="confirmTitle">ההזמנה נשלחה?</div>
+    <div class="confirm-bar-sub" id="confirmSub"></div>
+  </div>
+  <button class="confirm-bar-btn" onclick="confirmOrder()">✓ אישור שליחה — שמור להיסטוריה</button>
+  <div class="confirm-bar-skip" onclick="dismissConfirm()">דלג, לא שלחתי עדיין</div>
 </div>
 
 <!-- CART BAR -->
@@ -563,19 +640,19 @@ font-family: ‘Heebo’, sans-serif;
 // ═══════════════════════════════════════
 
 const SUPPLIERS = [
-  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],cat:"ירקות"},
-  {id:"50059",name:"דיפ שיווק",phone:"050-887-3009",cutoff:"10:00",days:null,cat:"יבשים"},
-  {id:"50203",name:"צ.י שיווק",phone:"052-481-7133",cutoff:"10:00",days:["א","ב","ג","ד","ה"],cat:"חלב"},
-  {id:"51596",name:"חביבים",phone:"052-6552915",cutoff:"13:00",days:["א","ב","ג","ד","ה"],cat:"חד פעמי"},
-  {id:"90001",name:"גינדי בשר",phone:"03-5560919",cutoff:"10:00",days:["א","ב"],cat:"בשר"},
-  {id:"51513",name:"דולצי",phone:"053-338-0740",cutoff:"10:00",days:["א","ב","ג","ד","ה"],cat:"קינוחים"},
-  {id:"50057",name:"אוריה",phone:"053-6630699",cutoff:"10:00",days:null,cat:"בשר"},
-  {id:"51538",name:"דורו",phone:"03-6225540",cutoff:"10:00",days:null,cat:"פסטה"},
-  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"22:00",days:["א","ב","ג","ד","ה","ו"],cat:"לחם"},
-  {id:"90012",name:"קבוצת בנדיקט",phone:"0509081446",cutoff:"22:00",days:["א","ב","ג","ד","ה","ו"],cat:"לחם"},
-  {id:"90011",name:"קנה דג",phone:"052-8880187",cutoff:"08:00",days:["א","ב","ג","ד","ה"],cat:"דגים"},
-  {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,cat:"בשר"},
-  {id:"50093",name:"תפוז טרי",phone:"054-3332696",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],cat:"משקאות"},
+  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"ירקות"},
+  {id:"50059",name:"דיפ שיווק",phone:"050-887-3009",cutoff:"10:00",days:null,delivery:["ג","ה"],cat:"יבשים"},
+  {id:"50203",name:"צ.י שיווק",phone:"052-481-7133",cutoff:"10:00",days:["א","ב","ג","ד","ה"],delivery:["ה"],cat:"חלב"},
+  {id:"51596",name:"חביבים",phone:"052-6552915",cutoff:"13:00",days:["א","ב","ג","ד","ה"],delivery:["ב","ג","ד"],cat:"חד פעמי"},
+  {id:"90001",name:"גינדי בשר",phone:"03-5560919",cutoff:"10:00",days:["א","ב"],delivery:["ג"],cat:"בשר"},
+  {id:"51513",name:"דולצי",phone:"053-338-0740",cutoff:"10:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ד"],cat:"קינוחים"},
+  {id:"50057",name:"אוריה",phone:"053-6630699",cutoff:"10:00",days:null,delivery:["ג"],cat:"בשר"},
+  {id:"51538",name:"דורו",phone:"03-6225540",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"פסטה"},
+  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"22:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ה"],cat:"לחם"},
+  {id:"90012",name:"קבוצת בנדיקט",phone:"0509081446",cutoff:"22:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"לחם"},
+  {id:"90011",name:"קנה דג",phone:"052-8880187",cutoff:"08:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ה","ו"],cat:"דגים"},
+  {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"בשר"},
+  {id:"50093",name:"תפוז טרי",phone:"054-3332696",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ב","ד","ה"],cat:"משקאות"},
 ];
 
 const SUP_MAP = {};
@@ -763,6 +840,7 @@ let activeTab = 'order';
 let orderFilter = 'all';
 let priceFilter = 'all';
 let expandedSups = new Set();
+let pendingOrder = null; // order waiting for confirmation
 
 // ═══════════════════════════════════════
 // UTILS
@@ -787,11 +865,14 @@ function switchTab(tab) {
   activeTab = tab;
   document.getElementById('view-order').style.display = tab === 'order' ? 'block' : 'none';
   document.getElementById('view-week').style.display = tab === 'week' ? 'block' : 'none';
+  document.getElementById('view-history').style.display = tab === 'history' ? 'block' : 'none';
   document.getElementById('view-prices').style.display = tab === 'prices' ? 'block' : 'none';
   document.getElementById('tab-order').className = 'tab' + (tab === 'order' ? ' active' : '');
   document.getElementById('tab-week').className = 'tab' + (tab === 'week' ? ' active' : '');
+  document.getElementById('tab-history').className = 'tab' + (tab === 'history' ? ' active' : '');
   document.getElementById('tab-prices').className = 'tab' + (tab === 'prices' ? ' active' : '');
   if (tab === 'week') renderWeek();
+  if (tab === 'history') renderHistory();
 }
 
 // ═══════════════════════════════════════
@@ -811,17 +892,18 @@ function setOrderFilter(f) { orderFilter = f; renderOrderPills(); renderOrder();
 // ═══════════════════════════════════════
 // SUPPLIER STATUS
 // ═══════════════════════════════════════
-const DAY_MAP = {0:'sun',1:'mon',2:'tue',3:'wed',4:'thu',5:'fri',6:'sat'};
-const DAY_HE = {'sun':'א','mon':'ב','tue':'ג','wed':'ד','thu':'ה','fri':'ו','sat':'ש'};
-const DAY_FULL = {'sun':'ראשון','mon':'שני','tue':'שלישי','wed':'רביעי','thu':'חמישי','fri':'שישי','sat':'שבת'};
+// ימים: מיפוי מספר יום JS לאות עברית
+const DAY_HE_MAP = {0:'א', 1:'ב', 2:'ג', 3:'ד', 4:'ה', 5:'ו', 6:'ש'};
+const DAY_FULL = {0:'ראשון', 1:'שני', 2:'שלישי', 3:'רביעי', 4:'חמישי', 5:'שישי', 6:'שבת'};
+const DAYS_ORDER = [0,1,2,3,4,5]; // א-ו
 
 function getSupplierStatus(sup) {
   const now = new Date();
-  const todayKey = DAY_MAP[now.getDay()];
+  const todayHe = DAY_HE_MAP[now.getDay()];
   const [ch, cm] = (sup.cutoff || '23:59').split(':').map(Number);
   const cutoffMins = ch * 60 + cm;
   const nowMins = now.getHours() * 60 + now.getMinutes();
-  const orderToday = !sup.days || sup.days.includes(todayKey);
+  const orderToday = !sup.days || sup.days.includes(todayHe);
 
   if (!orderToday) return { dot: 'status-off', label: '', cls: '' };
   if (nowMins < cutoffMins) return { dot: 'status-open', label: 'פתוח עד ' + sup.cutoff, cls: 'badge-open' };
@@ -832,45 +914,65 @@ function getSupplierStatus(sup) {
 // WEEKLY VIEW
 // ═══════════════════════════════════════
 function renderWeek() {
-  const days = ['sun','mon','tue','wed','thu','fri'];
-  const dayNames = {sun:'ראשון',mon:'שני',tue:'שלישי',wed:'רביעי',thu:'חמישי',fri:'שישי'};
   const now = new Date();
-  const todayKey = DAY_MAP[now.getDay()];
+  const todayNum = now.getDay();
 
   let html = '';
-  days.forEach(day => {
-    const sups = SUPPLIERS.filter(s => s.days && s.days.includes(day));
-    const isToday = day === todayKey;
-    html += `<div class="week-day-block">
-      <div class="week-header ${isToday ? 'week-today-header' : ''}">
-        ${isToday ? '📍 ' : ''}יום ${dayNames[day]}${isToday ? ' — היום' : ''}
-      </div>`;
+  DAYS_ORDER.forEach(function(dayNum) {
+    const dayHe = DAY_HE_MAP[dayNum];
+    const isToday = dayNum === todayNum;
 
-    if (sups.length === 0) {
-      html += `<div class="week-empty">אין הזמנות</div>`;
-    } else {
-      sups.forEach(sup => {
-        const [ch, cm] = (sup.cutoff || '23:59').split(':').map(Number);
-        const cutoffMins = ch * 60 + cm;
-        const nowMins = now.getHours() * 60 + now.getMinutes();
-        let badge = '';
+    const arriving = SUPPLIERS.filter(function(s) { return s.delivery && s.delivery.includes(dayHe); });
+    const ordering = SUPPLIERS.filter(function(s) { return s.days && s.days.includes(dayHe) && !(s.delivery && s.delivery.includes(dayHe)); });
+
+    if (arriving.length === 0 && ordering.length === 0) return;
+
+    html += '<div class="week-day-block">';
+    html += '<div class="week-header ' + (isToday ? 'week-today-header' : '') + '">';
+    html += (isToday ? '📍 ' : '') + 'יום ' + DAY_FULL[dayNum] + (isToday ? ' — היום' : '');
+    html += '</div>';
+
+    if (arriving.length > 0) {
+      html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--green);letter-spacing:0.5px;">📦 מגיע</div>';
+      arriving.forEach(function(sup) {
+        var prods = PRODUCTS.filter(function(p) { return p.sid === sup.id; });
+        var parts = (sup.cutoff || '23:59').split(':');
+        var cutoffMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        var nowMins = now.getHours() * 60 + now.getMinutes();
+        var badge = '';
         if (isToday) {
-          if (nowMins < cutoffMins) badge = `<span class="week-cutoff-badge badge-open">עד ${sup.cutoff}</span>`;
-          else badge = `<span class="week-cutoff-badge badge-late">פג תוקף</span>`;
-        } else {
-          badge = `<span style="font-size:12px;color:var(--text3);">עד ${sup.cutoff}</span>`;
+          if (nowMins < cutoffMins) badge = '<span class="week-cutoff-badge badge-open">הזמן עד ' + sup.cutoff + '</span>';
+          else badge = '<span class="week-cutoff-badge" style="background:var(--surface2);color:var(--text3);">הגיע</span>';
         }
-        const prods = PRODUCTS.filter(p => p.sid === sup.id);
-        html += `<div class="week-sup-row" onclick="switchTab('order');setTimeout(()=>{expandedSups.add('${sup.id}');renderOrder();},50)">
-          <div>
-            <div class="week-sup-name">${sup.name}</div>
-            <div class="week-sup-meta">${prods.length} פריטים · ${sup.phone || ''}</div>
-          </div>
-          ${badge}
-        </div>`;
+        html += '<div class="week-sup-row" onclick="switchTab('order');setTimeout(function(){expandedSups.add('' + sup.id + '');renderOrder();},50)">';
+        html += '<div><div class="week-sup-name">' + sup.name + '</div>';
+        html += '<div class="week-sup-meta">' + prods.length + ' פריטים · ' + (sup.phone || '') + '</div></div>';
+        html += badge + '</div>';
       });
     }
-    html += `</div>`;
+
+    if (ordering.length > 0) {
+      html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:0.5px;">📋 להזמין היום</div>';
+      ordering.forEach(function(sup) {
+        var prods = PRODUCTS.filter(function(p) { return p.sid === sup.id; });
+        var parts = (sup.cutoff || '23:59').split(':');
+        var cutoffMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
+        var nowMins = now.getHours() * 60 + now.getMinutes();
+        var badge = '';
+        if (isToday) {
+          if (nowMins < cutoffMins) badge = '<span class="week-cutoff-badge badge-open">עד ' + sup.cutoff + '</span>';
+          else badge = '<span class="week-cutoff-badge badge-late">פג תוקף</span>';
+        } else {
+          badge = '<span style="font-size:11px;color:var(--text3);">עד ' + sup.cutoff + '</span>';
+        }
+        html += '<div class="week-sup-row" onclick="switchTab('order');setTimeout(function(){expandedSups.add('' + sup.id + '');renderOrder();},50)">';
+        html += '<div><div class="week-sup-name">' + sup.name + '</div>';
+        html += '<div class="week-sup-meta">' + prods.length + ' פריטים · ' + (sup.phone || '') + '</div></div>';
+        html += badge + '</div>';
+      });
+    }
+
+    html += '</div>';
   });
 
   document.getElementById('weekList').innerHTML = html;
@@ -1007,6 +1109,15 @@ function openModal() {
     const phone = sup ? sup.phone.replace(/[^0-9]/g, '') : '';
     const waPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
     const waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(txt);
+    // Store for confirmation
+    if (!window._pendingOrders) window._pendingOrders = [];
+    window._pendingOrders.push({
+      supplier_id: sid,
+      supplier_name: sup ? sup.name : sid,
+      items: prods.map(function(p) { return {name: p.name, qty: p.qty, unit: p.unit}; }),
+      text: txt,
+      waUrl: waUrl
+    });
 
     draftsHtml += `<div class="sup-draft">
       <div class="sup-draft-header">
@@ -1024,6 +1135,7 @@ function openModal() {
 
   document.getElementById('draftsContainer').innerHTML = draftsHtml;
   document.getElementById('modalOverlay').className = 'modal-overlay vis';
+  document.body.style.overflow = 'hidden';
 }
 
 function copyDraft(sid) {
@@ -1043,7 +1155,14 @@ function toggleTheme() {
   try { localStorage.setItem('paseo-theme', isLight ? 'light' : 'dark'); } catch(e) {}
 }
 
-function closeModal() { document.getElementById('modalOverlay').className = 'modal-overlay'; }
+function closeModal() { 
+  document.getElementById('modalOverlay').className = 'modal-overlay'; 
+  document.body.style.overflow = '';
+  // Show confirm bar if orders were sent
+  if (window._pendingOrders && window._pendingOrders.length > 0) {
+    showConfirmBar();
+  }
+}
 function closeModalOutside(e) { if (e.target.id === 'modalOverlay') closeModal(); }
 
 // ═══════════════════════════════════════
@@ -1122,6 +1241,116 @@ function renderPrices() {
 // ═══════════════════════════════════════
 // CSV EXPORT
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// CONFIRM BAR & ORDER HISTORY
+// ═══════════════════════════════════════
+function showConfirmBar() {
+  const orders = window._pendingOrders || [];
+  if (orders.length === 0) return;
+  var supNames = orders.map(function(o) { return o.supplier_name; }).join(', ');
+  document.getElementById('confirmTitle').textContent = 'ההזמנות נשלחו?';
+  document.getElementById('confirmSub').textContent = supNames;
+  document.getElementById('confirmBar').className = 'confirm-bar vis';
+}
+
+function dismissConfirm() {
+  document.getElementById('confirmBar').className = 'confirm-bar';
+  window._pendingOrders = [];
+}
+
+function confirmOrder() {
+  var orders = window._pendingOrders || [];
+  if (orders.length === 0) return;
+  var today = new Date().toISOString().slice(0, 10);
+  var history = [];
+  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
+  
+  orders.forEach(function(o) {
+    history.unshift({
+      id: Date.now() + '_' + o.supplier_id,
+      supplier_id: o.supplier_id,
+      supplier_name: o.supplier_name,
+      date: today,
+      time: new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'}),
+      items: o.items,
+      status: 'sent'
+    });
+  });
+
+  // Keep last 200 orders
+  if (history.length > 200) history = history.slice(0, 200);
+  
+  try { localStorage.setItem('paseo-orders', JSON.stringify(history)); } catch(e) {}
+  
+  window._pendingOrders = [];
+  document.getElementById('confirmBar').className = 'confirm-bar';
+  
+  // Clear cart
+  Object.keys(cart).forEach(function(k) { delete cart[k]; });
+  updateCartBar();
+  renderOrder();
+  
+  // Show success and switch to history
+  switchTab('history');
+}
+
+function updateOrderStatus(orderId, status) {
+  var history = [];
+  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
+  history.forEach(function(o) { if (o.id === orderId) o.status = status; });
+  try { localStorage.setItem('paseo-orders', JSON.stringify(history)); } catch(e) {}
+  renderHistory();
+}
+
+function renderHistory() {
+  var q = (document.getElementById('historySearch') ? document.getElementById('historySearch').value.trim().toLowerCase() : '');
+  var history = [];
+  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
+  
+  if (q) {
+    history = history.filter(function(o) {
+      return o.supplier_name.toLowerCase().includes(q) ||
+        o.items.some(function(i) { return i.name.toLowerCase().includes(q); });
+    });
+  }
+
+  if (history.length === 0) {
+    document.getElementById('historyList').innerHTML = '<div class="no-data">אין הזמנות שמורות עדיין</div>';
+    return;
+  }
+
+  var statusLabel = {sent:'נשלח', received:'התקבל ✓', partial:'חלקי', issue:'בעיה'};
+  var statusCls = {sent:'status-sent', received:'status-received', partial:'status-partial', issue:'status-issue'};
+
+  var html = '';
+  history.forEach(function(o) {
+    var itemsHtml = o.items.map(function(item) {
+      return '<div class="order-card-item">' +
+        '<span class="order-card-item-name">' + item.name + '</span>' +
+        '<span class="order-card-item-qty">' + item.qty + ' ' + item.unit + '</span>' +
+      '</div>';
+    }).join('');
+
+    html += '<div class="order-card">' +
+      '<div class="order-card-header">' +
+        '<div>' +
+          '<div class="order-card-sup">' + o.supplier_name + '</div>' +
+          '<div class="order-card-date">' + o.date + (o.time ? ' · ' + o.time : '') + '</div>' +
+        '</div>' +
+        '<span class="order-status ' + (statusCls[o.status] || 'status-sent') + '">' + (statusLabel[o.status] || o.status) + '</span>' +
+      '</div>' +
+      '<div class="order-card-items">' + itemsHtml + '</div>' +
+      '<div class="order-actions">' +
+        '<button class="order-action-btn green" onclick="updateOrderStatus('' + o.id + '','received')">✓ התקבל</button>' +
+        '<button class="order-action-btn amber" onclick="updateOrderStatus('' + o.id + '','partial')">חלקי</button>' +
+        '<button class="order-action-btn red" onclick="updateOrderStatus('' + o.id + '','issue')">בעיה</button>' +
+      '</div>' +
+    '</div>';
+  });
+
+  document.getElementById('historyList').innerHTML = html;
+}
+
 function exportEmail() {
   try {
     var q = document.getElementById('priceSearch').value.trim();
