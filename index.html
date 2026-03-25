@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
@@ -7,415 +8,448 @@
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap');
 
-  :root {
-    --bg: #0f1117;
-    --surface: #1a1d27;
-    --surface2: #222635;
-    --border: rgba(255,255,255,0.08);
-    --border2: rgba(255,255,255,0.14);
-    --text: #f0f0f0;
-    --text2: #8a8fa8;
-    --text3: #555a70;
-    --accent: #4e7fff;
-    --accent-bg: rgba(78,127,255,0.12);
-    --green: #2ecc71;
-    --green-bg: rgba(46,204,113,0.12);
-    --amber: #f0a500;
-    --amber-bg: rgba(240,165,0,0.12);
-    --red: #e74c3c;
-    --red-bg: rgba(231,76,60,0.1);
-  }
+:root {
+–bg: #0f1117;
+–surface: #1a1d27;
+–surface2: #222635;
+–border: rgba(255,255,255,0.08);
+–border2: rgba(255,255,255,0.14);
+–text: #f0f0f0;
+–text2: #8a8fa8;
+–text3: #555a70;
+–accent: #4e7fff;
+–accent-bg: rgba(78,127,255,0.12);
+–green: #2ecc71;
+–green-bg: rgba(46,204,113,0.12);
+–amber: #f0a500;
+–amber-bg: rgba(240,165,0,0.12);
+–red: #e74c3c;
+–red-bg: rgba(231,76,60,0.1);
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body.light-mode {
+–bg: #f5f5f7;
+–surface: #ffffff;
+–surface2: #e8e8ed;
+–border: rgba(0,0,0,0.08);
+–border2: rgba(0,0,0,0.14);
+–text: #1a1a1a;
+–text2: #555;
+–text3: #999;
+–accent: #2563eb;
+–accent-bg: rgba(37,99,235,0.10);
+–green: #16a34a;
+–green-bg: rgba(22,163,74,0.10);
+–amber: #b45309;
+–amber-bg: rgba(180,83,9,0.10);
+–red: #dc2626;
+–red-bg: rgba(220,38,38,0.08);
+}
 
-  body {
-    font-family: 'Heebo', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    max-width: 480px;
-    margin: 0 auto;
-    font-size: 14px;
-    line-height: 1.4;
-  }
+html { background: var(–bg); }
+html, body { background: var(–bg) !important; color: var(–text) !important; }
 
-  /* HEADER */
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-    padding: 12px 16px 0;
-  }
+.theme-btn {
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 8px;
+color: var(–text2);
+font-size: 18px;
+width: 34px; height: 34px;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+}
 
-  .header-top {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 12px;
-  }
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
-  .logo { font-size: 17px; font-weight: 700; color: var(--text); letter-spacing: -0.3px; }
-  .logo span { color: var(--accent); }
+body {
+font-family: ‘Heebo’, sans-serif;
+background: var(–bg);
+color: var(–text);
+min-height: 100vh;
+max-width: 480px;
+margin: 0 auto;
+font-size: 14px;
+line-height: 1.4;
+}
 
-  /* TABS */
-  .tabs {
-    display: flex;
-    gap: 0;
-    border-bottom: 1px solid var(--border);
-    margin: 0 -16px;
-    padding: 0 16px;
-  }
+/* HEADER */
+.header {
+position: sticky;
+top: 0;
+z-index: 100;
+background: var(–bg);
+border-bottom: 1px solid var(–border);
+padding: 12px 16px 0;
+}
 
-  .tab {
-    padding: 10px 16px;
-    font-size: 13px;
-    font-weight: 500;
-    color: var(--text2);
-    cursor: pointer;
-    border-bottom: 2px solid transparent;
-    transition: all 0.18s;
-    white-space: nowrap;
-  }
+.header-top {
+display: flex;
+align-items: center;
+justify-content: space-between;
+margin-bottom: 12px;
+}
 
-  .tab.active {
-    color: var(--accent);
-    border-bottom-color: var(--accent);
-  }
+.logo { font-size: 17px; font-weight: 700; color: var(–text); letter-spacing: -0.3px; }
+.logo span { color: var(–accent); }
 
-  /* SEARCH */
-  .search-wrap {
-    padding: 10px 16px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
+/* TABS */
+.tabs {
+display: flex;
+gap: 0;
+border-bottom: 1px solid var(–border);
+margin: 0 -16px;
+padding: 0 16px;
+}
 
-  .search-input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    padding: 9px 14px;
-    font-size: 14px;
-    color: var(--text);
-    font-family: 'Heebo', sans-serif;
-    outline: none;
-    direction: rtl;
-  }
+.tab {
+padding: 10px 16px;
+font-size: 13px;
+font-weight: 500;
+color: var(–text2);
+cursor: pointer;
+border-bottom: 2px solid transparent;
+transition: all 0.18s;
+white-space: nowrap;
+}
 
-  .search-input::placeholder { color: var(--text3); }
-  .search-input:focus { border-color: var(--accent); }
+.tab.active {
+color: var(–accent);
+border-bottom-color: var(–accent);
+}
 
-  /* CATEGORY PILLS */
-  .pills {
-    display: flex;
-    gap: 8px;
-    padding: 10px 16px;
-    overflow-x: auto;
-    scrollbar-width: none;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .pills::-webkit-scrollbar { display: none; }
+/* SEARCH */
+.search-wrap {
+padding: 10px 16px;
+background: var(–bg);
+border-bottom: 1px solid var(–border);
+}
 
-  .pill {
-    padding: 5px 13px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-    white-space: nowrap;
-    cursor: pointer;
-    border: 1px solid var(--border2);
-    color: var(--text2);
-    background: transparent;
-    transition: all 0.15s;
-  }
-  .pill.active {
-    background: var(--accent-bg);
-    border-color: var(--accent);
-    color: var(--accent);
-  }
+.search-input {
+width: 100%;
+background: var(–surface);
+border: 1px solid var(–border2);
+border-radius: 10px;
+padding: 9px 14px;
+font-size: 14px;
+color: var(–text);
+font-family: ‘Heebo’, sans-serif;
+outline: none;
+direction: rtl;
+}
 
-  /* MAIN CONTENT */
-  .main { padding-bottom: 90px; }
+.search-input::placeholder { color: var(–text3); }
+.search-input:focus { border-color: var(–accent); }
 
-  /* === ORDER TAB === */
-  .supplier-block { border-bottom: 1px solid var(--border); }
+/* CATEGORY PILLS */
+.pills {
+display: flex;
+gap: 8px;
+padding: 10px 16px;
+overflow-x: auto;
+scrollbar-width: none;
+background: var(–bg);
+border-bottom: 1px solid var(–border);
+}
+.pills::-webkit-scrollbar { display: none; }
 
-  .supplier-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 13px 16px;
-    cursor: pointer;
-    background: var(--surface);
-    user-select: none;
-  }
+.pill {
+padding: 5px 13px;
+border-radius: 20px;
+font-size: 12px;
+font-weight: 500;
+white-space: nowrap;
+cursor: pointer;
+border: 1px solid var(–border2);
+color: var(–text2);
+background: transparent;
+transition: all 0.15s;
+}
+.pill.active {
+background: var(–accent-bg);
+border-color: var(–accent);
+color: var(–accent);
+}
 
-  .supplier-header:active { background: var(--surface2); }
+/* MAIN CONTENT */
+.main { padding-bottom: 90px; }
 
-  .sup-left { flex: 1; min-width: 0; }
-  .sup-name { font-size: 15px; font-weight: 600; color: var(--text); }
-  .sup-meta { font-size: 12px; color: var(--text2); margin-top: 2px; }
+/* === ORDER TAB === */
+.supplier-block { border-bottom: 1px solid var(–border); }
 
-  .sup-right { display: flex; align-items: center; gap: 8px; }
+.supplier-header {
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 13px 16px;
+cursor: pointer;
+background: var(–surface);
+user-select: none;
+}
 
-  .badge {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 10px;
-    font-weight: 600;
-  }
-  .badge-green { background: var(--green-bg); color: var(--green); }
-  .badge-accent { background: var(--accent-bg); color: var(--accent); }
-  .badge-amber { background: var(--amber-bg); color: var(--amber); }
+.supplier-header:active { background: var(–surface2); }
 
-  .chevron {
-    font-size: 10px;
-    color: var(--text3);
-    transition: transform 0.2s;
-    flex-shrink: 0;
-  }
-  .chevron.open { transform: rotate(90deg); }
+.sup-left { flex: 1; min-width: 0; }
+.sup-name { font-size: 15px; font-weight: 600; color: var(–text); }
+.sup-meta { font-size: 12px; color: var(–text2); margin-top: 2px; }
 
-  .products { display: none; }
-  .products.open { display: block; }
+.sup-right { display: flex; align-items: center; gap: 8px; }
 
-  .product-row {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    gap: 10px;
-    background: var(--bg);
-  }
-  .product-row:last-child { border-bottom: none; }
+.badge {
+font-size: 11px;
+padding: 2px 8px;
+border-radius: 10px;
+font-weight: 600;
+}
+.badge-green { background: var(–green-bg); color: var(–green); }
+.badge-accent { background: var(–accent-bg); color: var(–accent); }
+.badge-amber { background: var(–amber-bg); color: var(–amber); }
 
-  .prod-info { flex: 1; min-width: 0; }
-  .prod-name { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .prod-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .prod-price { font-size: 13px; font-weight: 600; color: var(--text2); white-space: nowrap; min-width: 60px; text-align: center; }
+.chevron {
+font-size: 10px;
+color: var(–text3);
+transition: transform 0.2s;
+flex-shrink: 0;
+}
+.chevron.open { transform: rotate(90deg); }
 
-  .qty-ctrl { display: flex; align-items: center; gap: 6px; }
-  .qty-btn {
-    width: 28px; height: 28px;
-    border-radius: 8px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    color: var(--text);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    line-height: 1;
-    font-weight: 300;
-    transition: background 0.12s;
-  }
-  .qty-btn:active { background: var(--surface); }
-  .qty-num {
-    font-size: 15px;
-    font-weight: 600;
-    min-width: 22px;
-    text-align: center;
-    color: var(--text3);
-  }
-  .qty-num.pos { color: var(--accent); }
+.products { display: none; }
+.products.open { display: block; }
 
-  /* CART BAR */
-  .cart-bar {
-    position: fixed;
-    bottom: 0; left: 50%; transform: translateX(-50%);
-    width: 100%; max-width: 480px;
-    background: var(--surface);
-    border-top: 1px solid var(--border2);
-    padding: 12px 16px;
-    display: none;
-    align-items: center;
-    gap: 12px;
-    z-index: 200;
-  }
-  .cart-bar.vis { display: flex; }
-  .cart-info { flex: 1; }
-  .cart-label { font-size: 11px; color: var(--text2); }
-  .cart-count { font-size: 15px; font-weight: 700; color: var(--text); }
+.product-row {
+display: flex;
+align-items: center;
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+gap: 10px;
+background: var(–bg);
+}
+.product-row:last-child { border-bottom: none; }
 
-  .order-btn {
-    background: var(--accent);
-    color: #fff;
-    border: none;
-    border-radius: 10px;
-    padding: 11px 20px;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    font-family: 'Heebo', sans-serif;
-    white-space: nowrap;
-  }
-  .order-btn:active { opacity: 0.85; }
+.prod-info { flex: 1; min-width: 0; }
+.prod-name { font-size: 13px; color: var(–text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.prod-sub { font-size: 11px; color: var(–text3); margin-top: 2px; }
+.prod-price { font-size: 13px; font-weight: 600; color: var(–text2); white-space: nowrap; min-width: 60px; text-align: center; }
 
-  /* === DRAFT MODAL === */
-  .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 300;
-    display: none;
-    align-items: flex-end;
-    justify-content: center;
-  }
-  .modal-overlay.vis { display: flex; }
+.qty-ctrl { display: flex; align-items: center; gap: 6px; }
+.qty-btn {
+width: 28px; height: 28px;
+border-radius: 8px;
+background: var(–surface2);
+border: 1px solid var(–border2);
+color: var(–text);
+font-size: 18px;
+cursor: pointer;
+display: flex; align-items: center; justify-content: center;
+line-height: 1;
+font-weight: 300;
+transition: background 0.12s;
+}
+.qty-btn:active { background: var(–surface); }
+.qty-num {
+font-size: 15px;
+font-weight: 600;
+min-width: 22px;
+text-align: center;
+color: var(–text3);
+}
+.qty-num.pos { color: var(–accent); }
 
-  .modal {
-    background: var(--surface);
-    border-radius: 20px 20px 0 0;
-    padding: 20px 16px 32px;
-    width: 100%;
-    max-width: 480px;
-    max-height: 80vh;
-    overflow-y: auto;
-  }
+/* CART BAR */
+.cart-bar {
+position: fixed;
+bottom: 0; left: 50%; transform: translateX(-50%);
+width: 100%; max-width: 480px;
+background: var(–surface);
+border-top: 1px solid var(–border2);
+padding: 12px 16px;
+display: none;
+align-items: center;
+gap: 12px;
+z-index: 200;
+}
+.cart-bar.vis { display: flex; }
+.cart-info { flex: 1; }
+.cart-label { font-size: 11px; color: var(–text2); }
+.cart-count { font-size: 15px; font-weight: 700; color: var(–text); }
 
-  .modal-handle {
-    width: 36px; height: 4px;
-    background: var(--border2);
-    border-radius: 2px;
-    margin: 0 auto 16px;
-  }
+.order-btn {
+background: var(–accent);
+color: #fff;
+border: none;
+border-radius: 10px;
+padding: 11px 20px;
+font-size: 14px;
+font-weight: 700;
+cursor: pointer;
+font-family: ‘Heebo’, sans-serif;
+white-space: nowrap;
+}
+.order-btn:active { opacity: 0.85; }
 
-  .modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-  .modal-sub { font-size: 12px; color: var(--text2); margin-bottom: 14px; }
+/* === DRAFT MODAL === */
+.modal-overlay {
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.7);
+z-index: 300;
+display: none;
+align-items: flex-end;
+justify-content: center;
+}
+.modal-overlay.vis { display: flex; }
 
-  .sup-draft {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 14px;
-    margin-bottom: 12px;
-  }
+.modal {
+background: var(–surface);
+border-radius: 20px 20px 0 0;
+padding: 20px 16px 32px;
+width: 100%;
+max-width: 480px;
+max-height: 80vh;
+overflow-y: auto;
+}
 
-  .sup-draft-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-  }
+.modal-handle {
+width: 36px; height: 4px;
+background: var(–border2);
+border-radius: 2px;
+margin: 0 auto 16px;
+}
 
-  .sup-draft-name { font-size: 14px; font-weight: 700; }
-  .sup-draft-phone { font-size: 12px; color: var(--accent); }
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.modal-sub { font-size: 12px; color: var(–text2); margin-bottom: 14px; }
 
-  .draft-text {
-    font-size: 12px;
-    color: var(--text2);
-    background: var(--surface2);
-    border-radius: 8px;
-    padding: 10px 12px;
-    white-space: pre-wrap;
-    line-height: 1.6;
-    margin-bottom: 10px;
-    direction: rtl;
-  }
+.sup-draft {
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 12px;
+padding: 14px;
+margin-bottom: 12px;
+}
 
-  .copy-btn {
-    width: 100%;
-    padding: 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 8px;
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Heebo', sans-serif;
-  }
-  .copy-btn.copied { background: var(--green-bg); border-color: var(--green); color: var(--green); }
-  .copy-btn:active { opacity: 0.8; }
+.sup-draft-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 10px;
+}
 
-  .modal-close {
-    width: 100%;
-    padding: 12px;
-    background: transparent;
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    color: var(--text2);
-    font-size: 14px;
-    cursor: pointer;
-    margin-top: 6px;
-    font-family: 'Heebo', sans-serif;
-  }
+.sup-draft-name { font-size: 14px; font-weight: 700; }
+.sup-draft-phone { font-size: 12px; color: var(–accent); }
 
-  /* === PRICES TAB === */
-  .price-table-wrap { padding: 0; }
+.draft-text {
+font-size: 12px;
+color: var(–text2);
+background: var(–surface2);
+border-radius: 8px;
+padding: 10px 12px;
+white-space: pre-wrap;
+line-height: 1.6;
+margin-bottom: 10px;
+direction: rtl;
+}
 
-  .price-section { margin-bottom: 0; border-bottom: 1px solid var(--border); }
+.copy-btn {
+width: 100%;
+padding: 10px;
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 8px;
+color: var(–text);
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+font-family: ‘Heebo’, sans-serif;
+}
+.copy-btn.copied { background: var(–green-bg); border-color: var(–green); color: var(–green); }
+.copy-btn:active { opacity: 0.8; }
 
-  .price-cat-header {
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--text3);
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    background: var(--surface);
-    position: sticky;
-    top: 0;
-    border-bottom: 1px solid var(--border);
-  }
+.modal-close {
+width: 100%;
+padding: 12px;
+background: transparent;
+border: 1px solid var(–border2);
+border-radius: 10px;
+color: var(–text2);
+font-size: 14px;
+cursor: pointer;
+margin-top: 6px;
+font-family: ‘Heebo’, sans-serif;
+}
 
-  .price-row {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    border-bottom: 1px solid var(--border);
-    gap: 10px;
-  }
-  .price-row:last-child { border-bottom: none; }
+/* === PRICES TAB === */
+.price-table-wrap { padding: 0; }
 
-  .pr-info { flex: 1; min-width: 0; }
-  .pr-name { font-size: 13px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .pr-sup { font-size: 11px; color: var(--text3); margin-top: 2px; }
-  .pr-date { font-size: 11px; color: var(--text3); }
+.price-section { margin-bottom: 0; border-bottom: 1px solid var(–border); }
 
-  .pr-price { font-size: 14px; font-weight: 700; white-space: nowrap; min-width: 55px; text-align: left; }
-  .pr-price.best { color: var(--green); }
-  .pr-price.high { color: var(--red); }
-  .pr-price.mid { color: var(--amber); }
-  .pr-price.solo { color: var(--text); }
+.price-cat-header {
+padding: 8px 16px;
+font-size: 11px;
+font-weight: 700;
+color: var(–text3);
+letter-spacing: 0.8px;
+text-transform: uppercase;
+background: var(–surface);
+position: sticky;
+top: 0;
+border-bottom: 1px solid var(–border);
+}
 
-  .pr-unit { font-size: 10px; color: var(--text3); font-weight: 400; }
+.price-row {
+padding: 10px 16px;
+border-bottom: 1px solid var(–border);
+direction: rtl;
+}
+.price-row:last-child { border-bottom: none; }
 
-  .no-data { padding: 32px 16px; text-align: center; color: var(--text3); font-size: 14px; }
+.pr-name { font-size: 14px; color: var(–text); margin-bottom: 3px; font-weight: 500; }
+.pr-meta { display: flex; justify-content: space-between; align-items: center; }
+.pr-sup { font-size: 12px; color: var(–text3); }
 
-  /* Excel export btn */
-  .export-bar {
-    padding: 10px 16px;
-    background: var(--bg);
-    border-bottom: 1px solid var(--border);
-  }
-  .export-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 10px;
-    background: var(--surface2);
-    border: 1px solid var(--border2);
-    border-radius: 10px;
-    color: var(--text);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    font-family: 'Heebo', sans-serif;
-  }
-  .export-btn:active { opacity: 0.8; }
+.pr-price { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.pr-price.best { color: var(–green); }
+.pr-price.high { color: var(–red); }
+.pr-price.mid { color: var(–amber); }
+.pr-price.solo { color: var(–text2); }
+.pr-unit { font-size: 11px; color: var(–text3); font-weight: 400; margin-right: 3px; }
+
+.no-data { padding: 32px 16px; text-align: center; color: var(–text3); font-size: 14px; }
+
+/* Excel export btn */
+.export-bar {
+padding: 10px 16px;
+background: var(–bg);
+border-bottom: 1px solid var(–border);
+}
+.export-btn {
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+width: 100%;
+padding: 10px;
+background: var(–surface2);
+border: 1px solid var(–border2);
+border-radius: 10px;
+color: var(–text);
+font-size: 13px;
+font-weight: 600;
+cursor: pointer;
+font-family: ‘Heebo’, sans-serif;
+}
+.export-btn:active { opacity: 0.8; }
 </style>
+
 </head>
 <body>
 
 <div class="header">
   <div class="header-top">
     <div class="logo">פסאו <span>גג על הים</span></div>
-    <div style="font-size:11px;color:var(--text3);" id="todayDate"></div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <div style="font-size:11px;color:var(--text3);" id="todayDate"></div>
+      <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    </div>
   </div>
   <div class="tabs">
     <div class="tab active" onclick="switchTab('order')" id="tab-order">הזמנות</div>
@@ -424,6 +458,7 @@
 </div>
 
 <!-- ORDER TAB -->
+
 <div id="view-order" class="main">
   <div class="search-wrap">
     <input class="search-input" type="text" id="orderSearch" placeholder="חיפוש ספק או מוצר..." oninput="renderOrder()" />
@@ -433,20 +468,22 @@
 </div>
 
 <!-- PRICES TAB -->
+
 <div id="view-prices" class="main" style="display:none;">
   <div class="search-wrap">
     <input class="search-input" type="text" id="priceSearch" placeholder="חיפוש מוצר..." oninput="renderPrices()" />
   </div>
   <div class="pills" id="pricePills"></div>
   <div class="export-bar">
-    <button class="export-btn" onclick="exportCSV()">
-      ↓ ייצוא Excel / CSV
+    <button class="export-btn" onclick="exportEmail()">
+      📧 שלח מחירון למייל
     </button>
   </div>
   <div id="priceList"></div>
 </div>
 
 <!-- CART BAR -->
+
 <div class="cart-bar" id="cartBar">
   <div class="cart-info">
     <div class="cart-label">מוצרים בהזמנה</div>
@@ -456,6 +493,7 @@
 </div>
 
 <!-- MODAL -->
+
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
   <div class="modal" id="modalContent">
     <div class="modal-handle"></div>
@@ -617,15 +655,21 @@ const PRODUCTS = [
   {id:"a1a1bf59",sid:"51596",name:"נייר תעשייתי תאית 28.5 דו שכבתי",sku:"581",unit:"יח'",cat:"חד פעמי",price:40.00},
   {id:"d4f091ec",sid:"51596",name:"צץ רץ טישו קלינקס 2500 יח",sku:"588",unit:"יח'",cat:"חד פעמי",price:105.00},
   {id:"4774e004",sid:"51596",name:"כפפות ניטריל שחורות ללא אבקה L",sku:"185",unit:"יח'",cat:"ניקיון",price:9.00},
+  {id:"hav00186",sid:"51596",name:"כפפות ניטריל שחורות ללא אבקה XL",sku:"186",unit:"יח'",cat:"ניקיון",price:9.00},
   {id:"c0664929",sid:"51596",name:"מארז מילוי 400 מטליות איכותי 1/4",sku:"166",unit:"יח'",cat:"ניקיון",price:10.00},
   {id:"5893f2c1",sid:"51596",name:"מטליות מיקרופייבר 5 יח",sku:"262",unit:"יח'",cat:"ניקיון",price:4.00},
   {id:"800c50e6",sid:"51596",name:"מטליות פוליש צץ רץ 100 יח",sku:"590",unit:"יח'",cat:"ניקיון",price:25.00},
+  {id:"hav00336",sid:"51596",name:"מרקית ברזל 50 גרם ארוז 12 יח",sku:"336",unit:"יח'",cat:"ניקיון",price:21.00},
   {id:"8c1fa4e5",sid:"51596",name:"מסיר שומנים גריל תעשייתי 4X4",sku:"559",unit:"יח'",cat:"ניקיון",price:55.00},
   {id:"9a37959f",sid:"51596",name:"משחת כלים 12% לימון 15 קג",sku:"169",unit:"יח'",cat:"ניקיון",price:65.00},
   {id:"9b6bf0a8",sid:"51596",name:"נוזל רצפות ורוד ריחני 4X4",sku:"420",unit:"יח'",cat:"ניקיון",price:28.00},
+  {id:"hav00161",sid:"51596",name:"סבון ידיים 4/4 = מוסרי",sku:"161",unit:"יח'",cat:"ניקיון",price:29.40},
   {id:"c70e3a19",sid:"51596",name:"סחבה לבנה 50/70 ארוז 60 יח",sku:"263",unit:"שק",cat:"ניקיון",price:1.15},
   {id:"cf202eb3",sid:"51596",name:"אקונומיקה ארוז 4/4 סטנדרט",sku:"159",unit:"יח'",cat:"ניקיון",price:25.00},
   {id:"4bb3fd99",sid:"51596",name:"רסס ונגב סנו 1 ליטר",sku:"617",unit:"יח'",cat:"ניקיון",price:17.00},
+  {id:"hav00029",sid:"51596",name:"מארז ציפס מטוגנים חום קראפט 350 יח",sku:"29",unit:"יח'",cat:"חד פעמי",price:0.43},
+  {id:"hav00044",sid:"51596",name:"מיכל פלסטיק 1 ליטר שחור ארוז 135 יח",sku:"44",unit:"יח'",cat:"חד פעמי",price:68.85},
+  {id:"hav00430",sid:"51596",name:"מתקן קיר למגבת נייר תעשייתי",sku:"430",unit:"יח'",cat:"ציוד",price:null},
   {id:"aa0207bc",sid:"90001",name:"אנגוס אנטריקוט",sku:"1042",unit:"ק\"ג",cat:"בקר",price:135.00},
   {id:"b3cf85e3",sid:"90001",name:"המבורגר קצבים",sku:"4593",unit:"ק\"ג",cat:"בקר",price:44.00},
   {id:"b03dc39b",sid:"90001",name:"קרפצ'ו סינטה צלחת",sku:"1819",unit:"יח'",cat:"בקר",price:14.60,min:100,step:100},
@@ -830,13 +874,21 @@ function openModal() {
     prods.forEach(p => { txt += `• ${p.name} — ${p.qty} ${p.unit}\n`; });
     txt += `\nתודה`;
 
+    const phone = sup ? sup.phone.replace(/[^0-9]/g, '') : '';
+    const waPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
+    const waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(txt);
+
     draftsHtml += `<div class="sup-draft">
       <div class="sup-draft-header">
         <div class="sup-draft-name">${sup ? sup.name : sid}</div>
         <div class="sup-draft-phone">${sup ? sup.phone : ''}</div>
       </div>
       <div class="draft-text" id="dt${sid}">${txt}</div>
-      <button class="copy-btn" id="cb${sid}" onclick="copyDraft('${sid}')">העתק טקסט</button>
+      <a href="${waUrl}" target="_blank" style="display:block;width:100%;text-decoration:none;">
+        <button class="copy-btn" style="background:#25d366;border-color:#25d366;color:#fff;font-size:14px;" id="cb${sid}">
+          📲 שלח בוואטסאפ
+        </button>
+      </a>
     </div>`;
   });
 
@@ -852,6 +904,12 @@ function copyDraft(sid) {
     btn.className = 'copy-btn copied';
     setTimeout(() => { btn.textContent = 'העתק טקסט'; btn.className = 'copy-btn'; }, 2000);
   });
+}
+
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light-mode');
+  document.getElementById('themeBtn').textContent = isLight ? '🌑' : '🌙';
+  try { localStorage.setItem('paseo-theme', isLight ? 'light' : 'dark'); } catch(e) {}
 }
 
 function closeModal() { document.getElementById('modalOverlay').className = 'modal-overlay'; }
@@ -914,13 +972,10 @@ function renderPrices() {
           }
 
           html += `<div class="price-row">
-            <div class="pr-info">
-              <div class="pr-name">${p.name}</div>
-              <div class="pr-sup">${sup ? sup.name : p.sid}</div>
-            </div>
-            <div>
-              <div class="pr-price ${priceClass}">${p.price != null ? fmt(p.price) : '—'}</div>
-              <div class="pr-unit">${p.unit}</div>
+            <div class="pr-name">${p.name}</div>
+            <div class="pr-meta">
+              <span class="pr-sup">${sup ? sup.name : p.sid}</span>
+              <span class="pr-price ${priceClass}">${p.price != null ? fmt(p.price) : '—'}<span class="pr-unit"> / ${p.unit}</span></span>
             </div>
           </div>`;
         });
@@ -936,27 +991,59 @@ function renderPrices() {
 // ═══════════════════════════════════════
 // CSV EXPORT
 // ═══════════════════════════════════════
-function exportCSV() {
-  let csv = '\uFEFF'; // BOM for Hebrew Excel
-  csv += 'קטגוריה,שם מוצר,ספק,מחיר,יחידה\n';
-  PRODUCTS.forEach(p => {
-    const sup = SUP_MAP[p.sid];
-    const price = p.price != null ? p.price.toFixed(2) : '';
-    csv += `"${p.cat}","${p.name}","${sup ? sup.name : p.sid}","${price}","${p.unit}"\n`;
-  });
-  const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = 'paseo_מחירון.csv';
-  a.click(); URL.revokeObjectURL(url);
+function exportEmail() {
+  try {
+    var q = document.getElementById('priceSearch').value.trim();
+    var filter = priceFilter !== 'all' ? ' — ' + priceFilter : '';
+    var subject = 'מחירון פסאו גג על הים' + filter;
+    var body = 'מחירון פסאו גג על הים' + filter + '\n';
+    body += new Date().toLocaleDateString('he-IL') + '\n';
+    body += '================================\n\n';
+
+    var byCat = {};
+    PRODUCTS.forEach(function(p) {
+      if (priceFilter !== 'all' && p.cat !== priceFilter) return;
+      if (q && p.name.toLowerCase().indexOf(q.toLowerCase()) === -1) return;
+      if (!byCat[p.cat]) byCat[p.cat] = [];
+      byCat[p.cat].push(p);
+    });
+
+    Object.keys(byCat).sort().forEach(function(cat) {
+      body += '[ ' + cat + ' ]\n';
+      byCat[cat].forEach(function(p) {
+        var sup = SUP_MAP[p.sid];
+        var price = p.price != null ? String.fromCharCode(8362) + p.price.toFixed(2) : '--';
+        body += p.name + ' | ' + (sup ? sup.name : '') + ' | ' + price + ' / ' + p.unit + '\n';
+      });
+      body += '\n';
+    });
+
+    var a = document.createElement('a');
+    a.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function() { document.body.removeChild(a); }, 200);
+  } catch(e) {
+    alert('שגיאה: ' + e.message);
+  }
 }
 
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
-document.getElementById('todayDate').textContent = new Date().toLocaleDateString('he-IL');
-
 function init() {
+  // תאריך
+  try { document.getElementById('todayDate').textContent = new Date().toLocaleDateString('he-IL'); } catch(e) {}
+
+  // טען theme שמור
+  try {
+    if (localStorage.getItem('paseo-theme') === 'light') {
+      document.body.classList.add('light-mode');
+      document.getElementById('themeBtn').textContent = '🌑';
+    }
+  } catch(e) {}
+
   // פתח את הספק הראשון אוטומטית
   if (SUPPLIERS.length > 0) expandedSups.add(SUPPLIERS[0].id);
   renderOrderPills();
@@ -971,5 +1058,6 @@ if (document.readyState === 'loading') {
   init();
 }
 </script>
+
 </body>
 </html>
