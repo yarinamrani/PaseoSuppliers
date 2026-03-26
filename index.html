@@ -692,16 +692,16 @@ background: #3b82f6; color: #fff;
 // ═══════════════════════════════════════
 
 const SUPPLIERS = [
-  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"21:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"ירקות",channel:"אפליקציה"},
+  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"21:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"ירקות",channel:"אפליקציה",appUrl:"https://pri-web.marina-galil.co.il",appName:"אתר מרינה"},
   {id:"50059",name:"דיפ שיווק",phone:"050-887-3009",cutoff:"13:00",days:["ב","ד"],delivery:["ג","ה"],cat:"יבשים",channel:"וואטסאפ"},
   {id:"50203",name:"צ.י שיווק",phone:"052-481-7133",cutoff:"20:00",days:["א","ב","ג","ד","ה"],delivery:["ה"],cat:"חלב",channel:"וואטסאפ"},
   {id:"51596",name:"חביבים",phone:"052-6552915",cutoff:"13:00",days:["א","ב","ג","ד","ה"],delivery:["ב","ג","ד"],cat:"חד פעמי",channel:"וואטסאפ"},
   {id:"90001",name:"גינדי בשר",phone:"03-5560919",cutoff:"17:00",days:["ב","ד","ו"],delivery:["ג","ה","א"],cat:"בשר",channel:"וואטסאפ"},
   {id:"51513",name:"דולצי",phone:"053-338-0740",cutoff:"10:00",days:["ד"],delivery:["ה"],cat:"קינוחים",channel:"וואטסאפ"},
   {id:"50057",name:"אוריה",phone:"053-6630699",cutoff:"10:00",days:null,delivery:["ג"],cat:"בשר",channel:"וואטסאפ"},
-  {id:"51538",name:"ריקו",phone:"058-477-7354",cutoff:"10:00",days:["ה","ג"],delivery:["א","ד"],cat:"פסטה",channel:"אפליקציה"},
-  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"14:00",days:["א","ד"],delivery:["ב","ה"],cat:"לחם",channel:"אתר"},
-  {id:"90012",name:"קבוצת בנדיקט",phone:"050-712-5623",cutoff:"12:30",days:["א","ג"],delivery:["ב","ה"],cat:"לחם",channel:"אפליקציה"},
+  {id:"51538",name:"ריקו",phone:"058-477-7354",cutoff:"10:00",days:["ה","ג"],delivery:["א","ד"],cat:"פסטה",channel:"אפליקציה",appUrl:"https://pastaricco.com",appName:"ריקו"},
+  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"14:00",days:["א","ד"],delivery:["ב","ה"],cat:"לחם",channel:"אתר",appUrl:"https://lachmaport.co.il/LACHMA/",appName:"אתר לחמא"},
+  {id:"90012",name:"קבוצת בנדיקט",phone:"050-712-5623",cutoff:"12:30",days:["א","ג"],delivery:["ב","ה"],cat:"לחם",channel:"אפליקציה",appUrl:"https://apps.apple.com/il/app/restigo/id1526293585",appName:"Restigo"},
   {id:"90011",name:"קנה דג",phone:"050-528-2857",cutoff:"08:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ה","ו"],cat:"דגים",channel:"וואטסאפ"},
   {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"בשר",channel:"וואטסאפ"},
   {id:"50093",name:"תפוז טרי",phone:"054-216-2240",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ב","ד","ה"],cat:"משקאות",channel:"וואטסאפ"},
@@ -1051,7 +1051,7 @@ function renderOrder() {
       <div class="supplier-header" onclick="toggleSup('${sup.id}')">
         <div class="sup-left">
           <div class="sup-name"><span class="status-dot ${st.dot}"></span>${sup.name}</div>
-          <div class="sup-meta">${sup.phone} &nbsp;·&nbsp; עד ${sup.cutoff} &nbsp;·&nbsp; ${daysStr}</div>
+          <div class="sup-meta">${sup.phone} &nbsp;·&nbsp; עד ${sup.cutoff} &nbsp;·&nbsp; ${daysStr}${sup.channel && sup.channel !== 'וואטסאפ' ? ' &nbsp;·&nbsp; <span style="color:#3b82f6">' + sup.channel + '</span>' : ''}</div>
         </div>
         <div class="sup-right">
           ${st.label ? `<span class="week-cutoff-badge ${st.cls}">${st.label}</span>` : ''}
@@ -1148,11 +1148,18 @@ function openModal() {
         <div class="sup-draft-phone">${sup ? sup.phone : ''}</div>
       </div>
       <div class="draft-text" id="dt${sid}">${txt}</div>
-      <a href="${waUrl}" target="_blank" style="display:block;width:100%;text-decoration:none;">
-        <button class="copy-btn" style="background:#25d366;border-color:#25d366;color:#fff;font-size:14px;" id="cb${sid}">
-          📲 שלח בוואטסאפ
-        </button>
-      </a>
+      <div style="display:flex;gap:8px;">
+        <a href="${waUrl}" target="_blank" style="flex:1;text-decoration:none;">
+          <button class="copy-btn" style="background:#25d366;border-color:#25d366;color:#fff;font-size:14px;width:100%;" id="cb${sid}">
+            📲 וואטסאפ
+          </button>
+        </a>
+        ${sup && sup.appUrl ? `<a href="${sup.appUrl}" target="_blank" style="flex:1;text-decoration:none;">
+          <button class="copy-btn" style="background:#3b82f6;border-color:#3b82f6;color:#fff;font-size:14px;width:100%;">
+            🔗 ${sup.appName || 'אפליקציה'}
+          </button>
+        </a>` : ''}
+      </div>
     </div>`;
   });
   document.getElementById('draftsContainer').innerHTML = draftsHtml;
