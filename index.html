@@ -598,6 +598,7 @@ background: #3b82f6; color: #fff;
     <div class="tab" onclick="switchTab('budget')" id="tab-budget">💰</div>
     <div class="tab" onclick="switchTab('anomalies')" id="tab-anomalies">⚠️</div>
     <div class="tab" onclick="switchTab('prices')" id="tab-prices">מחירון</div>
+    <div class="tab" onclick="switchTab('insights')" id="tab-insights">📊</div>
   </div>
 </div>
 
@@ -653,6 +654,12 @@ background: #3b82f6; color: #fff;
   <div id="priceList"></div>
 </div>
 
+<!-- INSIGHTS TAB -->
+
+<div id="view-insights" class="main" style="display:none;">
+  <div id="insightsContent" style="padding:0 0 20px;"></div>
+</div>
+
 <!-- CONFIRM BAR -->
 
 <div class="confirm-bar" id="confirmBar">
@@ -706,6 +713,15 @@ const SUPPLIERS = [
   {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"בשר",channel:"וואטסאפ"},
   {id:"50093",name:"תפוז טרי",phone:"054-216-2240",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ב","ד","ה"],cat:"משקאות",channel:"וואטסאפ"},
   {id:"50197",name:"תנובה",phone:"054-444-1686",cutoff:"10:00",days:["ג"],delivery:["ד"],cat:"קפואים",channel:"וואטסאפ"},
+  {id:"123ALC",name:"123 אלכוהול",phone:"054-333-2696",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
+  {id:"ASPRT",name:"אספיריט",phone:"0508445000",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
+  {id:"CASTEL",name:"קסטל",phone:"054-622-2688",cutoff:"12:00",days:null,delivery:null,cat:"יינות",channel:"וואטסאפ"},
+  {id:"HACAREM",name:"הכרם",phone:"054-262-1523",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
+  {id:"AKKERMAN",name:"אקרמן",phone:"050-835-5626",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
+  {id:"GWS",name:"גלובל ווין אנד ספיריט",phone:"050-708-1439",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
+  {id:"KILLBILL",name:"קיל ביל",phone:"050-888-9288",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
+  {id:"ZUR",name:"צור סוכנויות (מזרח ומערב)",phone:"050-887-0729",cutoff:"12:00",days:null,delivery:null,cat:"יינות",channel:"וואטסאפ"},
+  {id:"RONI",name:"רוני תבלינים",phone:"",cutoff:"12:00",days:null,delivery:null,cat:"תבלינים",channel:"וואטסאפ"},
 ];
 
 const SUP_MAP = {};
@@ -763,6 +779,7 @@ const PRODUCTS = [
   {id:"c46638a6",sid:"90002",name:"שרי תמר ארוז",sku:"1160578",unit:"ק\"ג",cat:"ירקות",price:18.00},
   {id:"d711a214",sid:"90002",name:"שרי תמר קג",sku:"1160037",unit:"ק\"ג",cat:"ירקות",price:15.00},
   {id:"bcabecaf",sid:"90002",name:"תירס קג",sku:"1160260",unit:"ק\"ג",cat:"ירקות",price:10.00},
+  {id:"tznunit1",sid:"90002",name:"צנונית יח",sku:"1160170",unit:"יח'",cat:"ירקות",price:null},
   {id:"9d98fef3",sid:"90002",name:"לימון פרימיום",sku:"1160147",unit:"ק\"ג",cat:"פירות",price:7.00},
   {id:"366faaeb",sid:"90002",name:"לימון קג",sku:"1160340",unit:"ק\"ג",cat:"פירות",price:6.50},
   {id:"ef6375a6",sid:"90002",name:"מנגו קג",sku:"1160067",unit:"ק\"ג",cat:"פירות",price:8.50},
@@ -883,6 +900,69 @@ const PRODUCTS = [
   {id:"44296c04",sid:"50093",name:"אשכולית אדומה 2L",sku:"7290005278921",unit:"יח'",cat:"משקאות",price:16.00},
   {id:"89b64b98",sid:"51596",name:"פח שובר 50 ליטר + מכסה",sku:"333",unit:"יח'",cat:"ציוד",price:50.00},
   {id:"tnv00479",sid:"50197",name:"דג טמפורה 479",sku:"479",unit:"יח'",cat:"קפואים",price:null},
+  // 123 אלכוהול
+  {id:"alc1321",sid:"123ALC",name:"ערק עלית",sku:"ALC-1321",unit:"יח'",cat:"אלכוהול",price:53.00},
+  {id:"alc2605",sid:"123ALC",name:"אמיסרו סילבר ליטר",sku:"ALC-2605",unit:"יח'",cat:"אלכוהול",price:78.00},
+  {id:"alc1149",sid:"123ALC",name:"בירה סטלה 330 1/24",sku:"ALC-1149",unit:"יח'",cat:"בירות",price:105.00},
+  {id:"alc2603",sid:"123ALC",name:"רום קאנוקה ליטר",sku:"ALC-2603",unit:"יח'",cat:"אלכוהול",price:81.00},
+  {id:"alc1248",sid:"123ALC",name:"יגרמייסטר ליטר",sku:"ALC-1248",unit:"יח'",cat:"אלכוהול",price:82.00},
+  {id:"alc4347",sid:"123ALC",name:"לימונצ'לו ויצ'או 700",sku:"ALC-4347",unit:"יח'",cat:"אלכוהול",price:56.00},
+  {id:"alc1691",sid:"123ALC",name:"בירה ליפמנס 250 1/24",sku:"ALC-1691",unit:"יח'",cat:"בירות",price:189.00},
+  {id:"alc3524",sid:"123ALC",name:"שוופס ראשיין 1.5L",sku:"ALC-3524",unit:"יח'",cat:"משקאות",price:11.00},
+  {id:"alc5581",sid:"123ALC",name:"מרטיני רוסו ליטר",sku:"ALC-5581",unit:"יח'",cat:"אלכוהול",price:47.00},
+  {id:"alc1274",sid:"123ALC",name:"בירה סינגה 330 1/24",sku:"ALC-1274",unit:"יח'",cat:"בירות",price:168.00},
+  {id:"alc5143",sid:"123ALC",name:"אשכולית תומס הנרי 1/24",sku:"ALC-5143",unit:"יח'",cat:"משקאות",price:108.00},
+  {id:"alc4111",sid:"123ALC",name:"ליקר תאנים פיגו ליטר",sku:"ALC-4111",unit:"יח'",cat:"אלכוהול",price:57.00},
+  {id:"alc9947",sid:"123ALC",name:"חמוציות 1/12",sku:"ALC-9947",unit:"יח'",cat:"משקאות",price:115.00},
+  // אספיריט
+  {id:"asp0001",sid:"ASPRT",name:"אלבר בישו שבלי כשר 750",sku:"3296311117095",unit:"יח'",cat:"יינות",price:51.00},
+  {id:"asp0002",sid:"ASPRT",name:"לה פיאצה בלו גוורץ",sku:"7290006873606",unit:"יח'",cat:"יינות",price:20.50},
+  {id:"asp0003",sid:"ASPRT",name:"וויספרינג אנגל 750 כשר",sku:"3666140034403",unit:"יח'",cat:"יינות",price:65.00},
+  // קסטל
+  {id:"cas0001",sid:"CASTEL",name:"La Vie Rouge du Castel 2024",sku:"LVR24-750-6",unit:"יח'",cat:"יינות",price:47.00},
+  {id:"cas0002",sid:"CASTEL",name:"La Vie Blanc du Castel 2024",sku:"LVB24-750-6",unit:"יח'",cat:"יינות",price:45.00},
+  {id:"cas0003",sid:"CASTEL",name:"La Vie Blanc du Castel 2025",sku:"LVB25-750-6",unit:"יח'",cat:"יינות",price:47.00},
+  // הכרם
+  {id:"hc00001",sid:"HACAREM",name:"פינו גריג'ו מונטה זוב",sku:"HC-5012909000",unit:"יח'",cat:"יינות",price:32.85},
+  {id:"hc00002",sid:"HACAREM",name:"רוזה טיאמו כשר",sku:"HC-5013150000",unit:"יח'",cat:"יינות",price:30.66},
+  {id:"hc00003",sid:"HACAREM",name:"ליפמנס און דה רוקס 250",sku:"HC-24010000",unit:"יח'",cat:"בירות",price:7.35},
+  {id:"hc00004",sid:"HACAREM",name:"יגרמייסטר ליטר כשר",sku:"HC-16110100",unit:"יח'",cat:"אלכוהול",price:99.28},
+  {id:"hc00005",sid:"HACAREM",name:"רום נגריטה ספייס",sku:"HC-15024000",unit:"יח'",cat:"אלכוהול",price:60.52},
+  {id:"hc00006",sid:"HACAREM",name:"ליקר תאנים פידג'ו 70",sku:"HC-18910000",unit:"יח'",cat:"אלכוהול",price:43.88},
+  {id:"hc00007",sid:"HACAREM",name:"ליקר שרטרז ירוק",sku:"HC-15510001",unit:"יח'",cat:"אלכוהול",price:210.80},
+  // אקרמן
+  {id:"ak00001",sid:"AKKERMAN",name:"מקאלן 12 שנים 700",sku:"AK-5010314302863",unit:"יח'",cat:"אלכוהול",price:263.61},
+  {id:"ak00002",sid:"AKKERMAN",name:"פטרון אפייחו 700",sku:"AK-721733000715",unit:"יח'",cat:"אלכוהול",price:175.00},
+  {id:"ak00003",sid:"AKKERMAN",name:"פטרון סילבר 700",sku:"AK-721733000739",unit:"יח'",cat:"אלכוהול",price:154.00},
+  {id:"ak00004",sid:"AKKERMAN",name:"דון ג'ולנו 700",sku:"AK-5014271796161",unit:"יח'",cat:"אלכוהול",price:146.90},
+  {id:"ak00005",sid:"AKKERMAN",name:"חלוסה אשר רפוח 700",sku:"AK-1230000130011",unit:"יח'",cat:"אלכוהול",price:763.01},
+  // גלובל ווין
+  {id:"gw00001",sid:"GWS",name:"ג'ין הנדריקס 700",sku:"GWS-5010327755014",unit:"יח'",cat:"אלכוהול",price:117.00},
+  {id:"gw00002",sid:"GWS",name:"גלנפידיך 12 שנה 1L",sku:"GWS-5010327324128",unit:"יח'",cat:"אלכוהול",price:179.10},
+  {id:"gw00003",sid:"GWS",name:"ג'ק דניאלס האני 700",sku:"GWS-5099873001370",unit:"יח'",cat:"אלכוהול",price:88.13},
+  {id:"gw00004",sid:"GWS",name:"ג'ק דניאלס 1 ליטר",sku:"GWS-5099873045367",unit:"יח'",cat:"אלכוהול",price:114.75},
+  {id:"gw00005",sid:"GWS",name:"קוניאק VSOP כריסטיאן 700",sku:"GWS-3245999491805",unit:"יח'",cat:"אלכוהול",price:212.45},
+  {id:"gw00006",sid:"GWS",name:"קוניאק VS רגני 700",sku:"GWS-3245995960015",unit:"יח'",cat:"אלכוהול",price:110.70},
+  // קיל ביל
+  {id:"kb00001",sid:"KILLBILL",name:"ערק עלית",sku:"KB-19000",unit:"יח'",cat:"אלכוהול",price:null},
+  {id:"kb00002",sid:"KILLBILL",name:"וודרן סירופ אבטיח",sku:"KB-900580",unit:"יח'",cat:"סירופים",price:null},
+  {id:"kb00003",sid:"KILLBILL",name:"וודרן סירופ אננס",sku:"KB-900350",unit:"יח'",cat:"סירופים",price:null},
+  {id:"kb00004",sid:"KILLBILL",name:"וודרן סירופ תות",sku:"KB-900450",unit:"יח'",cat:"סירופים",price:null},
+  {id:"kb00005",sid:"KILLBILL",name:"הרד'ס VR קברנה סוביניון",sku:"KB-18637",unit:"יח'",cat:"יינות",price:null},
+  // צור (מזרח ומערב)
+  {id:"zr00001",sid:"ZUR",name:"וילה קייף רוזב שרדונה",sku:"ZUR-767",unit:"יח'",cat:"יינות",price:19.80},
+  {id:"zr00002",sid:"ZUR",name:"וילה קייף קברנה סוביניון",sku:"ZUR-763",unit:"יח'",cat:"יינות",price:19.80},
+  {id:"zr00003",sid:"ZUR",name:"מבעבע בלאן דה בלאן",sku:"ZUR-70",unit:"יח'",cat:"יינות",price:18.00},
+  // רוני תבלינים
+  {id:"rn00001",sid:"RONI",name:"אננס מיובש",sku:"RONI-ANANAS",unit:'ק"ג',cat:"תבלינים",price:null},
+  {id:"rn00002",sid:"RONI",name:"פרחי ורדים",sku:"RONI-ROSES",unit:"גרם",cat:"תבלינים",price:null},
+  {id:"rn00003",sid:"RONI",name:"פלפל",sku:"RONI-PEPPER",unit:"גרם",cat:"תבלינים",price:null},
+  {id:"rn00004",sid:"RONI",name:"היביסקוס",sku:"RONI-HIBISCUS",unit:"גרם",cat:"תבלינים",price:null},
+  {id:"rn00005",sid:"RONI",name:"שקד טחון",sku:"RONI-ALMOND",unit:"גרם",cat:"תבלינים",price:null},
+  {id:"rn00006",sid:"RONI",name:"תפוז מיובש",sku:"RONI-ORANGE",unit:"שקית",cat:"תבלינים",price:null},
+  {id:"rn00007",sid:"RONI",name:"קינמון",sku:"RONI-CINNAMON",unit:"גרם",cat:"תבלינים",price:null},
+  {id:"rn00008",sid:"RONI",name:"אניס",sku:"RONI-ANIS",unit:"גרם",cat:"תבלינים",price:null},
+  {id:"rn00009",sid:"RONI",name:"מקל וניל",sku:"RONI-VANILLA",unit:"יח'",cat:"תבלינים",price:null},
 ];
 
 // ═══════════════════════════════════════
@@ -922,16 +1002,19 @@ function switchTab(tab) {
   document.getElementById('view-budget').style.display = tab === 'budget' ? 'block' : 'none';
   document.getElementById('view-anomalies').style.display = tab === 'anomalies' ? 'block' : 'none';
   document.getElementById('view-prices').style.display = tab === 'prices' ? 'block' : 'none';
+  document.getElementById('view-insights').style.display = tab === 'insights' ? 'block' : 'none';
   document.getElementById('tab-order').className = 'tab' + (tab === 'order' ? ' active' : '');
   document.getElementById('tab-week').className = 'tab' + (tab === 'week' ? ' active' : '');
   document.getElementById('tab-history').className = 'tab' + (tab === 'history' ? ' active' : '');
   document.getElementById('tab-budget').className = 'tab' + (tab === 'budget' ? ' active' : '');
   document.getElementById('tab-anomalies').className = 'tab' + (tab === 'anomalies' ? ' active' : '');
   document.getElementById('tab-prices').className = 'tab' + (tab === 'prices' ? ' active' : '');
+  document.getElementById('tab-insights').className = 'tab' + (tab === 'insights' ? ' active' : '');
   if (tab === 'week') renderWeek();
   if (tab === 'history') renderHistory();
   if (tab === 'budget') renderBudget();
   if (tab === 'anomalies') renderAnomalies();
+  if (tab === 'insights') renderInsights();
 }
 
 // ═══════════════════════════════════════
@@ -1187,6 +1270,134 @@ function renderPricePills() {
   document.getElementById('pricePills').innerHTML = h;
 }
 function setPriceFilter(f) { priceFilter = f; renderPricePills(); renderPrices(); }
+
+// ═══════════════════════════════════════
+// INSIGHTS TAB
+// ═══════════════════════════════════════
+function renderInsights() {
+  // Find duplicate products across suppliers
+  var dupGroups = [
+    {name:"יגרמייסטר ליטר",items:[
+      {sup:"123 אלכוהול",price:82.00,note:""},
+      {sup:"הכרם",price:99.28,note:"32% הנחה"},
+    ]},
+    {name:"ליפמנס און דה רוקס 250 מ\"ל",items:[
+      {sup:"הכרם",price:7.35,note:"₪176.40/ארגז 24"},
+      {sup:"123 אלכוהול",price:7.88,note:"₪189/ארגז 24"},
+    ]},
+    {name:"ליקר תאנים 70 ס\"ל",items:[
+      {sup:"הכרם",price:43.88,note:"25% הנחה"},
+      {sup:"123 אלכוהול",price:57.00,note:""},
+    ]},
+  ];
+
+  var priceAlerts = [
+    {name:"עגבניה חממה",sup:"מרינה",from:6,to:15,pct:"+150%",dir:"up"},
+    {name:"שרי צהוב",sup:"מרינה",from:10,to:22,pct:"+120%",dir:"up"},
+    {name:"La Vie Castel",sup:"קסטל",from:45,to:47,pct:"+4.4%",dir:"up"},
+    {name:"ג'ק דניאלס 1L",sup:"גלובל",from:112.50,to:114.75,pct:"+2%",dir:"up"},
+    {name:"רום נגריטה",sup:"הכרם",from:58.48,to:60.52,pct:"+3.5%",dir:"up"},
+    {name:"פלפל צ'ילי",sup:"מרינה",from:18.50,to:4.50,pct:"-75%",dir:"down"},
+    {name:"ליקר תאנים",sup:"הכרם",from:57,to:43.88,pct:"-23%",dir:"down"},
+    {name:"יגרמייסטר",sup:"123",from:86,to:82,pct:"-4.7%",dir:"down"},
+  ];
+
+  var stableProducts = [
+    {name:"שוארמה פרגיות",sup:"גינדי",price:"₪55",count:6},
+    {name:"ערק עלית",sup:"123 אלכוהול",price:"₪53",count:9},
+    {name:"אמיסרו סילבר",sup:"123 אלכוהול",price:"₪78",count:9},
+    {name:"בירה סטלה 1/24",sup:"123 אלכוהול",price:"₪105",count:9},
+    {name:"פינו גריג'ו",sup:"הכרם",price:"₪32.85",count:8},
+    {name:"מקאלן 12",sup:"אקרמן",price:"₪263.61",count:5},
+    {name:"אלבר בישו",sup:"אספיריט",price:"₪51",count:5},
+    {name:"וילה קייף",sup:"צור",price:"₪19.80",count:5},
+  ];
+
+  var volatileProducts = [
+    {name:"שרי צהוב",sup:"מרינה",range:"₪6.50-₪22",spread:"238%"},
+    {name:"עגבניה חממה",sup:"מרינה",range:"₪6-₪15",spread:"150%"},
+    {name:"תירס",sup:"מרינה",range:"₪6.75-₪17",spread:"152%"},
+    {name:"כפות אדום שק",sup:"מרינה",range:"₪6.75-₪17",spread:"152%"},
+    {name:"מלפפון פרימיום",sup:"מרינה",range:"₪3.50-₪7.50",spread:"114%"},
+  ];
+
+  var html = '';
+
+  // Stats
+  html += '<div style="display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none">';
+  html += '<div style="flex:0 0 auto;background:linear-gradient(135deg,#1a1a2e,#16162a);border:1px solid rgba(99,102,241,0.15);border-radius:14px;padding:12px 16px;min-width:100px"><div style="font-size:22px;font-weight:900;color:#6366f1">' + SUPPLIERS.length + '</div><div style="font-size:10px;color:#71717a;margin-top:2px">ספקים</div></div>';
+  html += '<div style="flex:0 0 auto;background:linear-gradient(135deg,#1a1a2e,#16162a);border:1px solid rgba(99,102,241,0.15);border-radius:14px;padding:12px 16px;min-width:100px"><div style="font-size:22px;font-weight:900;color:#6366f1">' + PRODUCTS.length + '</div><div style="font-size:10px;color:#71717a;margin-top:2px">מוצרים</div></div>';
+  html += '<div style="flex:0 0 auto;background:linear-gradient(135deg,#1a1a2e,#16162a);border:1px solid rgba(99,102,241,0.15);border-radius:14px;padding:12px 16px;min-width:100px"><div style="font-size:22px;font-weight:900;color:#6366f1">3</div><div style="font-size:10px;color:#71717a;margin-top:2px">כפילויות</div></div>';
+  html += '</div>';
+
+  // Duplicates
+  html += '<div style="padding:16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">⚡ כפילויות בין ספקים — חסוך כסף</div>';
+  dupGroups.forEach(function(g) {
+    var sorted = g.items.slice().sort(function(a,b){return a.price-b.price});
+    var saving = (sorted[sorted.length-1].price - sorted[0].price).toFixed(2);
+    html += '<div style="background:#111118;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;margin-bottom:10px">';
+    html += '<div style="font-size:14px;font-weight:700;margin-bottom:8px">' + g.name + '</div>';
+    sorted.forEach(function(item, i) {
+      var cls = i === 0 ? 'color:#22c55e' : 'color:#ef4444';
+      html += '<div style="display:flex;justify-content:space-between;padding:4px 0"><span style="font-size:12px;color:#a1a1aa">' + item.sup + (item.note ? ' (' + item.note + ')' : '') + '</span><span style="font-size:14px;font-weight:700;' + cls + '">₪' + item.price.toFixed(2) + '</span></div>';
+    });
+    html += '<div style="font-size:11px;color:#22c55e;background:rgba(34,197,94,0.1);padding:3px 10px;border-radius:20px;margin-top:6px;display:inline-block">💰 חסוך ₪' + saving + ' ליחידה ב-' + sorted[0].sup + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Price alerts
+  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">📈 שינויי מחירים אחרונים</div>';
+  priceAlerts.forEach(function(a) {
+    var isUp = a.dir === 'up';
+    var iconBg = isUp ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)';
+    var iconColor = isUp ? '#ef4444' : '#22c55e';
+    var arrow = isUp ? '↑' : '↓';
+    html += '<div style="display:flex;align-items:center;gap:12px;background:#111118;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;margin-bottom:8px">';
+    html += '<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:' + iconBg + ';color:' + iconColor + '">' + arrow + '</div>';
+    html += '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + a.name + '</div><div style="font-size:11px;color:#71717a">' + a.sup + ' · ₪' + a.from + '→₪' + a.to + '</div></div>';
+    html += '<div style="font-size:14px;font-weight:800;color:' + iconColor + '">' + a.pct + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Stable products
+  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">🔒 מוצרים יציבים (אפס שינוי)</div>';
+  stableProducts.forEach(function(p) {
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">';
+    html += '<span style="flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + ' <span style="color:#52525b">(' + p.sup + ')</span></span>';
+    html += '<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(34,197,94,0.12);color:#22c55e;white-space:nowrap">' + p.price + ' × ' + p.count + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Volatile products
+  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">⚠️ מוצרים תנודתיים</div>';
+  volatileProducts.forEach(function(p) {
+    html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">';
+    html += '<span style="flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + ' <span style="color:#52525b">(' + p.sup + ')</span></span>';
+    html += '<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(239,68,68,0.12);color:#ef4444;white-space:nowrap">' + p.range + '</span>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  // Insights
+  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">💡 תובנות</div>';
+  var insights = [
+    {title:"ירקות עונתיים = תנודות גדולות",text:"שרי צהוב, עגבניות, תירס — עד 238% הבדל. בדוק מחירים לפני הזמנה גדולה."},
+    {title:"אלכוהול יציב — אבל יש הבדלים",text:"יגרמייסטר זול ב-₪17 ב-123 אלכוהול. ליקר תאנים זול ב-₪13 בהכרם."},
+    {title:"הנחות שמשתלמות",text:"אקרמן 48%, הכרם 32%, אספיריט ללא הנחה (יינות). שווה לנהל מו\"מ ב-123 אלכוהול."},
+  ];
+  insights.forEach(function(ins) {
+    html += '<div style="background:linear-gradient(135deg,#1a1a2e,#0f172a);border:1px solid rgba(99,102,241,0.2);border-radius:14px;padding:14px;margin-bottom:10px">';
+    html += '<div style="font-size:12px;font-weight:700;color:#818cf8;margin-bottom:4px">' + ins.title + '</div>';
+    html += '<div style="font-size:13px;color:#d4d4d8;line-height:1.6">' + ins.text + '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+
+  document.getElementById('insightsContent').innerHTML = html;
+}
 
 function renderPrices() {
   const q = document.getElementById('priceSearch').value.trim().toLowerCase();
@@ -1572,4 +1783,4 @@ if (document.readyState === 'loading') { document.addEventListener('DOMContentLo
 </script>
 
 </body>
-</html>>>
+</html>
