@@ -692,19 +692,20 @@ background: #3b82f6; color: #fff;
 // ═══════════════════════════════════════
 
 const SUPPLIERS = [
-  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"ירקות"},
-  {id:"50059",name:"דיפ שיווק",phone:"050-887-3009",cutoff:"10:00",days:null,delivery:["ג","ה"],cat:"יבשים"},
-  {id:"50203",name:"צ.י שיווק",phone:"052-481-7133",cutoff:"10:00",days:["א","ב","ג","ד","ה"],delivery:["ה"],cat:"חלב"},
-  {id:"51596",name:"חביבים",phone:"052-6552915",cutoff:"13:00",days:["א","ב","ג","ד","ה"],delivery:["ב","ג","ד"],cat:"חד פעמי"},
-  {id:"90001",name:"גינדי בשר",phone:"03-5560919",cutoff:"10:00",days:["א","ב"],delivery:["ג"],cat:"בשר"},
-  {id:"51513",name:"דולצי",phone:"053-338-0740",cutoff:"10:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ד"],cat:"קינוחים"},
-  {id:"50057",name:"אוריה",phone:"053-6630699",cutoff:"10:00",days:null,delivery:["ג"],cat:"בשר"},
-  {id:"51538",name:"דורו",phone:"03-6225540",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"פסטה"},
-  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"22:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ה"],cat:"לחם"},
-  {id:"90012",name:"קבוצת בנדיקט",phone:"0509081446",cutoff:"22:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"לחם"},
-  {id:"90011",name:"קנה דג",phone:"052-8880187",cutoff:"08:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ה","ו"],cat:"דגים"},
-  {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"בשר"},
-  {id:"50093",name:"תפוז טרי",phone:"054-3332696",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ב","ד","ה"],cat:"משקאות"},
+  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"21:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"ירקות",channel:"אפליקציה"},
+  {id:"50059",name:"דיפ שיווק",phone:"050-887-3009",cutoff:"13:00",days:["ב","ד"],delivery:["ג","ה"],cat:"יבשים",channel:"וואטסאפ"},
+  {id:"50203",name:"צ.י שיווק",phone:"052-481-7133",cutoff:"20:00",days:["א","ב","ג","ד","ה"],delivery:["ה"],cat:"חלב",channel:"וואטסאפ"},
+  {id:"51596",name:"חביבים",phone:"052-6552915",cutoff:"13:00",days:["א","ב","ג","ד","ה"],delivery:["ב","ג","ד"],cat:"חד פעמי",channel:"וואטסאפ"},
+  {id:"90001",name:"גינדי בשר",phone:"03-5560919",cutoff:"17:00",days:["ב","ד","ו"],delivery:["ג","ה","א"],cat:"בשר",channel:"וואטסאפ"},
+  {id:"51513",name:"דולצי",phone:"053-338-0740",cutoff:"10:00",days:["ד"],delivery:["ה"],cat:"קינוחים",channel:"וואטסאפ"},
+  {id:"50057",name:"אוריה",phone:"053-6630699",cutoff:"10:00",days:null,delivery:["ג"],cat:"בשר",channel:"וואטסאפ"},
+  {id:"51538",name:"ריקו",phone:"058-477-7354",cutoff:"10:00",days:["ה","ג"],delivery:["א","ד"],cat:"פסטה",channel:"אפליקציה"},
+  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"14:00",days:["א","ד"],delivery:["ב","ה"],cat:"לחם",channel:"אתר"},
+  {id:"90012",name:"קבוצת בנדיקט",phone:"050-712-5623",cutoff:"12:30",days:["א","ג"],delivery:["ב","ה"],cat:"לחם",channel:"אפליקציה"},
+  {id:"90011",name:"קנה דג",phone:"050-528-2857",cutoff:"08:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ה","ו"],cat:"דגים",channel:"וואטסאפ"},
+  {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"בשר",channel:"וואטסאפ"},
+  {id:"50093",name:"תפוז טרי",phone:"054-216-2240",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ב","ד","ה"],cat:"משקאות",channel:"וואטסאפ"},
+  {id:"50197",name:"תנובה",phone:"054-444-1686",cutoff:"10:00",days:["ג"],delivery:["ד"],cat:"קפואים",channel:"וואטסאפ"},
 ];
 
 const SUP_MAP = {};
@@ -881,6 +882,7 @@ const PRODUCTS = [
   {id:"3220c34d",sid:"50093",name:"לימון סחוט 2L פקק צהוב",sku:"7920018199992",unit:"יח'",cat:"משקאות",price:30.00},
   {id:"44296c04",sid:"50093",name:"אשכולית אדומה 2L",sku:"7290005278921",unit:"יח'",cat:"משקאות",price:16.00},
   {id:"89b64b98",sid:"51596",name:"פח שובר 50 ליטר + מכסה",sku:"333",unit:"יח'",cat:"ציוד",price:50.00},
+  {id:"tnv00479",sid:"50197",name:"דג טמפורה 479",sku:"479",unit:"יח'",cat:"קפואים",price:null},
 ];
 
 // ═══════════════════════════════════════
@@ -1425,15 +1427,31 @@ function buildAnmHTML() {
                  anmFilter === 'up' ? unacked.filter(function(a){ return parseFloat(a.pct_change)>0; }) :
                  anmFilter === 'dn' ? unacked.filter(function(a){ return parseFloat(a.pct_change)<0; }) :
                  anmFilter === 'high' ? unacked.filter(function(a){ return a.anomaly_level==='high'; }) :
+                 anmFilter.indexOf('sup:') === 0 ? unacked.filter(function(a){ return a.supplier_name === anmFilter.slice(4); }) :
                  unacked;
+  // Get unique suppliers from unacked
+  var supNames = [];
+  unacked.forEach(function(a){ if (supNames.indexOf(a.supplier_name) === -1) supNames.push(a.supplier_name); });
+
   var h = '<div class="anm-filters">';
   [{k:'all',label:'הכל ('+unacked.length+')'},{k:'high',label:'⚠️ חמורות'},{k:'up',label:'↑ עלייה'},{k:'dn',label:'↓ ירידה'},{k:'acked',label:'✓ ידועות ('+acked.length+')'}].forEach(function(p){
     h += '<button class="anm-pill '+(anmFilter===p.k?'active':'')+'" onclick="setAnmFilter(\''+p.k+'\')">'+p.label+'</button>';
   });
+  // Supplier filters
+  supNames.forEach(function(sn){
+    var key = 'sup:' + sn;
+    h += '<button class="anm-pill '+(anmFilter===key?'active':'')+'" onclick="setAnmFilter(\''+key.replace(/'/g,"\\'")+'\')">' + sn + '</button>';
+  });
   h += '</div>';
   if (showList.length === 0) { h += '<div class="no-data" style="padding:40px 0">'+(anmFilter==='acked'?'אין חריגות מאושרות':'אין חריגות פעילות')+'</div>'; }
   else {
+    var lastSupplier = '';
     showList.forEach(function(a) {
+      if (a.supplier_name !== lastSupplier) {
+        lastSupplier = a.supplier_name;
+        var supCount = showList.filter(function(x){ return x.supplier_name === a.supplier_name; }).length;
+        h += '<div style="padding:10px 16px 6px;font-size:12px;font-weight:700;color:#a1a1aa;letter-spacing:0.5px;background:#18181b;border-bottom:1px solid rgba(255,255,255,0.07);position:sticky;top:42px;z-index:4;">' + a.supplier_name + ' <span style="color:#52525b;font-weight:400;">(' + supCount + ')</span></div>';
+      }
       var isAck = a.acknowledged || anmAckSet.has(a.product_id + a.invoice_ref);
       var pct = parseFloat(a.pct_change); var isUp = pct > 0;
       var pctStr = (isUp ? '↑ +' : '↓ ') + Math.abs(pct) + '%';
