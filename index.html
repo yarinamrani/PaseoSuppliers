@@ -718,20 +718,20 @@ const PRODUCTS = [
   {id:"c9007ae4",sid:"90002",name:"בטטה XL קג",sku:"1160113",unit:"ק\"ג",cat:"ירקות",price:3.50},
   {id:"da66396d",sid:"90002",name:"ביי-בי מהדרין חצי קילו",sku:"1150005",unit:"יח'",cat:"ירקות",price:14.50},
   {id:"4f4af951",sid:"90002",name:"בצל אדום יבוא הולנד",sku:"1165002",unit:"ק\"ג",cat:"ירקות",price:2.90},
-  {id:"f4ddbbe8",sid:"90002",name:"בצל אדום מקולף מהדרין",sku:"1080007",unit:"ק\"ג",cat:"ירקות",price:82.60},
+  {id:"f4ddbbe8",sid:"90002",name:"בצל אדום מקולף מהדרין",sku:"1080007",unit:"שק",cat:"ירקות",price:82.60},
   {id:"1eb0c9a5",sid:"90002",name:"בצל יבש לבן קג",sku:"1160146",unit:"ק\"ג",cat:"ירקות",price:2.50},
   {id:"412728fa",sid:"90002",name:"גזר ארוז 1 קג",sku:"1160682",unit:"ק\"ג",cat:"ירקות",price:3.50},
   {id:"9742921b",sid:"90002",name:"גינגר קג",sku:"1030003",unit:"ק\"ג",cat:"ירקות",price:15.50},
   {id:"0beaae6f",sid:"90002",name:"דלעת קג",sku:"1160055",unit:"ק\"ג",cat:"ירקות",price:3.50},
   {id:"6879861a",sid:"90002",name:"זוג אנדיב אדום",sku:"1030243",unit:"יח'",cat:"ירקות",price:15.50},
-  {id:"554516b9",sid:"90002",name:"חסה לליק מהדרין",sku:"1050102",unit:"יח'",cat:"ירקות",price:7.25},
-  {id:"7e63b319",sid:"90002",name:"חסה סלנובה מהדרין",sku:"1050056",unit:"יח'",cat:"ירקות",price:7.25},
+  {id:"554516b9",sid:"90002",name:"חסה לליק מהדרין",sku:"1050102",unit:"יח'",cat:"ירקות",price:7.25,min:8,step:8},
+  {id:"7e63b319",sid:"90002",name:"חסה סלנובה מהדרין",sku:"1050056",unit:"יח'",cat:"ירקות",price:7.25,min:8,step:8},
   {id:"467d21b0",sid:"90002",name:"חציל פרימיום קג",sku:"1160144",unit:"ק\"ג",cat:"ירקות",price:5.00},
   {id:"2a916b01",sid:"90002",name:"חציל קמעוני ארוז קג",sku:"1160255",unit:"ק\"ג",cat:"ירקות",price:8.50},
-  {id:"304733f0",sid:"90002",name:"כפות אדום שק 4 קג",sku:"1160233",unit:"ק\"ג",cat:"ירקות",price:15.00},
+  {id:"304733f0",sid:"90002",name:"כפות אדום שק 4 קג",sku:"1160233",unit:"שק",cat:"ירקות",price:15.00},
   {id:"2111a34b",sid:"90002",name:"כרוב לבן שלם קג",sku:"1160142",unit:"ק\"ג",cat:"ירקות",price:3.50},
   {id:"08117da0",sid:"90002",name:"כרובית קג",sku:"1160141",unit:"ק\"ג",cat:"ירקות",price:5.50},
-  {id:"fd59b5b6",sid:"90002",name:"לבבות קיסר בנספק",sku:"1050034",unit:"יח'",cat:"ירקות",price:6.75},
+  {id:"fd59b5b6",sid:"90002",name:"לבבות קיסר בנספק",sku:"1050034",unit:"יח'",cat:"ירקות",price:6.75,min:8,step:8},
   {id:"aa583466",sid:"90002",name:"מיקרו בייבי אמריקוס",sku:"1020033",unit:"יח'",cat:"ירקות",price:6.00},
   {id:"8299bd88",sid:"90002",name:"מיקרו כוסברה יח",sku:"1020015",unit:"יח'",cat:"ירקות",price:24.00},
   {id:"81cdec68",sid:"90002",name:"מיקרו נבטי אפונה יח",sku:"1020026",unit:"יח'",cat:"ירקות",price:6.50},
@@ -739,7 +739,7 @@ const PRODUCTS = [
   {id:"110ea908",sid:"90002",name:"מלפפון פרימיום",sku:"1160688",unit:"ק\"ג",cat:"ירקות",price:12.50},
   {id:"bb2f4f0d",sid:"90002",name:"פטריות שמפיניון ארוז יח",sku:"1010002",unit:"יח'",cat:"ירקות",price:6.50},
   {id:"b286bd15",sid:"90002",name:"פטריות מלך היער יח",sku:"1010030",unit:"יח'",cat:"ירקות",price:6.20},
-  {id:"e09746a4",sid:"90002",name:"פטריות פורטבלה 3 קג",sku:"1010124",unit:"ק\"ג",cat:"ירקות",price:27.60},
+  {id:"e09746a4",sid:"90002",name:"פטריות פורטבלה 3 קג",sku:"1010124",unit:"יח'",cat:"ירקות",price:27.60},
   {id:"4218e7a0",sid:"90002",name:"פלחי דלעת יח",sku:"1160069",unit:"יח'",cat:"ירקות",price:6.00},
   {id:"254160c7",sid:"90002",name:"פלפל חריף קג",sku:"1160196",unit:"ק\"ג",cat:"ירקות",price:6.50},
   {id:"1f32d9c5",sid:"90002",name:"פלפל טינקרבל יח",sku:"1160182",unit:"יח'",cat:"ירקות",price:4.40},
@@ -828,7 +828,7 @@ const PRODUCTS = [
   {id:"217f95e1",sid:"50203",name:"שמנת מתוקה 42% טרה 2 ל",sku:"255",unit:"ל",cat:"חלב",price:46.59},
   {id:"f36c2d3f",sid:"50203",name:"שמנת של פעם 27% 200 גר",sku:"208",unit:"יח'",cat:"חלב",price:4.01},
   {id:"92160aff",sid:"50203",name:"שמנת תמוצה 15% 200 גר",sku:"174",unit:"יח'",cat:"חלב",price:2.37},
-  {id:"e1ac9410",sid:"50203",name:"ציפס אמריקאי 12.5 קג מילוטל",sku:"771",unit:"ק\"ג",cat:"קפואים",price:125.00},
+  {id:"e1ac9410",sid:"50203",name:"ציפס אמריקאי 12.5 קג מילוטל",sku:"771",unit:"יח'",cat:"קפואים",price:125.00},
   {id:"300ea8a7",sid:"51596",name:"מפיות 40/40 ארוז 1800 יח",sku:"355",unit:"יח'",cat:"חד פעמי",price:110.00},
   {id:"ded5132e",sid:"51596",name:"מפית מאלו MINI ארוז 9000 יח",sku:"203",unit:"יח'",cat:"חד פעמי",price:74.00},
   {id:"e28e6ff3",sid:"51596",name:"מגבון אישי במעטפת לבנה ארוז 1000 יח",sku:"209",unit:"יח'",cat:"חד פעמי",price:70.00},
@@ -989,13 +989,9 @@ function renderWeek() {
       html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:#22c55e;letter-spacing:0.5px;">📦 מגיע</div>';
       arriving.forEach(function(sup) {
         var prods = PRODUCTS.filter(function(p) { return p.sid === sup.id; });
-        var parts = (sup.cutoff || '23:59').split(':');
-        var cutoffMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-        var nowMins = now.getHours() * 60 + now.getMinutes();
         var badge = '';
         if (isToday) {
-          if (nowMins < cutoffMins) badge = '<span class="week-cutoff-badge badge-open">הזמן עד ' + sup.cutoff + '</span>';
-          else badge = '<span class="week-cutoff-badge" style="background:#2c2c30;color:#52525b;">הגיע</span>';
+          badge = '<span class="week-cutoff-badge" style="background:rgba(34,197,94,0.13);color:#22c55e;">📦 אספקה היום</span>';
         }
         html += '<div class="week-sup-row" onclick="switchTab(\'order\');setTimeout(function(){expandedSups.add(\'' + sup.id + '\');renderOrder();},50)">';
         html += '<div><div class="week-sup-name">' + sup.name + '</div>';
@@ -1004,7 +1000,7 @@ function renderWeek() {
       });
     }
     if (ordering.length > 0) {
-      html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:0.5px;">📋 להזמין היום</div>';
+      html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:0.5px;">📋 להזמין (אספקה: ' + (dayNum < 5 ? 'יום ' + DAY_FULL[(dayNum+1) % 7] : 'לפי הספק') + ')</div>';
       ordering.forEach(function(sup) {
         var prods = PRODUCTS.filter(function(p) { return p.sid === sup.id; });
         var parts = (sup.cutoff || '23:59').split(':');
@@ -1062,7 +1058,7 @@ function renderOrder() {
       <div class="products ${isOpen?'open':''}">`;
     prods.forEach(p => {
       const qty = cart[p.id] || 0;
-      const step = p.step || (p.unit === 'ק"ג' ? 0.5 : 1);
+      const step = p.step || 1;
       const min = p.min || step;
       const unitLabel = p.unit;
       const minLabel = min === step ? `מינ׳ ${min} ${unitLabel}` : `מינ׳ ${min}`;
