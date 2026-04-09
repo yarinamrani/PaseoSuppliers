@@ -7,309 +7,361 @@
 <title>פסאו — הזמנות ספקים</title>
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="הזמנות">
-<meta name="theme-color" content="#0A0A0C">
+<meta name="apple-mobile-web-app-title" content="פסאו">
+<meta name="theme-color" content="#09090B">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0A0A0C;--sf:#131316;--sfh:#1A1A1F;--bd:#222228;--g:#D4AF5A;--gd:rgba(212,175,90,0.1);--tx:#EAEAEE;--dm:#6E6E7A;--rd:#EF4444;--w:#fff}
+:root{
+  --bg:#09090B;--card:#14141A;--card-hi:#1C1C24;--border:rgba(255,255,255,.06);
+  --gold:#C9A84C;--gold-glow:rgba(201,168,76,.12);--gold-med:rgba(201,168,76,.2);
+  --txt:#F0F0F4;--sub:#8A8A96;--dim:#55555F;
+  --green:#34D399;--red:#F87171;--wa:#25D366;
+}
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--tx);min-height:100dvh;direction:rtl;-webkit-font-smoothing:antialiased}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--txt);min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
-input::placeholder{color:var(--dm)}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+input::placeholder{color:var(--dim)}
+button{font-family:inherit}
 
-#loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh}
-#loader .sp{width:28px;height:28px;border:2.5px solid var(–bd);border-top-color:var(–g);border-radius:50%;animation:spin .7s linear infinite}
-#loader p{color:var(–dm);font-size:13px;margin-top:14px}
+/* ═══ LOADER ═══ */
+#loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px}
+.spinner{width:24px;height:24px;border:2px solid var(–border);border-top-color:var(–gold);border-radius:50%;animation:spin .6s linear infinite}
 
-.hero{text-align:center;padding:40px 20px 16px;background:radial-gradient(ellipse at center top,var(–gd) 0%,transparent 70%)}
-.hero-sub{font-size:11px;font-weight:600;color:var(–g);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px}
-.hero h1{font-size:32px;font-weight:900;font-family:‘Frank Ruhl Libre’,serif;letter-spacing:-1px;line-height:1.1}
-.hero p{font-size:13px;color:var(–dm);margin-top:6px}
+/* ═══ INDEX ═══ */
+#idx{display:none}
+.hero{text-align:center;padding:48px 20px 20px;position:relative}
+.hero::before{content:’’;position:absolute;top:0;left:50%;transform:translateX(-50%);width:300px;height:200px;background:radial-gradient(circle,var(–gold-glow) 0%,transparent 70%);pointer-events:none}
+.hero-label{font-size:10px;font-weight:700;color:var(–gold);letter-spacing:4px;text-transform:uppercase;position:relative}
+.hero h1{font-size:28px;font-weight:900;margin:6px 0 0;letter-spacing:-1px;position:relative}
+.hero-sub{font-size:12px;color:var(–sub);margin-top:4px;position:relative}
 
-.tabs{display:flex;padding:0 12px;position:sticky;top:0;z-index:15;background:var(–bg);padding-top:8px;padding-bottom:8px;border-bottom:1px solid var(–bd)}
-.tab{flex:1;padding:10px 0;border-radius:12px;border:none;background:transparent;color:var(–dm);font-size:13px;font-weight:500;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s}
-.tab.on{background:var(–gd);color:var(–g);font-weight:700}
-.tab .ico{font-size:20px}
-.tab .cnt{font-size:10px;opacity:.6}
+/* Tabs */
+.tabs{display:flex;gap:4px;padding:6px 14px;position:sticky;top:0;z-index:15;background:var(–bg);border-bottom:1px solid var(–border)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:14px;border:none;background:transparent;color:var(–dim);font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
+.tab.on{background:var(–gold-glow);color:var(–gold);font-weight:700}
+.tab .ti{font-size:18px;line-height:1}
+.tab .tc{font-size:9px;opacity:.5;font-weight:400}
 
-.cards{padding:8px 14px 40px}
-.card{background:var(–sf);border:1px solid var(–bd);border-radius:16px;padding:16px 18px;margin-bottom:8px;cursor:pointer;transition:transform .1s;animation:fadeUp .3s ease both}
-.card:active{transform:scale(.98)}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start}
-.card-name{font-size:17px;font-weight:700;line-height:1.2}
-.card-contact{font-size:12px;color:var(–dm);margin-top:2px}
-.card-badge{background:var(–gd);color:var(–g);padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
-.card-info{font-size:11px;color:var(–dm);margin-top:6px;display:flex;gap:6px;align-items:center}
+/* Supplier Cards */
+.list{padding:10px 14px 40px}
+.scard{
+background:linear-gradient(135deg,var(–card) 0%,var(–card-hi) 100%);
+border:1px solid var(–border);border-radius:18px;padding:18px 20px;margin-bottom:10px;
+cursor:pointer;transition:transform .15s,box-shadow .2s;position:relative;overflow:hidden;
+animation:enter .35s ease both;
+}
+.scard:active{transform:scale(.97)}
+.scard::after{content:’’;position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle at top right,var(–gold-glow),transparent 70%);pointer-events:none}
+.scard-row{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
+.scard-name{font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.scard-contact{font-size:12px;color:var(–sub);margin-top:2px}
+.scard-badge{background:var(–gold-med);color:var(–gold);padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.3px}
+.scard-meta{font-size:11px;color:var(–dim);margin-top:10px;display:flex;flex-direction:column;gap:3px}
+.scard-meta span{display:flex;align-items:center;gap:6px}
 
-/* Supplier view */
-#sView{display:none}
-.sh{background:linear-gradient(180deg,var(–sfh) 0%,var(–bg) 100%);padding:16px 18px 12px;border-bottom:1px solid var(–bd);position:sticky;top:0;z-index:20}
-.sh-row{display:flex;justify-content:space-between;align-items:center}
-.sh-back{background:none;border:none;color:var(–g);font-size:13px;font-family:inherit;cursor:pointer;padding:0;font-weight:600}
-.sh-phone{background:var(–sf);border:1px solid var(–bd);border-radius:10px;padding:5px 12px;font-size:12px;color:var(–tx);text-decoration:none;font-family:inherit}
-.sh-title{font-size:26px;font-weight:900;font-family:‘Frank Ruhl Libre’,serif;margin-top:6px;letter-spacing:-0.5px}
-.sh-meta{font-size:12px;color:var(–dm);margin-top:4px;display:flex;gap:12px}
-.sh-search{margin-top:10px;position:relative}
-.sh-search input{width:100%;padding:9px 14px;border-radius:10px;border:1px solid var(–bd);background:var(–sf);color:var(–tx);font-size:14px;font-family:inherit;outline:none;direction:rtl}
-.sh-search .x{position:absolute;left:10px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(–dm);font-size:16px;cursor:pointer}
+/* ═══ SUPPLIER VIEW ═══ */
+#sv{display:none}
+.sh{
+padding:16px 20px 12px;position:sticky;top:0;z-index:20;
+background:linear-gradient(180deg,var(–card-hi),var(–bg));
+border-bottom:1px solid var(–border);
+}
+.sh-top{display:flex;justify-content:space-between;align-items:center}
+.sh-back{background:none;border:none;color:var(–gold);font-size:14px;cursor:pointer;padding:0;font-weight:600;display:flex;align-items:center;gap:4px}
+.sh-call{
+background:var(–card);border:1px solid var(–border);border-radius:12px;
+padding:7px 14px;font-size:12px;color:var(–txt);text-decoration:none;
+display:flex;align-items:center;gap:5px;
+}
+.sh-name{font-size:24px;font-weight:900;margin-top:8px;letter-spacing:-0.5px}
+.sh-info{font-size:12px;color:var(–sub);margin-top:3px;display:flex;gap:14px;flex-wrap:wrap}
+.sh-search{margin-top:12px;position:relative}
+.sh-search input{
+width:100%;padding:10px 16px;border-radius:14px;
+border:1px solid var(–border);background:var(–card);
+color:var(–txt);font-size:14px;outline:none;
+}
+.sh-search input:focus{border-color:var(–gold-med)}
+.sh-x{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:var(–sub);font-size:16px;cursor:pointer;display:none}
 
-.cat-title{font-size:12px;font-weight:700;color:var(–g);padding:14px 18px 5px;letter-spacing:.5px;position:sticky;top:118px;z-index:5;background:var(–bg)}
+/* Category */
+.cat{
+font-size:11px;font-weight:700;color:var(–gold);padding:16px 20px 6px;
+letter-spacing:.8px;text-transform:uppercase;position:sticky;top:112px;z-index:5;background:var(–bg);
+}
 
-.item{display:flex;align-items:center;padding:10px 18px;gap:12px;border-bottom:1px solid var(–bd);transition:background .15s}
-.item.on{background:var(–gd);border-bottom-color:var(–gd)}
-.item-chk{width:26px;height:26px;border-radius:8px;border:2px solid var(–bd);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;flex-shrink:0;font-size:14px;font-weight:800;color:transparent}
-.item.on .item-chk{border-color:var(–g);background:var(–g);color:var(–bg)}
-.item-info{flex:1;min-width:0;cursor:pointer}
-.item-name{font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item.on .item-name{font-weight:600;color:var(–w)}
-.item-unit{font-size:11px;color:var(–dm);margin-top:1px}
-.item-qty{display:flex;align-items:center;gap:4px}
-.qb{width:34px;height:34px;border-radius:9px;border:1px solid var(–bd);background:var(–sf);color:var(–tx);font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit}
-.item.on .qb.plus{border-color:var(–g);background:var(–gd);color:var(–g)}
-.qv{font-size:17px;font-weight:700;min-width:28px;text-align:center}
-.item.on .qv{color:var(–g)}
+/* Items */
+.it{
+display:flex;align-items:center;padding:12px 20px;gap:14px;
+border-bottom:1px solid var(–border);transition:all .15s;
+}
+.it.on{background:var(–gold-glow);border-bottom-color:rgba(201,168,76,.08)}
+.it-chk{
+width:24px;height:24px;border-radius:7px;border:2px solid var(–dim);
+display:flex;align-items:center;justify-content:center;cursor:pointer;
+transition:all .2s;flex-shrink:0;font-size:13px;color:transparent;font-weight:800;
+}
+.it.on .it-chk{border-color:var(–gold);background:var(–gold);color:var(–bg)}
+.it-body{flex:1;min-width:0;cursor:pointer}
+.it-name{font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:all .15s}
+.it.on .it-name{font-weight:600;color:#fff}
+.it-unit{font-size:10px;color:var(–dim);margin-top:1px}
+.it-qty{display:flex;align-items:center;gap:5px}
+.qb{
+width:36px;height:36px;border-radius:10px;border:1px solid var(–border);
+background:var(–card);color:var(–txt);font-size:20px;
+display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;
+}
+.qb:active{transform:scale(.92)}
+.it.on .qb.plus{border-color:var(–gold);background:var(–gold-glow);color:var(–gold)}
+.qv{font-size:16px;font-weight:700;min-width:26px;text-align:center;transition:color .15s}
+.it.on .qv{color:var(–gold)}
 
-.bar{position:fixed;bottom:0;left:0;right:0;background:var(–bg);border-top:1px solid var(–bd);padding:10px 16px 12px;display:none;gap:8px;z-index:30;align-items:center}
+/* Bottom bar */
+.bar{
+position:fixed;bottom:0;left:0;right:0;
+background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+border-top:1px solid var(–border);padding:10px 16px 14px;
+display:none;gap:8px;z-index:30;align-items:center;
+}
 .bar.show{display:flex}
-.bar-badge{background:var(–g);color:var(–bg);padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;flex-shrink:0;animation:scaleIn .2s ease}
-.btn-wa{flex:1;padding:13px 0;border-radius:12px;border:none;background:#25D366;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn-cp{padding:13px 18px;border-radius:12px;border:1px solid var(–bd);background:var(–sf);color:var(–tx);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
-.btn-rst{padding:13px 14px;border-radius:12px;border:1px solid var(–bd);background:var(–sf);color:var(–rd);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.bar-n{
+background:var(–gold);color:var(–bg);width:28px;height:28px;border-radius:50%;
+font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;
+flex-shrink:0;animation:pop .2s ease;
+}
+.bwa{
+flex:1;padding:14px 0;border-radius:14px;border:none;
+background:var(–wa);color:#fff;font-size:15px;font-weight:700;cursor:pointer;
+display:flex;align-items:center;justify-content:center;gap:6px;
+}
+.bcp,.brs{
+padding:14px 16px;border-radius:14px;border:1px solid var(–border);
+background:var(–card);font-size:15px;cursor:pointer;
+}
+.bcp{color:var(–txt)}
+.brs{color:var(–red)}
 
-.toast{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);background:var(–sfh);color:var(–g);padding:8px 22px;border-radius:24px;font-size:13px;font-weight:600;z-index:40;border:1px solid var(–bd);animation:scaleIn .2s ease;display:none}
+/* Toast */
+.toast{
+position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+background:var(–card-hi);color:var(–gold);padding:10px 24px;border-radius:30px;
+font-size:13px;font-weight:600;z-index:50;border:1px solid var(–border);
+box-shadow:0 8px 32px rgba(0,0,0,.4);animation:pop .2s ease;
+display:none;white-space:nowrap;
+}
 .toast.show{display:block}
+
+.empty{text-align:center;padding:48px 20px;color:var(–dim);font-size:14px}
 </style>
 
 </head>
 <body>
 
-<div id="loader"><div class="sp"></div><p>טוען...</p></div>
+<div id="loader"><div class="spinner"></div><p style="color:var(--sub);font-size:12px">טוען ספקים...</p></div>
 
-<div id="iView" style="display:none">
+<div id="idx">
   <div class="hero">
-    <div class="hero-sub">PASEO</div>
+    <div class="hero-label">PASEO</div>
     <h1>גג על הים</h1>
-    <p>הזמנות ספקים</p>
+    <p class="hero-sub">הזמנות ספקים</p>
   </div>
   <div class="tabs" id="tabs"></div>
-  <div class="cards" id="cards"></div>
+  <div class="list" id="cards"></div>
 </div>
 
-<div id="sView">
+<div id="sv">
   <div class="sh">
-    <div class="sh-row">
-      <button class="sh-back" onclick="goBack()">→ חזרה</button>
-      <span id="shPhone"></span>
+    <div class="sh-top">
+      <button class="sh-back" onclick="goBack()">← חזרה</button>
+      <span id="shPh"></span>
     </div>
-    <div class="sh-title" id="shTitle"></div>
-    <div class="sh-meta" id="shMeta"></div>
+    <div class="sh-name" id="shNm"></div>
+    <div class="sh-info" id="shNf"></div>
     <div class="sh-search">
-      <input id="searchBox" placeholder="🔍 חיפוש מוצר..." oninput="renderItems()">
-      <button class="x" id="searchX" onclick="document.getElementById('searchBox').value='';renderItems()" style="display:none">✕</button>
+      <input id="sbox" placeholder="חיפוש מוצר..." oninput="renderItems()">
+      <button class="sh-x" id="sx" onclick="document.getElementById('sbox').value='';renderItems()">✕</button>
     </div>
   </div>
-  <div id="itemsList" style="padding-bottom:120px"></div>
+  <div id="items" style="padding-bottom:120px"></div>
 </div>
 
 <div class="bar" id="bar">
-  <span class="bar-badge" id="barBadge" style="display:none"></span>
-  <button class="btn-wa" onclick="sendWA()">וואטסאפ 📲</button>
-  <button class="btn-cp" onclick="copyOrd()">📋</button>
-  <button class="btn-rst" onclick="resetCart()">↩</button>
+  <span class="bar-n" id="bn" style="display:none"></span>
+  <button class="bwa" onclick="sendWA()">וואטסאפ</button>
+  <button class="bcp" onclick="copyOrd()">📋</button>
+  <button class="brs" onclick="resetCart()">↩</button>
 </div>
 
 <div class="toast" id="toast"></div>
 
 <script>
-const SB="https://vzeowbriddhvhpishmhn.supabase.co";
-const SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk";
-const DH={sun:"א׳",mon:"ב׳",tue:"ג׳",wed:"ד׳",thu:"ה׳",fri:"ו׳"};
-const TABS=[
-  {key:"food",label:"אוכל",icon:"🍳",cats:["food"]},
-  {key:"drinks",label:"בר",icon:"🍸",cats:["אלכוהול","יינות"]},
+var SB="https://vzeowbriddhvhpishmhn.supabase.co",
+SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk",
+DH={sun:"א׳",mon:"ב׳",tue:"ג׳",wed:"ד׳",thu:"ה׳",fri:"ו׳"},
+TABS=[
+  {key:"food",label:"אוכל",icon:"🥩",cats:["food"]},
+  {key:"drinks",label:"בר",icon:"🍷",cats:["אלכוהול","יינות"]},
   {key:"spice",label:"תבלינים",icon:"🌿",cats:["תבלינים"]},
-  {key:"equip",label:"ציוד",icon:"🧴",cats:["equipment"]}
+  {key:"equip",label:"ציוד",icon:"🧹",cats:["equipment"]}
 ];
+var suppliers=[],products=[],curTab="food",curSup=null,cart={};
 
-let suppliers=[], products=[], curTab="food", curSup=null, cart={};
+function api(t,q){return fetch(SB+"/rest/v1/"+t+"?"+(q||""),{headers:{apikey:SK,Authorization:"Bearer "+SK}}).then(function(r){return r.json()});}
 
-async function load(){
-  try{
-    const [s,p] = await Promise.all([
-      fetch(SB+"/rest/v1/suppliers?active=eq.true&order=name.asc",{headers:{apikey:SK,Authorization:"Bearer "+SK}}).then(r=>r.json()),
-      fetch(SB+"/rest/v1/products?active=eq.true&order=category.asc,name.asc",{headers:{apikey:SK,Authorization:"Bearer "+SK}}).then(r=>r.json())
-    ]);
-    suppliers=s;
-    products=p.filter(x=>x.discontinued!==true);
+function load(){
+  Promise.all([api("suppliers","active=eq.true&order=name.asc"),api("products","active=eq.true&order=category.asc,name.asc")])
+  .then(function(r){
+    suppliers=r[0];
+    products=r[1].filter(function(x){return x.discontinued!==true});
     document.getElementById("loader").style.display="none";
-    document.getElementById("iView").style.display="block";
-    renderTabs();
-    renderCards();
-  }catch(e){
-    document.getElementById("loader").innerHTML='<p style="color:var(--rd)">שגיאה בטעינה. בדוק חיבור.</p>';
-  }
+    document.getElementById("idx").style.display="block";
+    renderTabs();renderCards();
+  })
+  .catch(function(){
+    document.getElementById("loader").innerHTML='<p style="color:var(--red);font-size:13px">שגיאה בטעינה. בדוק חיבור.</p>';
+  });
 }
 
 function renderTabs(){
-  const el=document.getElementById("tabs");
-  el.innerHTML=TABS.map(t=>{
-    const on=curTab===t.key;
-    const cnt=suppliers.filter(s=>t.cats.includes(s.category)&&products.some(p=>p.supplier_id===s.id)).length;
-    return `<button class="tab${on?" on":""}" onclick="curTab='${t.key}';renderTabs();renderCards()">
-      <span class="ico">${t.icon}</span><span>${t.label}</span><span class="cnt">${cnt}</span>
-    </button>`;
-  }).join("");
+  var h="";
+  TABS.forEach(function(t){
+    var on=curTab===t.key;
+    var cnt=suppliers.filter(function(s){return t.cats.indexOf(s.category)!==-1&&products.some(function(p){return p.supplier_id===s.id})}).length;
+    h+='<button class="tab'+(on?" on":"")+'" onclick="curTab=\''+t.key+'\';renderTabs();renderCards()">';
+    h+='<span class="ti">'+t.icon+'</span>';
+    h+='<span>'+t.label+'</span>';
+    h+='<span class="tc">'+cnt+'</span>';
+    h+='</button>';
+  });
+  document.getElementById("tabs").innerHTML=h;
 }
 
 function renderCards(){
-  const tab=TABS.find(t=>t.key===curTab);
-  const list=suppliers.filter(s=>tab.cats.includes(s.category)&&products.some(p=>p.supplier_id===s.id));
-  const el=document.getElementById("cards");
-  if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--dm)">אין ספקים</div>';return;}
-  el.innerHTML=list.map((s,i)=>{
-    const cnt=products.filter(p=>p.supplier_id===s.id).length;
-    const days=s.order_days?s.order_days.map(d=>DH[d]||d).join(" "):"";
-    const cut=s.order_cutoff?s.order_cutoff.slice(0,5):"";
-    return `<div class="card" style="animation-delay:${i*0.04}s" onclick="openSup('${s.id}')">
-      <div class="card-top">
-        <div>
-          <div class="card-name">${s.name}</div>
-          ${s.contact_name?`<div class="card-contact">${s.contact_name}</div>`:""}
-        </div>
-        <div class="card-badge">${cnt} פריטים</div>
-      </div>
-      ${days?`<div class="card-info"><span>📅</span><span>${days}${cut?" · עד "+cut:""}</span></div>`:""}
-      ${s.phone?`<div class="card-info"><span>📞</span><span>${s.phone}</span></div>`:""}
-    </div>`;
-  }).join("");
+  var tab=TABS.filter(function(t){return t.key===curTab})[0];
+  var list=suppliers.filter(function(s){return tab.cats.indexOf(s.category)!==-1&&products.some(function(p){return p.supplier_id===s.id})});
+  var el=document.getElementById("cards");
+  if(!list.length){el.innerHTML='<div class="empty">אין ספקים בקטגוריה</div>';return;}
+  var h="";
+  list.forEach(function(s,i){
+    var cnt=products.filter(function(p){return p.supplier_id===s.id}).length;
+    var days=s.order_days?s.order_days.map(function(d){return DH[d]||d}).join(" "):"";
+    var cut=s.order_cutoff?s.order_cutoff.slice(0,5):"";
+    h+='<div class="scard" style="animation-delay:'+i*40+'ms" onclick="openSup(\''+s.id+'\')">';
+    h+='<div class="scard-row"><div>';
+    h+='<div class="scard-name">'+s.name+'</div>';
+    if(s.contact_name) h+='<div class="scard-contact">'+s.contact_name+'</div>';
+    h+='</div>';
+    h+='<div class="scard-badge">'+cnt+' פריטים</div></div>';
+    if(days||s.phone){
+      h+='<div class="scard-meta">';
+      if(days) h+='<span>📅 '+days+(cut?' · עד '+cut:'')+'</span>';
+      if(s.phone) h+='<span>📞 '+s.phone+'</span>';
+      h+='</div>';
+    }
+    h+='</div>';
+  });
+  el.innerHTML=h;
 }
 
 function openSup(id){
-  curSup=suppliers.find(s=>s.id===id);
+  curSup=suppliers.filter(function(s){return s.id===id})[0];
   if(!curSup) return;
   cart={};
-  document.getElementById("iView").style.display="none";
-  document.getElementById("sView").style.display="block";
+  document.getElementById("idx").style.display="none";
+  document.getElementById("sv").style.display="block";
   document.getElementById("bar").classList.add("show");
-  document.getElementById("shTitle").textContent=curSup.name;
-
-  const days=curSup.order_days?curSup.order_days.map(d=>DH[d]).join(" "):"";
-  const cut=curSup.order_cutoff?curSup.order_cutoff.slice(0,5):"";
-  let meta="";
-  if(curSup.contact_name) meta+=`<span>${curSup.contact_name}</span>`;
-  if(days) meta+=`<span>📅 ${days}${cut?" עד "+cut:""}</span>`;
-  document.getElementById("shMeta").innerHTML=meta;
-
+  document.getElementById("shNm").textContent=curSup.name;
+  var days=curSup.order_days?curSup.order_days.map(function(d){return DH[d]}).join(" "):"";
+  var cut=curSup.order_cutoff?curSup.order_cutoff.slice(0,5):"";
+  var info="";
+  if(curSup.contact_name) info+='<span>'+curSup.contact_name+'</span>';
+  if(days) info+='<span>📅 '+days+(cut?' עד '+cut:'')+'</span>';
+  document.getElementById("shNf").innerHTML=info;
   if(curSup.phone){
-    document.getElementById("shPhone").innerHTML=`<a class="sh-phone" href="tel:${curSup.phone}">📞 ${curSup.contact_name||"חייג"}</a>`;
-  }else{
-    document.getElementById("shPhone").innerHTML="";
+    document.getElementById("shPh").innerHTML='<a class="sh-call" href="tel:'+curSup.phone+'">📞 '+( curSup.contact_name||"חייג")+'</a>';
+  } else {
+    document.getElementById("shPh").innerHTML="";
   }
-
-  document.getElementById("searchBox").value="";
+  document.getElementById("sbox").value="";
   renderItems();
+  window.scrollTo(0,0);
 }
 
 function renderItems(){
-  const q=document.getElementById("searchBox").value;
-  document.getElementById("searchX").style.display=q?"block":"none";
-
-  let items=products.filter(p=>p.supplier_id===curSup.id);
-  if(q) items=items.filter(i=>i.name.includes(q));
-
-  const cats={};
-  items.forEach(p=>{const c=p.category||"כללי";if(!cats[c])cats[c]=[];cats[c].push(p);});
-
-  let html="";
-  for(const [cat,list] of Object.entries(cats)){
-    html+=`<div class="cat-title">${cat}</div>`;
-    list.forEach(item=>{
-      const qty=cart[item.id]||0;
-      const on=qty>0;
-      html+=`<div class="item${on?" on":""}" id="r-${item.id}">
-        <div class="item-chk" onclick="toggle('${item.id}')">✓</div>
-        <div class="item-info" onclick="toggle('${item.id}')">
-          <div class="item-name">${item.name}</div>
-          <div class="item-unit">${item.order_unit||item.unit||"יח׳"}</div>
-        </div>
-        <div class="item-qty">
-          <button class="qb" onclick="chg('${item.id}',-1)">−</button>
-          <span class="qv">${qty}</span>
-          <button class="qb plus" onclick="chg('${item.id}',1)">+</button>
-        </div>
-      </div>`;
+  var q=document.getElementById("sbox").value;
+  document.getElementById("sx").style.display=q?"block":"none";
+  var items=products.filter(function(p){return p.supplier_id===curSup.id});
+  if(q) items=items.filter(function(i){return i.name.indexOf(q)!==-1});
+  var cats={},order=[];
+  items.forEach(function(p){var c=p.category||"כללי";if(!cats[c]){cats[c]=[];order.push(c);}cats[c].push(p);});
+  var h="";
+  order.forEach(function(cat){
+    h+='<div class="cat">'+cat+'</div>';
+    cats[cat].forEach(function(item){
+      var qty=cart[item.id]||0;
+      var on=qty>0;
+      h+='<div class="it'+(on?" on":"")+'">';
+      h+='<div class="it-chk" onclick="toggle(\''+item.id+'\')">✓</div>';
+      h+='<div class="it-body" onclick="toggle(\''+item.id+'\')">';
+      h+='<div class="it-name">'+item.name+'</div>';
+      h+='<div class="it-unit">'+(item.order_unit||item.unit||"יח׳")+'</div>';
+      h+='</div>';
+      h+='<div class="it-qty">';
+      h+='<button class="qb" onclick="chg(\''+item.id+'\',-1)">−</button>';
+      h+='<span class="qv">'+qty+'</span>';
+      h+='<button class="qb plus" onclick="chg(\''+item.id+'\',1)">+</button>';
+      h+='</div></div>';
     });
-  }
-  if(!Object.keys(cats).length) html=`<div style="text-align:center;padding:40px;color:var(--dm)">${q?"לא נמצאו מוצרים":"אין מוצרים"}</div>`;
-
-  document.getElementById("itemsList").innerHTML=html;
+  });
+  if(!order.length) h='<div class="empty">'+(q?"לא נמצאו מוצרים":"אין מוצרים")+'</div>';
+  document.getElementById("items").innerHTML=h;
   updateBadge();
 }
 
-function toggle(id){
-  if(cart[id]) delete cart[id]; else cart[id]=1;
-  renderItems();
-}
-
-function chg(id,d){
-  const cur=(cart[id]||0)+d;
-  if(cur<=0) delete cart[id]; else cart[id]=cur;
-  renderItems();
-}
+function toggle(id){if(cart[id])delete cart[id];else cart[id]=1;renderItems();}
+function chg(id,d){var c=(cart[id]||0)+d;if(c<=0)delete cart[id];else cart[id]=c;renderItems();}
 
 function updateBadge(){
-  const cc=Object.keys(cart).length;
-  const b=document.getElementById("barBadge");
-  if(cc>0){b.textContent=cc;b.style.display="inline-block";}
-  else{b.style.display="none";}
+  var n=Object.keys(cart).length;
+  var b=document.getElementById("bn");
+  if(n>0){b.textContent=n;b.style.display="flex";}else{b.style.display="none";}
 }
 
 function buildTxt(){
-  const items=products.filter(p=>p.supplier_id===curSup.id);
-  const lines=items.filter(p=>cart[p.id]>0).map(p=>"• "+p.name+" — "+cart[p.id]+" "+(p.order_unit||p.unit||"יח׳"));
-  if(!lines.length) return null;
-  const d=new Date();
+  var items=products.filter(function(p){return p.supplier_id===curSup.id});
+  var lines=items.filter(function(p){return cart[p.id]>0}).map(function(p){return "• "+p.name+" — "+cart[p.id]+" "+(p.order_unit||p.unit||"יח׳")});
+  if(!lines.length)return null;
+  var d=new Date();
   return "הזמנה מפסאו גג על הים\nתאריך: "+d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()+"\n\n"+lines.join("\n")+"\n\nתודה";
 }
 
-function cleanPh(s){if(!s)return"";let c=s.replace(/[^0-9+]/g,"");if(c.startsWith("0"))c="972"+c.slice(1);if(c.startsWith("+"))c=c.slice(1);return c;}
+function cleanPh(s){if(!s)return"";var c=s.replace(/[^0-9+]/g,"");if(c.charAt(0)==="0")c="972"+c.slice(1);if(c.charAt(0)==="+")c=c.slice(1);return c;}
 
 function sendWA(){
-  const t=buildTxt();
-  if(!t) return flash("סמן לפחות פריט אחד");
-  const p=cleanPh(curSup.phone);
-  const e=encodeURIComponent(t);
+  var t=buildTxt();if(!t)return flash("סמן לפחות פריט אחד");
+  var p=cleanPh(curSup.phone),e=encodeURIComponent(t);
   window.open(p?"https://wa.me/"+p+"?text="+e:"https://wa.me/?text="+e,"_blank");
 }
-
 function copyOrd(){
-  const t=buildTxt();
-  if(!t) return flash("סמן לפחות פריט אחד");
-  navigator.clipboard.writeText(t).then(()=>flash("✓ הועתק"));
+  var t=buildTxt();if(!t)return flash("סמן לפחות פריט אחד");
+  navigator.clipboard.writeText(t).then(function(){flash("✓ הועתק")});
 }
-
-function resetCart(){
-  cart={};
-  renderItems();
-  flash("אופס");
-}
+function resetCart(){cart={};renderItems();flash("אופס");}
 
 function goBack(){
-  document.getElementById("sView").style.display="none";
+  document.getElementById("sv").style.display="none";
   document.getElementById("bar").classList.remove("show");
-  document.getElementById("iView").style.display="block";
-  curSup=null;
-  cart={};
+  document.getElementById("idx").style.display="block";
+  curSup=null;cart={};
 }
 
 function flash(m){
-  const t=document.getElementById("toast");
-  t.textContent=m;
-  t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),2200);
+  var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");
+  setTimeout(function(){t.classList.remove("show")},2200);
 }
 
 load();
