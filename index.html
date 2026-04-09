@@ -1,86 +1,106 @@
-import { useState, useEffect, useCallback, useRef } from “react”;
+<!DOCTYPE html>
 
-const SB = “https://vzeowbriddhvhpishmhn.supabase.co”;
-const SK = “eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk”;
-const DH = { sun:“א׳”, mon:“ב׳”, tue:“ג׳”, wed:“ד׳”, thu:“ה׳”, fri:“ו׳” };
-const TABS = [
-{ key:“food”, label:“אוכל”, icon:“🍳”, cats:[“food”] },
-{ key:“drinks”, label:“בר”, icon:“🍸”, cats:[“אלכוהול”,“יינות”] },
-{ key:“spice”, label:“תבלינים”, icon:“🌿”, cats:[“תבלינים”] },
-{ key:“equip”, label:“ציוד”, icon:“🧴”, cats:[“equipment”] },
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>פסאו — הזמנות ספקים</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="הזמנות">
+<meta name="theme-color" content="#0A0A0C">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Heebo',sans-serif;background:#0A0A0C;color:#EAEAEE;min-height:100dvh;direction:rtl;-webkit-font-smoothing:antialiased}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}
+input::placeholder{color:#6E6E7A}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<script type="text/babel">
+const {useState,useEffect,useCallback} = React;
+
+const SB=“https://vzeowbriddhvhpishmhn.supabase.co”;
+const SK=“eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk”;
+const DH={sun:“א׳”,mon:“ב׳”,tue:“ג׳”,wed:“ד׳”,thu:“ה׳”,fri:“ו׳”};
+const TABS=[
+{key:“food”,label:“אוכל”,icon:“🍳”,cats:[“food”]},
+{key:“drinks”,label:“בר”,icon:“🍸”,cats:[“אלכוהול”,“יינות”]},
+{key:“spice”,label:“תבלינים”,icon:“🌿”,cats:[“תבלינים”]},
+{key:“equip”,label:“ציוד”,icon:“🧴”,cats:[“equipment”]},
 ];
-const ph = s => { if (!s) return “”; let c = s.replace(/[^0-9+]/g,””); if (c.startsWith(“0”)) c = “972”+c.slice(1); if (c.startsWith(”+”)) c = c.slice(1); return c; };
-const api = async (t,q=””) => { const r = await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:{apikey:SK,Authorization:`Bearer ${SK}`}}); return r.json(); };
+const cleanPh=s=>{if(!s)return””;let c=s.replace(/[^0-9+]/g,””);if(c.startsWith(“0”))c=“972”+c.slice(1);if(c.startsWith(”+”))c=c.slice(1);return c;};
+const api=async(t,q=””)=>{const r=await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:{apikey:SK,Authorization:`Bearer ${SK}`}});return r.json();};
 
-export default function App() {
-const [sup,setSup] = useState([]);
-const [prod,setProd] = useState([]);
-const [loading,setLoading] = useState(true);
-const [err,setErr] = useState(null);
-const [tab,setTab] = useState(“food”);
-const [cur,setCur] = useState(null);
-const [cart,setCart] = useState({});
-const [toast,setToast] = useState(””);
-const [search,setSearch] = useState(””);
+const C={bg:”#0A0A0C”,sf:”#131316”,sfh:”#1A1A1F”,bd:”#222228”,g:”#D4AF5A”,gd:“rgba(212,175,90,0.1)”,tx:”#EAEAEE”,dm:”#6E6E7A”,rd:”#EF4444”,w:”#fff”};
+const f=”‘Heebo’,sans-serif”;
+const ff=”‘Frank Ruhl Libre’,serif”;
 
-useEffect(() => {
+function App(){
+const [sup,setSup]=useState([]);
+const [prod,setProd]=useState([]);
+const [loading,setLoading]=useState(true);
+const [err,setErr]=useState(null);
+const [tab,setTab]=useState(“food”);
+const [cur,setCur]=useState(null);
+const [cart,setCart]=useState({});
+const [toast,setToast]=useState(””);
+const [search,setSearch]=useState(””);
+
+useEffect(()=>{
 Promise.all([api(“suppliers”,“active=eq.true&order=name.asc”),api(“products”,“active=eq.true&order=category.asc,name.asc”)])
-.then(([s,p]) => { setSup(s); setProd(p.filter(x=>x.discontinued!==true)); setLoading(false); })
-.catch(() => { setErr(true); setLoading(false); });
+.then(([s,p])=>{setSup(s);setProd(p.filter(x=>x.discontinued!==true));setLoading(false);})
+.catch(()=>{setErr(true);setLoading(false);});
 },[]);
 
-const flash = useCallback(m => { setToast(m); setTimeout(()=>setToast(””),2200); },[]);
-const setQty = (id,v) => setCart(p => { const n={…p}; if(v<=0) delete n[id]; else n[id]=v; return n; });
+const flash=useCallback(m=>{setToast(m);setTimeout(()=>setToast(””),2200);},[]);
+const setQty=(id,v)=>setCart(p=>{const n={…p};if(v<=0)delete n[id];else n[id]=v;return n;});
 
-const items = cur ? prod.filter(p=>p.supplier_id===cur.id) : [];
-const cats = {};
-items.forEach(p => { const c=p.category||“כללי”; if(!cats[c]) cats[c]=[]; cats[c].push(p); });
-const cc = Object.values(cart).filter(v=>v>0).length;
+const items=cur?prod.filter(p=>p.supplier_id===cur.id):[];
+const cats={};
+items.forEach(p=>{const c=p.category||“כללי”;if(!cats[c])cats[c]=[];cats[c].push(p);});
+const cc=Object.values(cart).filter(v=>v>0).length;
 
-const txt = () => {
-const ls = items.filter(p=>cart[p.id]>0).map(p=>`• ${p.name} — ${cart[p.id]} ${p.order_unit||p.unit||"יח׳"}`);
-if(!ls.length) return null;
+const txt=()=>{
+const ls=items.filter(p=>cart[p.id]>0).map(p=>`• ${p.name} — ${cart[p.id]} ${p.order_unit||p.unit||"יח׳"}`);
+if(!ls.length)return null;
 const d=new Date();
 return `הזמנה מפסאו גג על הים\nתאריך: ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}\n\n${ls.join("\n")}\n\nתודה`;
 };
 
-const wa = () => { const t=txt(); if(!t) return flash(“סמן לפחות פריט אחד”); const p=ph(cur?.phone); const e=encodeURIComponent(t); window.open(p?`https://wa.me/${p}?text=${e}`:`https://wa.me/?text=${e}`,”_blank”); };
-const cp = () => { const t=txt(); if(!t) return flash(“סמן לפחות פריט אחד”); navigator.clipboard.writeText(t).then(()=>flash(“✓ הועתק”)); };
-
-const C = { bg:”#0A0A0C”, sf:”#131316”, sfh:”#1A1A1F”, bd:”#222228”, g:”#D4AF5A”, gd:“rgba(212,175,90,0.1)”, gm:“rgba(212,175,90,0.25)”, tx:”#EAEAEE”, dm:”#6E6E7A”, gn:”#22C55E”, rd:”#EF4444”, w:”#fff” };
-const f = “‘Heebo’,sans-serif”;
-const ff = “‘Frank Ruhl Libre’,serif”;
-
-const CSS = `@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}input::placeholder{color:${C.dm}}*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}`;
+const wa=()=>{const t=txt();if(!t)return flash(“סמן לפחות פריט אחד”);const p=cleanPh(cur?.phone);const e=encodeURIComponent(t);window.open(p?`https://wa.me/${p}?text=${e}`:`https://wa.me/?text=${e}`,”_blank”);};
+const cp=()=>{const t=txt();if(!t)return flash(“סמן לפחות פריט אחד”);navigator.clipboard.writeText(t).then(()=>flash(“✓ הועתק”));};
 
 if(loading) return (
-<div style={{display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,height:“100vh”,background:C.bg,fontFamily:f}}>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet"/>
-<style>{CSS}</style>
+<div style={{display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,height:“100vh”}}>
 <div style={{width:28,height:28,border:`2.5px solid ${C.bd}`,borderTopColor:C.g,borderRadius:“50%”,animation:“spin .7s linear infinite”}}/>
 <p style={{color:C.dm,fontSize:13,marginTop:14}}>טוען…</p>
 </div>
 );
 
-if(err) return (<div style={{display:“flex”,alignItems:“center”,justifyContent:“center”,height:“100vh”,background:C.bg,fontFamily:f}}><p style={{color:C.rd,fontSize:14}}>שגיאה בטעינה</p></div>);
+if(err) return (<div style={{display:“flex”,alignItems:“center”,justifyContent:“center”,height:“100vh”}}><p style={{color:C.rd,fontSize:14}}>שגיאה בטעינה. בדוק חיבור.</p></div>);
 
-// ══════════ SUPPLIER DETAIL ══════════
+// ══════ SUPPLIER DETAIL ══════
 if(cur){
-const days = cur.order_days?.map(d=>DH[d]).join(” “)||””;
-const cut = cur.order_cutoff?.slice(0,5)||””;
-const fc = search ? Object.fromEntries(Object.entries(cats).map(([k,v])=>[k,v.filter(i=>i.name.includes(search))]).filter(([,v])=>v.length)) : cats;
+const days=cur.order_days?.map(d=>DH[d]).join(” “)||””;
+const cut=cur.order_cutoff?.slice(0,5)||””;
+const fc=search?Object.fromEntries(Object.entries(cats).map(([k,v])=>[k,v.filter(i=>i.name.includes(search))]).filter(([,v])=>v.length)):cats;
 
 ```
 return (
-  <div style={{background:C.bg,minHeight:"100vh",fontFamily:f,direction:"rtl",color:C.tx}}>
-    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet"/>
-    <style>{CSS}</style>
-
-    {/* HEADER */}
+  <div>
     <div style={{background:`linear-gradient(180deg,${C.sfh} 0%,${C.bg} 100%)`,padding:"16px 18px 12px",borderBottom:`1px solid ${C.bd}`,position:"sticky",top:0,zIndex:20}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <button onClick={()=>{setCur(null);setCart({});setSearch("");}} style={{background:"none",border:"none",color:C.g,fontSize:13,fontFamily:f,cursor:"pointer",padding:0,fontWeight:600}}>→ חזרה</button>
-        {cur.phone && <a href={`tel:${cur.phone}`} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:10,padding:"5px 12px",fontSize:12,color:C.tx,textDecoration:"none",fontFamily:f}}>📞 {cur.contact_name||"חייג"}</a>}
+        {cur.phone&&<a href={`tel:${cur.phone}`} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:10,padding:"5px 12px",fontSize:12,color:C.tx,textDecoration:"none",fontFamily:f}}>📞 {cur.contact_name||"חייג"}</a>}
       </div>
       <div style={{fontSize:26,fontWeight:900,fontFamily:ff,marginTop:6,letterSpacing:"-0.5px"}}>{cur.name}</div>
       {(days||cur.contact_name)&&<div style={{fontSize:12,color:C.dm,marginTop:4,display:"flex",gap:12}}>{cur.contact_name&&<span>{cur.contact_name}</span>}{days&&<span>📅 {days}{cut?` עד ${cut}`:""}</span>}</div>}
@@ -90,13 +110,12 @@ return (
       </div>
     </div>
 
-    {/* ITEMS */}
     <div style={{paddingBottom:120}}>
       {Object.entries(fc).map(([cat,citems],ci)=>(
         <div key={cat} style={{animation:`fadeUp .3s ease ${ci*0.05}s both`}}>
           <div style={{fontSize:12,fontWeight:700,color:C.g,padding:"14px 18px 5px",letterSpacing:"0.5px",position:"sticky",top:118,zIndex:5,background:C.bg}}>{cat}</div>
           {citems.map((item,ii)=>{
-            const q=cart[item.id]||0; const on=q>0;
+            const q=cart[item.id]||0;const on=q>0;
             return (
               <div key={item.id} style={{display:"flex",alignItems:"center",padding:"10px 18px",gap:12,borderBottom:`1px solid ${on?C.gd:C.bd}`,background:on?C.gd:"transparent",transition:"background .15s",animation:`fadeUp .25s ease ${ci*0.05+ii*0.02}s both`}}>
                 <div onClick={()=>setQty(item.id,q>0?0:1)} style={{width:26,height:26,borderRadius:8,border:on?`2px solid ${C.g}`:`2px solid ${C.bd}`,background:on?C.g:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .15s",flexShrink:0,color:on?C.bg:"transparent",fontSize:14,fontWeight:800}}>✓</div>
@@ -117,7 +136,6 @@ return (
       {Object.keys(fc).length===0&&<div style={{textAlign:"center",padding:40,color:C.dm,fontSize:14}}>{search?"לא נמצאו מוצרים":"אין מוצרים"}</div>}
     </div>
 
-    {/* BOTTOM BAR */}
     <div style={{position:"fixed",bottom:0,left:0,right:0,background:C.bg,borderTop:`1px solid ${C.bd}`,padding:"10px 16px 12px",display:"flex",gap:8,zIndex:30,alignItems:"center"}}>
       {cc>0&&<div style={{background:C.g,color:C.bg,padding:"5px 14px",borderRadius:20,fontSize:12,fontWeight:800,flexShrink:0,animation:"scaleIn .2s ease"}}>{cc}</div>}
       <button onClick={wa} style={{flex:1,padding:"13px 0",borderRadius:12,border:"none",background:"#25D366",color:"#fff",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:f}}>וואטסאפ 📲</button>
@@ -132,24 +150,19 @@ return (
 
 }
 
-// ══════════ INDEX HOME ══════════
-const at = TABS.find(t=>t.key===tab);
-const ts = sup.filter(s=>at.cats.includes(s.category)&&prod.some(p=>p.supplier_id===s.id));
+// ══════ INDEX HOME ══════
+const at=TABS.find(t=>t.key===tab);
+const ts=sup.filter(s=>at.cats.includes(s.category)&&prod.some(p=>p.supplier_id===s.id));
 
 return (
-<div style={{background:C.bg,minHeight:“100vh”,fontFamily:f,direction:“rtl”,color:C.tx}}>
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet"/>
-<style>{CSS}</style>
+<div>
+<div style={{textAlign:“center”,padding:“40px 20px 16px”,background:`radial-gradient(ellipse at center top,${C.gd} 0%,transparent 70%)`}}>
+<div style={{fontSize:11,fontWeight:600,color:C.g,letterSpacing:“3px”,textTransform:“uppercase”,marginBottom:6}}>PASEO</div>
+<h1 style={{fontSize:32,fontWeight:900,margin:0,letterSpacing:”-1px”,fontFamily:ff,lineHeight:1.1}}>גג על הים</h1>
+<p style={{fontSize:13,color:C.dm,marginTop:6}}>הזמנות ספקים</p>
+</div>
 
 ```
-  {/* HERO */}
-  <div style={{textAlign:"center",padding:"40px 20px 16px",background:`radial-gradient(ellipse at center top,${C.gd} 0%,transparent 70%)`}}>
-    <div style={{fontSize:11,fontWeight:600,color:C.g,letterSpacing:"3px",textTransform:"uppercase",marginBottom:6}}>PASEO</div>
-    <h1 style={{fontSize:32,fontWeight:900,margin:0,letterSpacing:"-1px",fontFamily:ff,lineHeight:1.1}}>גג על הים</h1>
-    <p style={{fontSize:13,color:C.dm,marginTop:6}}>הזמנות ספקים</p>
-  </div>
-
-  {/* TABS */}
   <div style={{display:"flex",padding:"0 12px",position:"sticky",top:0,zIndex:15,background:C.bg,paddingTop:8,paddingBottom:8,borderBottom:`1px solid ${C.bd}`}}>
     {TABS.map(t=>{
       const on=tab===t.key;
@@ -164,7 +177,6 @@ return (
     })}
   </div>
 
-  {/* CARDS */}
   <div style={{padding:"8px 14px 40px"}}>
     {ts.length===0&&<div style={{textAlign:"center",padding:40,color:C.dm,fontSize:14}}>אין ספקים</div>}
     {ts.map((s,i)=>{
@@ -172,10 +184,7 @@ return (
       const days=s.order_days?.map(d=>DH[d]).join(" ")||"";
       const cut=s.order_cutoff?.slice(0,5)||"";
       return (
-        <div key={s.id} onClick={()=>setCur(s)} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:16,padding:"16px 18px",marginBottom:8,cursor:"pointer",transition:"transform .1s",animation:`fadeUp .3s ease ${i*0.04}s both`}}
-          onPointerDown={e=>e.currentTarget.style.transform="scale(0.98)"}
-          onPointerUp={e=>e.currentTarget.style.transform="scale(1)"}
-          onPointerLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+        <div key={s.id} onClick={()=>setCur(s)} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:16,padding:"16px 18px",marginBottom:8,cursor:"pointer",animation:`fadeUp .3s ease ${i*0.04}s both`}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
             <div>
               <div style={{fontSize:17,fontWeight:700,lineHeight:1.2}}>{s.name}</div>
@@ -196,3 +205,10 @@ return (
 
 );
 }
+
+const root = ReactDOM.createRoot(document.getElementById(“root”));
+root.render(<App/>);
+</script>
+
+</body>
+</html>
