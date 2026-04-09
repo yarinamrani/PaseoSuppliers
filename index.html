@@ -3,1783 +3,333 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<meta name="color-scheme" content="dark">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>פסאו — הזמנות ספקים</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="הזמנות">
+<meta name="theme-color" content="#0C0C0E">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+:root{--bg:#0C0C0E;--card:#1A1A1F;--card-active:#22222A;--border:#2A2A33;--text:#E8E8EC;--dim:#7A7A88;--accent:#C4A265;--accent-dim:rgba(196,162,101,0.15);--green:#4ADE80;--red:#F87171}
+body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
 
-/* colors hardcoded */
+/* Loading */
+.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;gap:16px}
+.loader .spin{width:36px;height:36px;border:3px solid var(–border);border-top-color:var(–accent);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-/* light mode removed - dark only */
+/* Index */
+#indexView{padding:16px 12px 40px;display:none}
+#indexView h1{font-size:26px;font-weight:900;color:var(–accent);text-align:center;margin:20px 0 4px}
+.idx-sub{text-align:center;color:var(–dim);font-size:13px;margin-bottom:24px}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.card{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:14px;cursor:pointer;transition:all .15s}
+.card:active{transform:scale(.97);border-color:var(–accent)}
+.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.card-emoji{font-size:28px}
+.card-count{font-size:11px;color:var(–dim);background:var(–card-active);padding:2px 8px;border-radius:20px}
+.card-name{font-size:14px;font-weight:700;margin-bottom:2px;line-height:1.3}
+.card-contact{font-size:11px;color:var(–dim)}
+.card-days{font-size:10px;color:var(–accent);margin-top:4px;opacity:.8}
 
-html, body {
-background: #18181b !important;
-color: #fafafa !important;
-color-scheme: dark;
-}
+/* Supplier View */
+#supplierView{padding:0 0 120px;display:none}
+.s-header{position:sticky;top:0;z-index:10;background:var(–bg);padding:14px 16px 10px;border-bottom:1px solid var(–border)}
+.s-back{background:none;border:none;color:var(–accent);font-size:14px;font-family:inherit;cursor:pointer;margin-bottom:6px;padding:0}
+.s-title{font-size:22px;font-weight:900}
+.s-meta{font-size:12px;color:var(–dim);margin-top:2px}
+.s-contact-bar{display:flex;gap:8px;margin-top:8px}
+.s-contact-bar a,.s-contact-bar button{background:var(–card);border:1px solid var(–border);border-radius:10px;padding:6px 14px;font-size:12px;color:var(–text);text-decoration:none;font-family:inherit;cursor:pointer}
+.s-contact-bar a:active,.s-contact-bar button:active{background:var(–accent-dim)}
+.cat-title{font-size:13px;font-weight:700;color:var(–accent);padding:14px 16px 6px;position:sticky;top:96px;background:var(–bg);z-index:5}
+.item{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(–border);gap:12px;transition:background .1s}
+.item.active{background:var(–accent-dim)}
+.item-check{width:22px;height:22px;border-radius:6px;border:2px solid var(–border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:13px;color:transparent}
+.item.active .item-check{border-color:var(–accent);background:var(–accent);color:#000}
+.item-info{flex:1;min-width:0}
+.item-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item-unit{font-size:11px;color:var(–dim)}
+.item-qty{display:flex;align-items:center;gap:8px}
+.qty-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(–border);background:var(–card);color:var(–text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit}
+.qty-btn:active{background:var(–accent-dim)}
+.qty-val{font-size:16px;font-weight:700;min-width:24px;text-align:center}
 
-.theme-btn {
-background: #2c2c30;
-border: 1px solid rgba(255,255,255,0.12);
-border-radius: 8px;
-color: #a1a1aa;
-font-size: 18px;
-width: 34px; height: 34px;
-cursor: pointer;
-display: flex; align-items: center; justify-content: center;
-}
+/* Bottom Bar */
+.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(–bg);border-top:1px solid var(–border);padding:10px 16px;display:none;gap:8px;z-index:20}
+.bottom-bar.show{display:flex}
+.btn{flex:1;padding:12px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
+.btn-wa{background:#25D366;color:#fff}
+.btn-copy{background:var(–card);color:var(–text);border:1px solid var(–border)}
+.btn-reset{background:var(–card);color:var(–red);border:1px solid var(–border);flex:.5}
 
-- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* Badge */
+.badge{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(–accent);color:#000;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:25}
+.badge.show{opacity:1}
 
-body {
-font-family: ‘Heebo’, sans-serif;
-background: #18181b;
-color: #fafafa;
-min-height: 100vh;
-max-width: 480px;
-margin: 0 auto;
-font-size: 14px;
-line-height: 1.4;
-}
+/* Toast */
+.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(–card);color:var(–text);padding:8px 20px;border-radius:20px;font-size:13px;border:1px solid var(–border);opacity:0;transition:opacity .3s;pointer-events:none;z-index:30}
+.toast.show{opacity:1}
 
-/* HEADER */
-.header {
-position: sticky;
-top: 0;
-z-index: 100;
-background: #18181b;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-padding: 12px 16px 0;
-}
-
-.header-top {
-display: flex;
-align-items: center;
-justify-content: space-between;
-margin-bottom: 12px;
-}
-
-.logo { font-size: 17px; font-weight: 700; color: #fafafa; letter-spacing: -0.3px; }
-.logo span { color: #3b82f6; }
-
-/* TABS */
-.tabs {
-display: flex;
-gap: 0;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-margin: 0 -16px;
-padding: 0 16px;
-}
-
-.tab {
-padding: 10px 16px;
-font-size: 13px;
-font-weight: 500;
-color: #a1a1aa;
-cursor: pointer;
-border-bottom: 2px solid transparent;
-transition: all 0.18s;
-white-space: nowrap;
-}
-
-.tab.active {
-color: #3b82f6;
-border-bottom-color: #3b82f6;
-}
-
-/* SEARCH */
-.search-wrap {
-padding: 10px 16px;
-background: #18181b;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-
-.search-input {
-width: 100%;
-background: #232326;
-border: 1px solid rgba(255,255,255,0.12);
-border-radius: 10px;
-padding: 9px 14px;
-font-size: 14px;
-color: #fafafa;
-font-family: ‘Heebo’, sans-serif;
-outline: none;
-direction: rtl;
-}
-
-.search-input::placeholder { color: #52525b; }
-.search-input:focus { border-color: #3b82f6; }
-
-/* CATEGORY PILLS */
-.pills {
-display: flex;
-gap: 8px;
-padding: 10px 16px;
-overflow-x: auto;
-scrollbar-width: none;
-background: #18181b;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-.pills::-webkit-scrollbar { display: none; }
-
-.pill {
-padding: 5px 13px;
-border-radius: 20px;
-font-size: 12px;
-font-weight: 500;
-white-space: nowrap;
-cursor: pointer;
-border: 1px solid rgba(255,255,255,0.12);
-color: #a1a1aa;
-background: transparent;
-transition: all 0.15s;
-}
-.pill.active {
-background: rgba(59,130,246,0.15);
-border-color: #3b82f6;
-color: #3b82f6;
-}
-
-/* MAIN CONTENT */
-.main { padding-bottom: 90px; }
-
-/* === ORDER TAB === */
-.supplier-block { border-bottom: 1px solid rgba(255,255,255,0.07); }
-
-.supplier-header {
-display: flex;
-align-items: center;
-justify-content: space-between;
-padding: 14px 16px;
-cursor: pointer;
-background: #232326;
-user-select: none;
-border-right: 3px solid transparent;
-transition: border-color 0.15s;
-}
-.supplier-header:has(.badge-accent) {
-border-right-color: #3b82f6;
-}
-
-.supplier-header:active { background: #2c2c30; }
-
-.sup-left { flex: 1; min-width: 0; }
-.sup-name { font-size: 15px; font-weight: 600; color: #fafafa; }
-.sup-meta { font-size: 12px; color: #a1a1aa; margin-top: 2px; }
-
-.sup-right { display: flex; align-items: center; gap: 8px; }
-
-.badge {
-font-size: 11px;
-padding: 2px 8px;
-border-radius: 10px;
-font-weight: 600;
-}
-.badge-green { background: rgba(34,197,94,0.13); color: #22c55e; }
-.badge-accent { background: rgba(59,130,246,0.15); color: #3b82f6; }
-.badge-amber { background: rgba(245,158,11,0.13); color: #f59e0b; }
-
-.chevron {
-font-size: 10px;
-color: #52525b;
-transition: transform 0.2s;
-flex-shrink: 0;
-}
-.chevron.open { transform: rotate(90deg); }
-
-.products { display: none; }
-.products.open { display: block; }
-
-.product-row {
-display: flex;
-align-items: center;
-padding: 11px 16px;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-gap: 10px;
-background: #18181b;
-}
-.product-row:last-child { border-bottom: none; }
-
-.prod-info { flex: 1; min-width: 0; }
-.prod-name { font-size: 13px; color: #fafafa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.prod-sub { font-size: 11px; color: #52525b; margin-top: 2px; }
-.prod-price { font-size: 13px; font-weight: 600; color: #a1a1aa; white-space: nowrap; min-width: 60px; text-align: center; }
-
-.qty-ctrl { display: flex; align-items: center; gap: 6px; }
-.qty-btn {
-width: 30px; height: 30px;
-border-radius: 8px;
-background: #2c2c30;
-border: 1px solid rgba(255,255,255,0.12);
-color: #fafafa;
-font-size: 18px;
-cursor: pointer;
-display: flex; align-items: center; justify-content: center;
-line-height: 1;
-font-weight: 400;
-transition: background 0.12s;
-}
-.qty-btn:active { background: #232326; }
-.qty-num {
-font-size: 15px;
-font-weight: 600;
-min-width: 22px;
-text-align: center;
-color: #52525b;
-}
-.qty-num.pos { color: #3b82f6; }
-
-/* CART BAR */
-.cart-bar {
-position: fixed;
-bottom: 0; left: 50%; transform: translateX(-50%);
-width: 100%; max-width: 480px;
-background: #232326;
-border-top: 1px solid rgba(255,255,255,0.12);
-padding: 12px 16px;
-display: none;
-align-items: center;
-gap: 12px;
-z-index: 200;
-}
-.cart-bar.vis { display: flex; }
-.cart-info { flex: 1; }
-.cart-label { font-size: 11px; color: #a1a1aa; }
-.cart-count { font-size: 15px; font-weight: 700; color: #fafafa; }
-
-.order-btn {
-background: #3b82f6;
-color: #fff;
-border: none;
-border-radius: 10px;
-padding: 11px 20px;
-font-size: 14px;
-font-weight: 700;
-cursor: pointer;
-font-family: ‘Heebo’, sans-serif;
-white-space: nowrap;
-}
-.order-btn:active { opacity: 0.85; }
-
-/* === DRAFT MODAL === */
-.modal-overlay {
-position: fixed;
-top: 0; left: 0; right: 0; bottom: 0;
-background: rgba(0,0,0,0.75);
-z-index: 1000;
-display: none;
-align-items: flex-end;
-justify-content: center;
--webkit-overflow-scrolling: touch;
-}
-.modal-overlay.vis { display: flex; }
-
-.modal {
-background: #232326;
-border-radius: 20px 20px 0 0;
-padding: 20px 16px calc(32px + env(safe-area-inset-bottom));
-width: 100%;
-max-width: 480px;
-max-height: 85vh;
-overflow-y: auto;
--webkit-overflow-scrolling: touch;
-position: relative;
-z-index: 1001;
-}
-
-.modal-handle {
-width: 36px; height: 4px;
-background: rgba(255,255,255,0.12);
-border-radius: 2px;
-margin: 0 auto 16px;
-}
-
-.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 4px; }
-.modal-sub { font-size: 12px; color: #a1a1aa; margin-bottom: 14px; }
-
-.sup-draft {
-background: #18181b;
-border: 1px solid rgba(255,255,255,0.07);
-border-radius: 12px;
-padding: 14px;
-margin-bottom: 12px;
-}
-
-.sup-draft-header {
-display: flex;
-justify-content: space-between;
-align-items: center;
-margin-bottom: 10px;
-}
-
-.sup-draft-name { font-size: 14px; font-weight: 700; }
-.sup-draft-phone { font-size: 12px; color: #3b82f6; }
-
-.draft-text {
-font-size: 12px;
-color: #a1a1aa;
-background: #2c2c30;
-border-radius: 8px;
-padding: 10px 12px;
-white-space: pre-wrap;
-line-height: 1.6;
-margin-bottom: 10px;
-direction: rtl;
-}
-
-.copy-btn {
-width: 100%;
-padding: 10px;
-background: #2c2c30;
-border: 1px solid rgba(255,255,255,0.12);
-border-radius: 8px;
-color: #fafafa;
-font-size: 13px;
-font-weight: 600;
-cursor: pointer;
-font-family: ‘Heebo’, sans-serif;
-}
-.copy-btn.copied { background: rgba(34,197,94,0.13); border-color: #22c55e; color: #22c55e; }
-.copy-btn:active { opacity: 0.8; }
-
-.modal-close {
-width: 100%;
-padding: 12px;
-background: transparent;
-border: 1px solid rgba(255,255,255,0.12);
-border-radius: 10px;
-color: #a1a1aa;
-font-size: 14px;
-cursor: pointer;
-margin-top: 6px;
-font-family: ‘Heebo’, sans-serif;
-}
-
-/* === PRICES TAB === */
-.price-table-wrap { padding: 0; }
-
-.price-section { margin-bottom: 0; border-bottom: 1px solid rgba(255,255,255,0.07); }
-
-.price-cat-header {
-padding: 8px 16px;
-font-size: 11px;
-font-weight: 700;
-color: #52525b;
-letter-spacing: 0.8px;
-text-transform: uppercase;
-background: #232326;
-position: sticky;
-top: 0;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-
-.price-row {
-padding: 10px 16px;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-direction: rtl;
-}
-.price-row:last-child { border-bottom: none; }
-
-.pr-name { font-size: 14px; color: #fafafa; margin-bottom: 3px; font-weight: 500; }
-.pr-meta { display: flex; justify-content: space-between; align-items: center; }
-.pr-sup { font-size: 12px; color: #52525b; }
-
-.pr-price { font-size: 14px; font-weight: 700; white-space: nowrap; }
-.pr-price.best { color: #22c55e; }
-.pr-price.high { color: #ef4444; }
-.pr-price.mid { color: #f59e0b; }
-.pr-price.solo { color: #a1a1aa; }
-.pr-unit { font-size: 11px; color: #52525b; font-weight: 400; margin-right: 3px; }
-
-.no-data { padding: 32px 16px; text-align: center; color: #52525b; font-size: 14px; }
-
-/* STATUS BADGE on supplier */
-.status-dot {
-width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-display: inline-block; margin-left: 6px;
-}
-.status-open { background: #22c55e; }
-.status-late { background: #ef4444; }
-.status-off   { background: #52525b; }
-
-/* WEEKLY VIEW */
-.week-header {
-padding: 12px 16px 6px;
-font-size: 13px; font-weight: 700;
-color: #a1a1aa; letter-spacing: 0.5px;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-background: #18181b;
-position: sticky; top: 0; z-index: 10;
-}
-.week-today-header {
-background: rgba(59,130,246,0.15);
-color: #3b82f6;
-border-bottom: 1px solid #3b82f6;
-}
-.week-day-block { border-bottom: 2px solid rgba(255,255,255,0.12); margin-bottom: 0; }
-.week-sup-row {
-display: flex; align-items: center; justify-content: space-between;
-padding: 10px 16px;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-cursor: pointer;
-}
-.week-sup-row:active { background: #2c2c30; }
-.week-sup-name { font-size: 14px; font-weight: 500; color: #fafafa; }
-.week-sup-meta { font-size: 12px; color: #52525b; margin-top: 2px; }
-.week-cutoff-badge {
-font-size: 11px; font-weight: 700; padding: 3px 8px;
-border-radius: 8px; white-space: nowrap;
-}
-.badge-open { background: rgba(34,197,94,0.13); color: #22c55e; }
-.badge-late { background: rgba(239,68,68,0.12); color: #ef4444; }
-.week-empty { padding: 12px 16px; font-size: 13px; color: #52525b; font-style: italic; }
-
-/* Excel export btn */
-.export-bar {
-padding: 10px 16px;
-background: #18181b;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-}
-.export-btn {
-display: flex;
-align-items: center;
-justify-content: center;
-gap: 8px;
-width: 100%;
-padding: 10px;
-background: #2c2c30;
-border: 1px solid rgba(255,255,255,0.12);
-border-radius: 10px;
-color: #fafafa;
-font-size: 13px;
-font-weight: 600;
-cursor: pointer;
-font-family: ‘Heebo’, sans-serif;
-}
-.export-btn:active { opacity: 0.8; }
-
-/* ── ANOMALIES TAB ── */
-.anm-filters { display:flex; gap:6px; padding:10px 16px; overflow-x:auto; scrollbar-width:none;
-background:#18181b; position:sticky; top:0; z-index:5; border-bottom:1px solid rgba(255,255,255,0.07); }
-.anm-filters::-webkit-scrollbar { display:none; }
-.anm-pill { padding:5px 12px; border-radius:16px; font-size:12px; font-weight:600; cursor:pointer;
-border:1px solid rgba(255,255,255,0.12); background:transparent; color:#a1a1aa;
-font-family:“Heebo”,sans-serif; white-space:nowrap; flex-shrink:0; }
-.anm-pill.active { background:rgba(59,130,246,0.15); border-color:#3b82f6; color:#3b82f6; }
-
-.anm-card { padding:14px 16px; border-bottom:1px solid rgba(255,255,255,0.07);
-background:#232326; border-right:3px solid #f59e0b; }
-.anm-card.high { border-right-color:#ef4444; }
-.anm-card.ack  { border-right-color:#52525b; opacity:0.55; }
-
-.anm-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2px; }
-.anm-name { font-size:14px; font-weight:600; color:#fafafa; flex:1; padding-left:8px; }
-.anm-pct  { font-size:15px; font-weight:800; white-space:nowrap; }
-.anm-pct.up { color:#ef4444; }
-.anm-pct.dn { color:#3b82f6; }
-.anm-meta { font-size:11px; color:#52525b; margin-bottom:10px; }
-
-/* visual bar comparison */
-.anm-bars { display:flex; align-items:flex-end; gap:6px; margin-bottom:10px; height:56px; }
-.anm-bar-col { display:flex; flex-direction:column; align-items:center; gap:3px; flex:1; }
-.anm-bar-rect { width:100%; border-radius:4px 4px 0 0; min-height:4px; }
-.anm-bar-val  { font-size:12px; font-weight:700; }
-.anm-bar-lbl  { font-size:10px; color:#52525b; }
-
-/* sparkline row */
-.anm-spark-row { display:flex; gap:4px; align-items:center; margin-bottom:10px; overflow-x:auto; scrollbar-width:none; }
-.anm-spark-row::-webkit-scrollbar { display:none; }
-.anm-spark-dot { display:flex; flex-direction:column; align-items:center; gap:2px; flex-shrink:0; }
-.anm-spark-circle { width:8px; height:8px; border-radius:50%; background:#52525b; }
-.anm-spark-circle.curr { background:#ef4444; width:10px; height:10px; }
-.anm-spark-circle.curr.dn { background:#3b82f6; }
-.anm-spark-price { font-size:10px; color:#52525b; }
-.anm-spark-date  { font-size:9px;  color:#52525b; }
-.anm-spark-line  { width:16px; height:2px; background:rgba(255,255,255,0.12); flex-shrink:0; align-self:center; margin-bottom:14px; }
-
-/* actions */
-.anm-actions { display:flex; gap:8px; }
-.anm-btn { flex:1; padding:8px 6px; border-radius:8px; font-size:12px; font-weight:600;
-cursor:pointer; border:1px solid rgba(255,255,255,0.12); background:#2c2c30;
-color:#a1a1aa; font-family:“Heebo”,sans-serif; text-align:center; }
-.anm-btn.wa  { background:rgba(37,211,102,0.12); border-color:rgba(37,211,102,0.4); color:#25d366; }
-.anm-btn.ok  { background:rgba(34,197,94,0.13); border-color:#22c55e; color:#22c55e; }
-.anm-btn.ack { background:#2c2c30; border-color:rgba(255,255,255,0.12); color:#52525b; }
-
-/* BUDGET TRACKER */
-.budget-wrap { padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.07); }
-.budget-title { font-size: 11px; font-weight: 700; color: #52525b; letter-spacing: 0.8px; text-transform: uppercase; margin-bottom: 10px; }
-.budget-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.budget-label { font-size: 13px; color: #a1a1aa; }
-.budget-amount { font-size: 13px; font-weight: 700; color: #fafafa; }
-.budget-bar-wrap { height: 6px; background: #2c2c30; border-radius: 3px; margin-bottom: 12px; overflow: hidden; }
-.budget-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s ease; }
-.budget-suppliers { display: flex; flex-direction: column; gap: 6px; }
-.budget-sup-row { display: flex; align-items: center; gap: 8px; }
-.budget-sup-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-.budget-sup-name { font-size: 12px; color: #a1a1aa; flex: 1; }
-.budget-sup-bar { flex: 2; height: 4px; background: #2c2c30; border-radius: 2px; overflow: hidden; }
-.budget-sup-fill { height: 100%; border-radius: 2px; }
-.budget-sup-amt { font-size: 12px; font-weight: 600; color: #fafafa; min-width: 60px; text-align: left; }
-.budget-month-selector { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.budget-month-btn { background: #2c2c30; border: 1px solid rgba(255,255,255,0.12); color: #a1a1aa; border-radius: 6px; padding: 4px 10px; font-size: 13px; cursor: pointer; font-family: “Heebo”, sans-serif; }
-.budget-month-label { font-size: 14px; font-weight: 600; color: #fafafa; }
-.budget-total-big { font-size: 28px; font-weight: 700; color: #fafafa; margin-bottom: 2px; }
-.budget-total-sub { font-size: 12px; color: #52525b; margin-bottom: 14px; }
-
-/* HISTORY TAB */
-.order-card {
-background: #232326;
-border-bottom: 1px solid rgba(255,255,255,0.07);
-padding: 14px 16px;
-}
-.order-card-header {
-display: flex; justify-content: space-between; align-items: flex-start;
-margin-bottom: 8px;
-}
-.order-card-sup { font-size: 15px; font-weight: 600; color: #fafafa; }
-.order-card-date { font-size: 12px; color: #52525b; margin-top: 2px; }
-.order-card-items { font-size: 13px; color: #a1a1aa; line-height: 1.6; }
-.order-card-item { display: flex; justify-content: space-between; padding: 2px 0; }
-.order-card-item-name { color: #fafafa; }
-.order-card-item-qty { color: #3b82f6; font-weight: 600; white-space: nowrap; }
-.order-status {
-font-size: 11px; font-weight: 700; padding: 3px 10px;
-border-radius: 10px; white-space: nowrap;
-}
-.status-sent { background: rgba(59,130,246,0.15); color: #3b82f6; }
-.status-received { background: rgba(34,197,94,0.13); color: #22c55e; }
-.status-partial { background: rgba(245,158,11,0.13); color: #f59e0b; }
-.status-issue { background: rgba(239,68,68,0.12); color: #ef4444; }
-.order-actions { display: flex; gap: 8px; margin-top: 10px; }
-.order-action-btn {
-flex: 1; padding: 7px; border-radius: 8px; font-size: 12px; font-weight: 600;
-cursor: pointer; border: 1px solid rgba(255,255,255,0.12);
-background: #2c2c30; color: #a1a1aa;
-font-family: “Heebo”, sans-serif;
-}
-.order-action-btn.green { background: rgba(34,197,94,0.13); border-color: #22c55e; color: #22c55e; }
-.order-action-btn.amber { background: rgba(245,158,11,0.13); border-color: #f59e0b; color: #f59e0b; }
-.order-action-btn.red { background: rgba(239,68,68,0.12); border-color: #ef4444; color: #ef4444; }
-.confirm-bar {
-position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-width: 100%; max-width: 480px;
-background: #232326; border-top: 2px solid #3b82f6;
-padding: 12px 16px calc(16px + env(safe-area-inset-bottom));
-display: none; flex-direction: column; gap: 8px; z-index: 500;
-}
-.confirm-bar.vis { display: flex; }
-.confirm-bar-title { font-size: 13px; font-weight: 700; color: #fafafa; }
-.confirm-bar-sub { font-size: 12px; color: #a1a1aa; }
-.confirm-bar-btn {
-width: 100%; padding: 11px; border-radius: 10px; font-size: 14px; font-weight: 700;
-cursor: pointer; border: none; font-family: “Heebo”, sans-serif;
-background: #3b82f6; color: #fff;
-}
-.confirm-bar-skip { font-size: 12px; color: #52525b; text-align: center; cursor: pointer; }
+/* Dark mode toggle area */
+.mode-toggle{position:absolute;top:20px;left:16px;background:none;border:none;font-size:20px;cursor:pointer;padding:4px}
 </style>
 
 </head>
 <body>
 
-<div class="header">
-  <div class="header-top">
-    <div class="logo">פסאו <span>גג על הים</span></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <div style="font-size:11px;color:#52525b;" id="todayDate"></div>
-      <button class="theme-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
-    </div>
+<div id="loading" class="loader">
+  <div class="spin"></div>
+  <span style="color:var(--dim);font-size:13px">טוען ספקים...</span>
+</div>
+
+<div id="indexView">
+  <h1>פסאו גג על הים</h1>
+  <p class="idx-sub">הזמנות ספקים</p>
+  <div class="grid" id="supplierGrid"></div>
+</div>
+
+<div id="supplierView">
+  <div class="s-header">
+    <button class="s-back" id="backBtn">→ חזרה</button>
+    <div class="s-title" id="sTitle"></div>
+    <div class="s-meta" id="sMeta"></div>
+    <div class="s-contact-bar" id="sContact"></div>
   </div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab('order')" id="tab-order">הזמנות</div>
-    <div class="tab" onclick="switchTab('week')" id="tab-week">שבועי</div>
-    <div class="tab" onclick="switchTab('history')" id="tab-history">היסטוריה</div>
-    <div class="tab" onclick="switchTab('budget')" id="tab-budget">💰</div>
-    <div class="tab" onclick="switchTab('anomalies')" id="tab-anomalies">⚠️</div>
-    <div class="tab" onclick="switchTab('prices')" id="tab-prices">מחירון</div>
-    <div class="tab" onclick="switchTab('insights')" id="tab-insights">📊</div>
-  </div>
+  <div id="itemsList"></div>
 </div>
 
-<!-- ORDER TAB -->
-
-<div id="view-order" class="main">
-  <div class="search-wrap">
-    <input class="search-input" type="text" id="orderSearch" placeholder="חיפוש ספק או מוצר..." oninput="renderOrder()" />
-  </div>
-  <div class="pills" id="orderPills"></div>
-  <div id="orderList"></div>
+<div class="bottom-bar" id="bottomBar">
+  <button class="btn btn-wa" id="btnWa">📲 וואטסאפ</button>
+  <button class="btn btn-copy" id="btnCopy">📋 העתק</button>
+  <button class="btn btn-reset" id="btnReset">↩</button>
 </div>
 
-<!-- WEEKLY TAB -->
-
-<div id="view-week" class="main" style="display:none;">
-  <div id="weekList"></div>
-</div>
-
-<!-- BUDGET TAB -->
-
-<div id="view-budget" class="main" style="display:none;">
-  <div id="budgetContent"></div>
-</div>
-
-<!-- ANOMALIES TAB -->
-
-<div id="view-anomalies" class="main" style="display:none;">
-  <div id="anomaliesContent" style="padding-bottom:20px;"></div>
-</div>
-
-<!-- HISTORY TAB -->
-
-<div id="view-history" class="main" style="display:none;">
-  <div class="search-wrap">
-    <input class="search-input" type="text" id="historySearch" placeholder="חיפוש לפי ספק..." oninput="renderHistory()" />
-  </div>
-  <div id="historyList" style="padding-bottom:20px;"></div>
-</div>
-
-<!-- PRICES TAB -->
-
-<div id="view-prices" class="main" style="display:none;">
-  <div class="search-wrap">
-    <input class="search-input" type="text" id="priceSearch" placeholder="חיפוש מוצר..." oninput="renderPrices()" />
-  </div>
-  <div class="pills" id="pricePills"></div>
-  <div class="export-bar">
-    <button class="export-btn" onclick="exportEmail()">
-      📧 שלח מחירון למייל
-    </button>
-  </div>
-  <div id="priceList"></div>
-</div>
-
-<!-- INSIGHTS TAB -->
-
-<div id="view-insights" class="main" style="display:none;">
-  <div id="insightsContent" style="padding:0 0 20px;"></div>
-</div>
-
-<!-- CONFIRM BAR -->
-
-<div class="confirm-bar" id="confirmBar">
-  <div>
-    <div class="confirm-bar-title" id="confirmTitle">ההזמנה נשלחה?</div>
-    <div class="confirm-bar-sub" id="confirmSub"></div>
-  </div>
-  <button class="confirm-bar-btn" onclick="confirmOrder()">✓ אישור שליחה — שמור להיסטוריה</button>
-  <div class="confirm-bar-skip" onclick="dismissConfirm()">דלג, לא שלחתי עדיין</div>
-</div>
-
-<!-- CART BAR -->
-
-<div class="cart-bar" id="cartBar">
-  <div class="cart-info">
-    <div class="cart-label">מוצרים בהזמנה</div>
-    <div class="cart-count" id="cartCount">0</div>
-  </div>
-  <button class="order-btn" onclick="openModal()">הכן הזמנות ←</button>
-</div>
-
-<!-- MODAL -->
-
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
-  <div class="modal" id="modalContent">
-    <div class="modal-handle"></div>
-    <div class="modal-title">טיוטות הזמנה</div>
-    <div class="modal-sub" id="modalSub"></div>
-    <div id="draftsContainer"></div>
-    <button class="modal-close" onclick="closeModal()">סגור</button>
-  </div>
-</div>
+<div class="badge" id="badge"></div>
+<div class="toast" id="toast"></div>
 
 <script>
-// ═══════════════════════════════════════
-// DATA
-// ═══════════════════════════════════════
+const SUPABASE_URL = 'https://vzeowbriddhvhpishmhn.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk';
 
-const SUPPLIERS = [
-  {id:"90002",name:"מרינה פטריות",phone:"050-777-2388",cutoff:"21:00",days:["א","ב","ג","ד","ה","ו"],delivery:["א","ב","ג","ד","ה","ו"],cat:"ירקות",channel:"אפליקציה",appUrl:"https://pri-web.marina-galil.co.il",appName:"אתר מרינה"},
-  {id:"50059",name:"דיפ שיווק",phone:"050-887-3009",cutoff:"13:00",days:["ב","ד"],delivery:["ג","ה"],cat:"יבשים",channel:"וואטסאפ"},
-  {id:"50203",name:"צ.י שיווק",phone:"052-481-7133",cutoff:"20:00",days:["א","ב","ג","ד","ה"],delivery:["ה"],cat:"חלב",channel:"וואטסאפ"},
-  {id:"51596",name:"חביבים",phone:"052-6552915",cutoff:"13:00",days:["א","ב","ג","ד","ה"],delivery:["ב","ג","ד"],cat:"חד פעמי",channel:"וואטסאפ"},
-  {id:"90001",name:"גינדי בשר",phone:"03-5560919",cutoff:"17:00",days:["ב","ד","ו"],delivery:["ג","ה","א"],cat:"בשר",channel:"וואטסאפ"},
-  {id:"51513",name:"דולצי",phone:"053-338-0740",cutoff:"10:00",days:["ד"],delivery:["ה"],cat:"קינוחים",channel:"וואטסאפ"},
-  {id:"50057",name:"אוריה",phone:"053-6630699",cutoff:"10:00",days:null,delivery:["ג"],cat:"בשר",channel:"וואטסאפ"},
-  {id:"51538",name:"ריקו",phone:"058-477-7354",cutoff:"10:00",days:["ה","ג"],delivery:["א","ד"],cat:"פסטה",channel:"אפליקציה",appUrl:"https://pastaricco.com",appName:"ריקו"},
-  {id:"50338",name:"לחמא",phone:"0509081446",cutoff:"14:00",days:["א","ד"],delivery:["ב","ה"],cat:"לחם",channel:"אתר",appUrl:"https://lachmaport.co.il/LACHMA/",appName:"אתר לחמא"},
-  {id:"90012",name:"קבוצת בנדיקט",phone:"050-712-5623",cutoff:"12:30",days:["א","ג"],delivery:["ב","ה"],cat:"לחם",channel:"אפליקציה",appUrl:"https://apps.apple.com/il/app/restigo/id1526293585",appName:"Restigo"},
-  {id:"90011",name:"קנה דג",phone:"050-528-2857",cutoff:"08:00",days:["א","ב","ג","ד","ה"],delivery:["ג","ה","ו"],cat:"דגים",channel:"וואטסאפ"},
-  {id:"51588",name:"עדי לאטי",phone:"054-8117555",cutoff:"10:00",days:null,delivery:["ג","ד"],cat:"בשר",channel:"וואטסאפ"},
-  {id:"50093",name:"תפוז טרי",phone:"054-216-2240",cutoff:"10:00",days:["א","ב","ג","ד","ה","ו"],delivery:["ב","ד","ה"],cat:"משקאות",channel:"וואטסאפ"},
-  {id:"50197",name:"תנובה",phone:"054-444-1686",cutoff:"10:00",days:["ג"],delivery:["ד"],cat:"קפואים",channel:"וואטסאפ"},
-  {id:"123ALC",name:"123 אלכוהול",phone:"054-333-2696",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
-  {id:"ASPRT",name:"אספיריט",phone:"0508445000",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
-  {id:"CASTEL",name:"קסטל",phone:"054-622-2688",cutoff:"12:00",days:null,delivery:null,cat:"יינות",channel:"וואטסאפ"},
-  {id:"HACAREM",name:"הכרם",phone:"054-262-1523",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
-  {id:"AKKERMAN",name:"אקרמן",phone:"050-835-5626",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
-  {id:"GWS",name:"גלובל ווין אנד ספיריט",phone:"050-708-1439",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
-  {id:"KILLBILL",name:"קיל ביל",phone:"050-888-9288",cutoff:"12:00",days:null,delivery:null,cat:"אלכוהול",channel:"וואטסאפ"},
-  {id:"ZUR",name:"צור סוכנויות (מזרח ומערב)",phone:"050-887-0729",cutoff:"12:00",days:null,delivery:null,cat:"יינות",channel:"וואטסאפ"},
-  {id:"RONI",name:"רוני תבלינים",phone:"",cutoff:"12:00",days:null,delivery:null,cat:"תבלינים",channel:"וואטסאפ"},
-];
+const EMOJI_MAP = {
+  'food': '🍽️', 'אלכוהול': '🥃', 'יינות': '🍷', 'תבלינים': '🌶️', 'equipment': '🧹'
+};
+const DAY_MAP = {sun:'א׳',mon:'ב׳',tue:'ג׳',wed:'ד׳',thu:'ה׳',fri:'ו׳',sat:'ש׳'};
 
-const SUP_MAP = {};
-SUPPLIERS.forEach(s => SUP_MAP[s.id] = s);
+let suppliers = [];
+let products = [];
+let currentSupplier = null;
+let state = {}; // { productId: qty }
 
-const PRODUCTS = [
-  {id:"74959521",sid:"90002",name:"אספרגוס יח",sku:"1030031",unit:"יח'",cat:"ירקות",price:24.00},
-  {id:"40031df1",sid:"90002",name:"ארוגולה יח freshlid",sku:"1060074",unit:"יח'",cat:"ירקות",price:3.50},
-  {id:"b3e2d11a",sid:"90002",name:"בטטה L קג",sku:"1160120",unit:"ק\"ג",cat:"ירקות",price:6.00},
-  {id:"c9007ae4",sid:"90002",name:"בטטה XL קג",sku:"1160113",unit:"ק\"ג",cat:"ירקות",price:3.50},
-  {id:"da66396d",sid:"90002",name:"ביי-בי מהדרין חצי קילו",sku:"1150005",unit:"יח'",cat:"ירקות",price:14.50},
-  {id:"4f4af951",sid:"90002",name:"בצל אדום יבוא הולנד",sku:"1165002",unit:"ק\"ג",cat:"ירקות",price:2.90},
-  {id:"f4ddbbe8",sid:"90002",name:"בצל אדום מקולף מהדרין",sku:"1080007",unit:"שק",cat:"ירקות",price:82.60},
-  {id:"1eb0c9a5",sid:"90002",name:"בצל יבש לבן קג",sku:"1160146",unit:"ק\"ג",cat:"ירקות",price:2.50},
-  {id:"412728fa",sid:"90002",name:"גזר ארוז 1 קג",sku:"1160682",unit:"ק\"ג",cat:"ירקות",price:3.50},
-  {id:"9742921b",sid:"90002",name:"גינגר קג",sku:"1030003",unit:"ק\"ג",cat:"ירקות",price:15.50},
-  {id:"0beaae6f",sid:"90002",name:"דלעת קג",sku:"1160055",unit:"ק\"ג",cat:"ירקות",price:3.50},
-  {id:"6879861a",sid:"90002",name:"זוג אנדיב אדום",sku:"1030243",unit:"יח'",cat:"ירקות",price:15.50},
-  {id:"554516b9",sid:"90002",name:"חסה לליק מהדרין",sku:"1050102",unit:"יח'",cat:"ירקות",price:7.25,min:8,step:8},
-  {id:"7e63b319",sid:"90002",name:"חסה סלנובה מהדרין",sku:"1050056",unit:"יח'",cat:"ירקות",price:7.25,min:8,step:8},
-  {id:"467d21b0",sid:"90002",name:"חציל פרימיום קג",sku:"1160144",unit:"ק\"ג",cat:"ירקות",price:5.00},
-  {id:"2a916b01",sid:"90002",name:"חציל קמעוני ארוז קג",sku:"1160255",unit:"ק\"ג",cat:"ירקות",price:8.50},
-  {id:"304733f0",sid:"90002",name:"כפות אדום שק 4 קג",sku:"1160233",unit:"שק",cat:"ירקות",price:15.00},
-  {id:"2111a34b",sid:"90002",name:"כרוב לבן שלם קג",sku:"1160142",unit:"ק\"ג",cat:"ירקות",price:3.50},
-  {id:"08117da0",sid:"90002",name:"כרובית קג",sku:"1160141",unit:"ק\"ג",cat:"ירקות",price:5.50},
-  {id:"fd59b5b6",sid:"90002",name:"לבבות קיסר בנספק",sku:"1050034",unit:"יח'",cat:"ירקות",price:6.75,min:8,step:8},
-  {id:"aa583466",sid:"90002",name:"מיקרו בייבי אמריקוס",sku:"1020033",unit:"יח'",cat:"ירקות",price:6.00},
-  {id:"8299bd88",sid:"90002",name:"מיקרו כוסברה יח",sku:"1020015",unit:"יח'",cat:"ירקות",price:24.00},
-  {id:"81cdec68",sid:"90002",name:"מיקרו נבטי אפונה יח",sku:"1020026",unit:"יח'",cat:"ירקות",price:6.50},
-  {id:"5cefbe17",sid:"90002",name:"מלפפון במארז יח",sku:"1160714",unit:"יח'",cat:"ירקות",price:7.00},
-  {id:"110ea908",sid:"90002",name:"מלפפון פרימיום",sku:"1160688",unit:"ק\"ג",cat:"ירקות",price:12.50},
-  {id:"bb2f4f0d",sid:"90002",name:"פטריות שמפיניון ארוז יח",sku:"1010002",unit:"יח'",cat:"ירקות",price:6.50},
-  {id:"b286bd15",sid:"90002",name:"פטריות מלך היער יח",sku:"1010030",unit:"יח'",cat:"ירקות",price:6.20},
-  {id:"e09746a4",sid:"90002",name:"פטריות פורטבלה 3 קג",sku:"1010124",unit:"יח'",cat:"ירקות",price:27.60},
-  {id:"4218e7a0",sid:"90002",name:"פלחי דלעת יח",sku:"1160069",unit:"יח'",cat:"ירקות",price:6.00},
-  {id:"254160c7",sid:"90002",name:"פלפל חריף קג",sku:"1160196",unit:"ק\"ג",cat:"ירקות",price:6.50},
-  {id:"1f32d9c5",sid:"90002",name:"פלפל טינקרבל יח",sku:"1160182",unit:"יח'",cat:"ירקות",price:4.40},
-  {id:"7c627b82",sid:"90002",name:"פלפל צ'ילי קג",sku:"1030005",unit:"ק\"ג",cat:"ירקות",price:18.50},
-  {id:"cacfac5b",sid:"90002",name:"פרסה כרישה ארוז",sku:"1160220",unit:"יח'",cat:"ירקות",price:4.50},
-  {id:"290c125c",sid:"90002",name:"קולרבי קג",sku:"1160128",unit:"ק\"ג",cat:"ירקות",price:7.00},
-  {id:"fc777f1d",sid:"90002",name:"סלק אדום קג",sku:"1160139",unit:"ק\"ג",cat:"ירקות",price:3.00},
-  {id:"7b00ad94",sid:"90002",name:"סלק בואקום יבוא",sku:"1090009",unit:"יח'",cat:"ירקות",price:4.70},
-  {id:"9e7a2657",sid:"90002",name:"סלרי יח מהדרין",sku:"1130010",unit:"יח'",cat:"ירקות",price:4.70},
-  {id:"ced4ea38",sid:"90002",name:"עגבניה חממה קג",sku:"1160632",unit:"ק\"ג",cat:"ירקות",price:6.00},
-  {id:"3a58be32",sid:"90002",name:"עגבניה קג",sku:"1160004",unit:"ק\"ג",cat:"ירקות",price:8.50},
-  {id:"ae916680",sid:"90002",name:"עלי בייבי 120 גרם",sku:"1050067",unit:"יח'",cat:"ירקות",price:15.00},
-  {id:"e0fcd317",sid:"90002",name:"עלי לוקט 150 גרם",sku:"1050068",unit:"ק\"ג",cat:"ירקות",price:9.05},
-  {id:"ace0cbb7",sid:"90002",name:"עלי תרד ניוזילנדי בנספק",sku:"1050109",unit:"יח'",cat:"ירקות",price:6.40},
-  {id:"facde199",sid:"90002",name:"ענברה 05 פרימיום",sku:"1160286",unit:"ק\"ג",cat:"ירקות",price:10.50},
-  {id:"1771978e",sid:"90002",name:"שיני שום קלופות קג סין",sku:"1000007",unit:"ק\"ג",cat:"ירקות",price:7.00},
-  {id:"85105240",sid:"90002",name:"שרי ווייני קג",sku:"1160827",unit:"ק\"ג",cat:"ירקות",price:15.00},
-  {id:"c5609ae3",sid:"90002",name:"שרי וויסני קג",sku:"1160112",unit:"ק\"ג",cat:"ירקות",price:11.00},
-  {id:"da2ae845",sid:"90002",name:"שרי ממתר קג",sku:"1160194",unit:"ק\"ג",cat:"ירקות",price:15.00},
-  {id:"92e81f12",sid:"90002",name:"שרי צהוב קג",sku:"1160243",unit:"ק\"ג",cat:"ירקות",price:10.00},
-  {id:"c46638a6",sid:"90002",name:"שרי תמר ארוז",sku:"1160578",unit:"ק\"ג",cat:"ירקות",price:18.00},
-  {id:"d711a214",sid:"90002",name:"שרי תמר קג",sku:"1160037",unit:"ק\"ג",cat:"ירקות",price:15.00},
-  {id:"bcabecaf",sid:"90002",name:"תירס קג",sku:"1160260",unit:"ק\"ג",cat:"ירקות",price:10.00},
-  {id:"tznunit1",sid:"90002",name:"צנונית יח",sku:"1160170",unit:"יח'",cat:"ירקות",price:null},
-  {id:"9d98fef3",sid:"90002",name:"לימון פרימיום",sku:"1160147",unit:"ק\"ג",cat:"פירות",price:7.00},
-  {id:"366faaeb",sid:"90002",name:"לימון קג",sku:"1160340",unit:"ק\"ג",cat:"פירות",price:6.50},
-  {id:"ef6375a6",sid:"90002",name:"מנגו קג",sku:"1160067",unit:"ק\"ג",cat:"פירות",price:8.50},
-  {id:"4ad9c7a9",sid:"90002",name:"אבוקדו בשל FlowPack יח",sku:"1160842",unit:"יח'",cat:"פירות",price:7.00},
-  {id:"3e8c5175",sid:"90002",name:"בננה במארי יח בקג",sku:"1160773",unit:"ק\"ג",cat:"פירות",price:13.40},
-  {id:"aeded117",sid:"90002",name:"תפוזים קג",sku:"1160038",unit:"ק\"ג",cat:"פירות",price:4.20},
-  {id:"58816a02",sid:"90002",name:"תפוח עץ ירוק יבוא איטליה",sku:"1164201",unit:"ק\"ג",cat:"פירות",price:6.00},
-  {id:"32689a7c",sid:"90002",name:"אורגנו קג",sku:"1060010",unit:"ק\"ג",cat:"עשבי תיבול",price:14.30},
-  {id:"29021874",sid:"90002",name:"בזיליקום יח freshlid",sku:"1060070",unit:"יח'",cat:"עשבי תיבול",price:3.50},
-  {id:"72b82cac",sid:"90002",name:"כוסברה יח בשקית",sku:"1070010",unit:"יח'",cat:"עשבי תיבול",price:2.00},
-  {id:"e29b53d8",sid:"90002",name:"נענע יח בשקית",sku:"1070012",unit:"יח'",cat:"עשבי תיבול",price:2.00},
-  {id:"65fca978",sid:"90002",name:"רוזמרין יח freshlid",sku:"1060075",unit:"יח'",cat:"עשבי תיבול",price:3.50},
-  {id:"0f0a6c3d",sid:"50059",name:"אגוז לוז מולבן 1 קג",sku:"72104",unit:"ק\"ג",cat:"אגוזים",price:85.00},
-  {id:"ff9a0f60",sid:"50059",name:"אגוז קשיו חצאים 1 קג",sku:"72114",unit:"ק\"ג",cat:"אגוזים",price:25.50},
-  {id:"d71552db",sid:"50059",name:"אגוזי פקאן סיני מסוכר 1 קג",sku:"70103",unit:"ק\"ג",cat:"אגוזים",price:63.00},
-  {id:"d61b320b",sid:"50059",name:"בוטנים גרוסים רגילים 1 קג",sku:"621198",unit:"ק\"ג",cat:"אגוזים",price:19.50},
-  {id:"90cb943f",sid:"50059",name:"פיסטוק מולקין 1 קג",sku:"70200",unit:"ק\"ג",cat:"אגוזים",price:95.00},
-  {id:"221d19d1",sid:"50059",name:"שקדים פרוסים 1 קג",sku:"72106",unit:"ק\"ג",cat:"אגוזים",price:52.00},
-  {id:"da5882c7",sid:"50059",name:"אשבי קופסאות ארוך",sku:"40124",unit:"יח'",cat:"יבשים",price:5.20},
-  {id:"a047c490",sid:"50059",name:"דגש 900 גר",sku:"20409",unit:"יח'",cat:"יבשים",price:28.50},
-  {id:"c8c660e0",sid:"50059",name:"זלפים 350 גרם",sku:"21861",unit:"יח'",cat:"יבשים",price:8.00},
-  {id:"9946c9b7",sid:"50059",name:"חומוס A2",sku:"20860",unit:"יח'",cat:"יבשים",price:3.60},
-  {id:"f0512ac7",sid:"50059",name:"חלווה 5 קג - אגיה",sku:"71286",unit:"יח'",cat:"יבשים",price:51.90},
-  {id:"61969724",sid:"50059",name:"חלמס 3.44 קג",sku:"71306",unit:"יח'",cat:"יבשים",price:68.15},
-  {id:"f81c7f95",sid:"50059",name:"חרדל טבסקו 60",sku:"22001",unit:"יח'",cat:"יבשים",price:8.40},
-  {id:"03835480",sid:"50059",name:"טמפורה 1 קג",sku:"71778",unit:"ק\"ג",cat:"יבשים",price:11.85},
-  {id:"d9ead4cc",sid:"50059",name:"מיץ יוזו 1.8 ליטר",sku:"42642",unit:"יח'",cat:"יבשים",price:340.00},
-  {id:"1a50261c",sid:"50059",name:"סוכר 1 קג",sku:"61501",unit:"ק\"ג",cat:"יבשים",price:4.45},
-  {id:"5ab83dce",sid:"50059",name:"סוכראגס 300 גר",sku:"7033",unit:"יח'",cat:"יבשים",price:25.90},
-  {id:"d8cf1d37",sid:"50059",name:"עלי מוריטה 30 גר 18 יח",sku:"71630",unit:"יח'",cat:"יבשים",price:6.00},
-  {id:"b21b4cee",sid:"50059",name:"פאפי פורי 140 גר",sku:"100023",unit:"יח'",cat:"יבשים",price:10.50},
-  {id:"c7acb008",sid:"50059",name:"ציפס קלאסי 2.5 קג - תפוגן",sku:"837",unit:"יח'",cat:"יבשים",price:23.90},
-  {id:"c2f3c59c",sid:"50059",name:"קרם קוקוס 20-22% 1 ליטר",sku:"992175",unit:"יח'",cat:"יבשים",price:13.00},
-  {id:"18fb93a7",sid:"50059",name:"קשקוף חיין פאוצ 13 קג - הייץ",sku:"345053",unit:"יח'",cat:"יבשים",price:135.00},
-  {id:"4f9edd35",sid:"50059",name:"שומר 17 קג - הר ברכה",sku:"220",unit:"יח'",cat:"יבשים",price:299.00},
-  {id:"e315778c",sid:"50059",name:"זיתים יוני קלמטה חצאים 10 קג",sku:"90740",unit:"ק\"ג",cat:"שימורים",price:23.50},
-  {id:"26500f95",sid:"50059",name:"עגבניות מקולפות A9 - איטלקו",sku:"31616",unit:"יח'",cat:"שימורים",price:18.50},
-  {id:"3bd51679",sid:"50059",name:"קרם בלסמי מצומצם דיפלומט 250 מל",sku:"822354",unit:"יח'",cat:"שמנים",price:12.95},
-  {id:"05502d40",sid:"50059",name:"שמן זית ספרדי כתית 3 ליטר",sku:"36583",unit:"יח'",cat:"שמנים",price:95.00},
-  {id:"52e2c07f",sid:"50059",name:"שמן כמהין 250 מל",sku:"40184",unit:"יח'",cat:"שמנים",price:29.00},
-  {id:"8bc7c502",sid:"50059",name:"שמן סויה 16 קג",sku:"62107",unit:"יח'",cat:"שמנים",price:114.90},
-  {id:"3ad933f0",sid:"50059",name:"שמן קנולה 16 קג",sku:"62110",unit:"יח'",cat:"שמנים",price:112.00},
-  {id:"0e3d223b",sid:"50059",name:"שמן שומשום טהור גלון",sku:"52168",unit:"יח'",cat:"שמנים",price:99.00},
-  {id:"22a1057f",sid:"50059",name:"מלח גביש 1 קג",sku:"61301",unit:"ק\"ג",cat:"תבלינים",price:1.69},
-  {id:"b4a858a2",sid:"50059",name:"פלפל שחור גרוס 1 קג",sku:"61725",unit:"ק\"ג",cat:"תבלינים",price:33.00},
-  {id:"04552f9e",sid:"50059",name:"פפריקה חריפה 1 קג",sku:"61716",unit:"ק\"ג",cat:"תבלינים",price:8.40},
-  {id:"7b266177",sid:"50059",name:"פפריקה מתוקה 1 קג",sku:"61717",unit:"ק\"ג",cat:"תבלינים",price:13.50},
-  {id:"7d0306e6",sid:"50059",name:"שעתר 1 קג - ברמן",sku:"60731",unit:"ק\"ג",cat:"תבלינים",price:13.00},
-  {id:"72eca06c",sid:"50203",name:"ביצים L",sku:"270",unit:"יח'",cat:"ביצים",price:31.50},
-  {id:"a053d54f",sid:"50203",name:"גאודה פרוס 1 קג הולנדי",sku:"416",unit:"ק\"ג",cat:"גבינות",price:55.00},
-  {id:"60d223fa",sid:"50203",name:"לאבנה ראמה 2 קג",sku:"396",unit:"ק\"ג",cat:"גבינות",price:42.00},
-  {id:"645b9bad",sid:"50203",name:"מוצרלה במים 2 קג",sku:"129",unit:"ק\"ג",cat:"גבינות",price:107.78},
-  {id:"722003ce",sid:"50203",name:"מוצרלה מגורדת 3 קג",sku:"212",unit:"ק\"ג",cat:"גבינות",price:110.25},
-  {id:"e3ef58e0",sid:"50203",name:"מסרקפונה תבור 2 קג",sku:"393",unit:"ק\"ג",cat:"גבינות",price:74.57},
-  {id:"ac546c7a",sid:"50203",name:"פטה פה 4 קג",sku:"409",unit:"ק\"ג",cat:"גבינות",price:80.00},
-  {id:"ba9b7cd0",sid:"50203",name:"פרמזן פדנו שמינית",sku:"165",unit:"יח'",cat:"גבינות",price:65.00},
-  {id:"8e0a63c3",sid:"50203",name:"צדר פרוס 033 וואקום",sku:"967",unit:"יח'",cat:"גבינות",price:48.00},
-  {id:"0cbb6b0c",sid:"50203",name:"גי שמנת טבעי 30% 2 קג",sku:"120",unit:"ק\"ג",cat:"חלב",price:45.63},
-  {id:"16d3caa0",sid:"50203",name:"חלב בקרטון 3% 1 ל",sku:"101",unit:"ל",cat:"חלב",price:5.60},
-  {id:"3f7e0c5a",sid:"50203",name:"חלב סויה 1 ל",sku:"96",unit:"יח'",cat:"חלב",price:9.05},
-  {id:"3d7e1a72",sid:"50203",name:"חמאה בלגית 6 קג",sku:"587",unit:"ק\"ג",cat:"חלב",price:186.00},
-  {id:"5af13a61",sid:"50203",name:"יוגרט יווני 1 ליטר",sku:"153",unit:"יח'",cat:"חלב",price:18.90},
-  {id:"217f95e1",sid:"50203",name:"שמנת מתוקה 42% טרה 2 ל",sku:"255",unit:"ל",cat:"חלב",price:46.59},
-  {id:"f36c2d3f",sid:"50203",name:"שמנת של פעם 27% 200 גר",sku:"208",unit:"יח'",cat:"חלב",price:4.01},
-  {id:"92160aff",sid:"50203",name:"שמנת תמוצה 15% 200 גר",sku:"174",unit:"יח'",cat:"חלב",price:2.37},
-  {id:"e1ac9410",sid:"50203",name:"ציפס אמריקאי 12.5 קג מילוטל",sku:"771",unit:"יח'",cat:"קפואים",price:125.00},
-  {id:"300ea8a7",sid:"51596",name:"מפיות 40/40 ארוז 1800 יח",sku:"355",unit:"יח'",cat:"חד פעמי",price:110.00},
-  {id:"ded5132e",sid:"51596",name:"מפית מאלו MINI ארוז 9000 יח",sku:"203",unit:"יח'",cat:"חד פעמי",price:74.00},
-  {id:"e28e6ff3",sid:"51596",name:"מגבון אישי במעטפת לבנה ארוז 1000 יח",sku:"209",unit:"יח'",cat:"חד פעמי",price:70.00},
-  {id:"522d5a81",sid:"51596",name:"רדיד אלומיניום 50/45 מ 18 מיקרון",sku:"188",unit:"יח'",cat:"חד פעמי",price:23.50},
-  {id:"304e3f3e",sid:"51596",name:"נייר תעשייתי תאית דגם חביב",sku:"546",unit:"יח'",cat:"חד פעמי",price:40.00},
-  {id:"a1a1bf59",sid:"51596",name:"נייר תעשייתי תאית 28.5 דו שכבתי",sku:"581",unit:"יח'",cat:"חד פעמי",price:40.00},
-  {id:"d4f091ec",sid:"51596",name:"צץ רץ טישו קלינקס 2500 יח",sku:"588",unit:"יח'",cat:"חד פעמי",price:105.00},
-  {id:"4774e004",sid:"51596",name:"כפפות ניטריל שחורות ללא אבקה L",sku:"185",unit:"יח'",cat:"ניקיון",price:9.00},
-  {id:"hav00186",sid:"51596",name:"כפפות ניטריל שחורות ללא אבקה XL",sku:"186",unit:"יח'",cat:"ניקיון",price:9.00},
-  {id:"c0664929",sid:"51596",name:"מארז מילוי 400 מטליות איכותי 1/4",sku:"166",unit:"יח'",cat:"ניקיון",price:10.00},
-  {id:"5893f2c1",sid:"51596",name:"מטליות מיקרופייבר 5 יח",sku:"262",unit:"יח'",cat:"ניקיון",price:4.00},
-  {id:"800c50e6",sid:"51596",name:"מטליות פוליש צץ רץ 100 יח",sku:"590",unit:"יח'",cat:"ניקיון",price:25.00},
-  {id:"hav00336",sid:"51596",name:"מרקית ברזל 50 גרם ארוז 12 יח",sku:"336",unit:"יח'",cat:"ניקיון",price:21.00},
-  {id:"8c1fa4e5",sid:"51596",name:"מסיר שומנים גריל תעשייתי 4X4",sku:"559",unit:"יח'",cat:"ניקיון",price:55.00},
-  {id:"9a37959f",sid:"51596",name:"משחת כלים 12% לימון 15 קג",sku:"169",unit:"יח'",cat:"ניקיון",price:65.00},
-  {id:"9b6bf0a8",sid:"51596",name:"נוזל רצפות ורוד ריחני 4X4",sku:"420",unit:"יח'",cat:"ניקיון",price:28.00},
-  {id:"hav00161",sid:"51596",name:"סבון ידיים 4/4 = מוסרי",sku:"161",unit:"יח'",cat:"ניקיון",price:29.40},
-  {id:"c70e3a19",sid:"51596",name:"סחבה לבנה 50/70 ארוז 60 יח",sku:"263",unit:"שק",cat:"ניקיון",price:1.15},
-  {id:"cf202eb3",sid:"51596",name:"אקונומיקה ארוז 4/4 סטנדרט",sku:"159",unit:"יח'",cat:"ניקיון",price:25.00},
-  {id:"4bb3fd99",sid:"51596",name:"רסס ונגב סנו 1 ליטר",sku:"617",unit:"יח'",cat:"ניקיון",price:17.00},
-  {id:"hav00029",sid:"51596",name:"מארז ציפס מטוגנים חום קראפט 350 יח",sku:"29",unit:"יח'",cat:"חד פעמי",price:0.43},
-  {id:"hav00044",sid:"51596",name:"מיכל פלסטיק 1 ליטר שחור ארוז 135 יח",sku:"44",unit:"יח'",cat:"חד פעמי",price:68.85},
-  {id:"hav00430",sid:"51596",name:"מתקן קיר למגבת נייר תעשייתי",sku:"430",unit:"יח'",cat:"ציוד",price:null},
-  {id:"hav00049",sid:"51596",name:"מיכל 4.5 ליטר שקוף מחוקק",sku:"49",unit:"יח'",cat:"ציוד",price:null},
-  {id:"hav00505",sid:"51596",name:"סופר מגבת איכותי 3 קג = אסוטא",sku:"505",unit:"יח'",cat:"חד פעמי",price:null},
-  {id:"hav00283",sid:"51596",name:"סיר ניילון PVC צהוב/לבן",sku:"283",unit:"יח'",cat:"חד פעמי",price:null},
-  {id:"hav00gaz",sid:"51596",name:"גז לברנר",sku:"gaz",unit:"יח'",cat:"ציוד",price:null},
-  {id:"aa0207bc",sid:"90001",name:"אנגוס אנטריקוט",sku:"1042",unit:"ק\"ג",cat:"בקר",price:135.00},
-  {id:"b3cf85e3",sid:"90001",name:"המבורגר קצבים",sku:"4593",unit:"ק\"ג",cat:"בקר",price:44.00},
-  {id:"b03dc39b",sid:"90001",name:"קרפצ'ו סינטה צלחת",sku:"1819",unit:"יח'",cat:"בקר",price:14.60,min:100,step:100},
-  {id:"d2e80605",sid:"90001",name:"שוארמה פרגיות קפוא",sku:"2013",unit:"ק\"ג",cat:"עוף",price:55.00},
-  {id:"1cd8e163",sid:"51513",name:"ברולה פייטה פיסטוק 8 יח",sku:"11",unit:"יח'",cat:"קינוחים",price:100.00},
-  {id:"d8ff5b28",sid:"51513",name:"גבינה פירות יער 8 יח",sku:"18",unit:"יח'",cat:"קינוחים",price:108.00},
-  {id:"e1bee938",sid:"51513",name:"גלידה וניל",sku:"42",unit:"יח'",cat:"קינוחים",price:90.00},
-  {id:"53e65d96",sid:"51513",name:"טירמיסו 9 יח",sku:"28",unit:"יח'",cat:"קינוחים",price:121.50},
-  {id:"6330e053",sid:"51513",name:"קוקיז עוגה 9 יח",sku:"53",unit:"יח'",cat:"קינוחים",price:112.50},
-  {id:"5d9b87aa",sid:"51513",name:"קרמבל עוגיות פרווה",sku:"13",unit:"יח'",cat:"קינוחים",price:100.00},
-  {id:"572f0f4a",sid:"51513",name:"רוטב פירות יער",sku:"26",unit:"יח'",cat:"קינוחים",price:74.00},
-  {id:"80619c7d",sid:"51513",name:"רוטב פסיפלורה",sku:"19",unit:"יח'",cat:"קינוחים",price:42.00},
-  {id:"8ad05104",sid:"51513",name:"רוטב קפוצ'ינו",sku:"16",unit:"יח'",cat:"קינוחים",price:56.00},
-  {id:"7bc8ff48",sid:"51513",name:"שוקולד חמה 9 יח",sku:"1",unit:"יח'",cat:"קינוחים",price:108.00},
-  {id:"aac50746",sid:"50057",name:"המבורגר אנטריקוט 200 גרם",sku:"90210",unit:"יח'",cat:"בקר",price:38.00},
-  {id:"70a7fc93",sid:"50057",name:"המבורגר אנטריקוט 225 גרם",sku:"90357",unit:"יח'",cat:"בקר",price:38.00},
-  {id:"f0ea7053",sid:"51538",name:"טורטליני קרם פרמז' 500 גרם",sku:"10TRT20",unit:"יח'",cat:"פסטה",price:68.00},
-  {id:"5d61829f",sid:"51538",name:"פטוצ'יני 150 גרם - Ricco",sku:"10LNG07",unit:"יח'",cat:"פסטה",price:25.00},
-  {id:"5d63406f",sid:"50338",name:"בסיס פיצה 20/30",sku:"00760",unit:"יח'",cat:"לחם",price:146.60},
-  {id:"65661b8f",sid:"90011",name:"פילה לברק טרי",sku:"019",unit:"ק\"ג",cat:"דגים",price:110.00},
-  {id:"6cbcf67a",sid:"90011",name:"פילה דניס טרי ללא עור",sku:"017",unit:"ק\"ג",cat:"דגים",price:100.00},
-  {id:"d120b9af",sid:"90011",name:"פילה סלמון טרי",sku:"022",unit:"ק\"ג",cat:"דגים",price:65.00},
-  {id:"21556d17",sid:"51588",name:"אנטריקוט פרימיום מוכשר ארגנטינה",sku:"ANT-ARG",unit:"ק\"ג",cat:"בקר",price:165.00},
-  {id:"3220c34d",sid:"50093",name:"לימון סחוט 2L פקק צהוב",sku:"7920018199992",unit:"יח'",cat:"משקאות",price:30.00},
-  {id:"44296c04",sid:"50093",name:"אשכולית אדומה 2L",sku:"7290005278921",unit:"יח'",cat:"משקאות",price:16.00},
-  {id:"89b64b98",sid:"51596",name:"פח שובר 50 ליטר + מכסה",sku:"333",unit:"יח'",cat:"ציוד",price:50.00},
-  {id:"tnv00479",sid:"50197",name:"דג טמפורה 479",sku:"479",unit:"יח'",cat:"קפואים",price:null},
-  // 123 אלכוהול
-  {id:"alc1321",sid:"123ALC",name:"ערק עלית",sku:"ALC-1321",unit:"יח'",cat:"אלכוהול",price:53.00},
-  {id:"alc2605",sid:"123ALC",name:"אמיסרו סילבר ליטר",sku:"ALC-2605",unit:"יח'",cat:"אלכוהול",price:78.00},
-  {id:"alc1149",sid:"123ALC",name:"בירה סטלה 330 1/24",sku:"ALC-1149",unit:"יח'",cat:"בירות",price:105.00},
-  {id:"alc2603",sid:"123ALC",name:"רום קאנוקה ליטר",sku:"ALC-2603",unit:"יח'",cat:"אלכוהול",price:81.00},
-  {id:"alc1248",sid:"123ALC",name:"יגרמייסטר ליטר",sku:"ALC-1248",unit:"יח'",cat:"אלכוהול",price:82.00},
-  {id:"alc4347",sid:"123ALC",name:"לימונצ'לו ויצ'או 700",sku:"ALC-4347",unit:"יח'",cat:"אלכוהול",price:56.00},
-  {id:"alc1691",sid:"123ALC",name:"בירה ליפמנס 250 1/24",sku:"ALC-1691",unit:"יח'",cat:"בירות",price:189.00},
-  {id:"alc3524",sid:"123ALC",name:"שוופס ראשיין 1.5L",sku:"ALC-3524",unit:"יח'",cat:"משקאות",price:11.00},
-  {id:"alc5581",sid:"123ALC",name:"מרטיני רוסו ליטר",sku:"ALC-5581",unit:"יח'",cat:"אלכוהול",price:47.00},
-  {id:"alc1274",sid:"123ALC",name:"בירה סינגה 330 1/24",sku:"ALC-1274",unit:"יח'",cat:"בירות",price:168.00},
-  {id:"alc5143",sid:"123ALC",name:"אשכולית תומס הנרי 1/24",sku:"ALC-5143",unit:"יח'",cat:"משקאות",price:108.00},
-  {id:"alc4111",sid:"123ALC",name:"ליקר תאנים פיגו ליטר",sku:"ALC-4111",unit:"יח'",cat:"אלכוהול",price:57.00},
-  {id:"alc9947",sid:"123ALC",name:"חמוציות 1/12",sku:"ALC-9947",unit:"יח'",cat:"משקאות",price:115.00},
-  // אספיריט
-  {id:"asp0001",sid:"ASPRT",name:"אלבר בישו שבלי כשר 750",sku:"3296311117095",unit:"יח'",cat:"יינות",price:51.00},
-  {id:"asp0002",sid:"ASPRT",name:"לה פיאצה בלו גוורץ",sku:"7290006873606",unit:"יח'",cat:"יינות",price:20.50},
-  {id:"asp0003",sid:"ASPRT",name:"וויספרינג אנגל 750 כשר",sku:"3666140034403",unit:"יח'",cat:"יינות",price:65.00},
-  // קסטל
-  {id:"cas0001",sid:"CASTEL",name:"La Vie Rouge du Castel 2024",sku:"LVR24-750-6",unit:"יח'",cat:"יינות",price:47.00},
-  {id:"cas0002",sid:"CASTEL",name:"La Vie Blanc du Castel 2024",sku:"LVB24-750-6",unit:"יח'",cat:"יינות",price:45.00},
-  {id:"cas0003",sid:"CASTEL",name:"La Vie Blanc du Castel 2025",sku:"LVB25-750-6",unit:"יח'",cat:"יינות",price:47.00},
-  // הכרם
-  {id:"hc00001",sid:"HACAREM",name:"פינו גריג'ו מונטה זוב",sku:"HC-5012909000",unit:"יח'",cat:"יינות",price:32.85},
-  {id:"hc00002",sid:"HACAREM",name:"רוזה טיאמו כשר",sku:"HC-5013150000",unit:"יח'",cat:"יינות",price:30.66},
-  {id:"hc00003",sid:"HACAREM",name:"ליפמנס און דה רוקס 250",sku:"HC-24010000",unit:"יח'",cat:"בירות",price:7.35},
-  {id:"hc00004",sid:"HACAREM",name:"יגרמייסטר ליטר כשר",sku:"HC-16110100",unit:"יח'",cat:"אלכוהול",price:99.28},
-  {id:"hc00005",sid:"HACAREM",name:"רום נגריטה ספייס",sku:"HC-15024000",unit:"יח'",cat:"אלכוהול",price:60.52},
-  {id:"hc00006",sid:"HACAREM",name:"ליקר תאנים פידג'ו 70",sku:"HC-18910000",unit:"יח'",cat:"אלכוהול",price:43.88},
-  {id:"hc00007",sid:"HACAREM",name:"ליקר שרטרז ירוק",sku:"HC-15510001",unit:"יח'",cat:"אלכוהול",price:210.80},
-  // אקרמן
-  {id:"ak00001",sid:"AKKERMAN",name:"מקאלן 12 שנים 700",sku:"AK-5010314302863",unit:"יח'",cat:"אלכוהול",price:263.61},
-  {id:"ak00002",sid:"AKKERMAN",name:"פטרון אפייחו 700",sku:"AK-721733000715",unit:"יח'",cat:"אלכוהול",price:175.00},
-  {id:"ak00003",sid:"AKKERMAN",name:"פטרון סילבר 700",sku:"AK-721733000739",unit:"יח'",cat:"אלכוהול",price:154.00},
-  {id:"ak00004",sid:"AKKERMAN",name:"דון ג'ולנו 700",sku:"AK-5014271796161",unit:"יח'",cat:"אלכוהול",price:146.90},
-  {id:"ak00005",sid:"AKKERMAN",name:"חלוסה אשר רפוח 700",sku:"AK-1230000130011",unit:"יח'",cat:"אלכוהול",price:763.01},
-  // גלובל ווין
-  {id:"gw00001",sid:"GWS",name:"ג'ין הנדריקס 700",sku:"GWS-5010327755014",unit:"יח'",cat:"אלכוהול",price:117.00},
-  {id:"gw00002",sid:"GWS",name:"גלנפידיך 12 שנה 1L",sku:"GWS-5010327324128",unit:"יח'",cat:"אלכוהול",price:179.10},
-  {id:"gw00003",sid:"GWS",name:"ג'ק דניאלס האני 700",sku:"GWS-5099873001370",unit:"יח'",cat:"אלכוהול",price:88.13},
-  {id:"gw00004",sid:"GWS",name:"ג'ק דניאלס 1 ליטר",sku:"GWS-5099873045367",unit:"יח'",cat:"אלכוהול",price:114.75},
-  {id:"gw00005",sid:"GWS",name:"קוניאק VSOP כריסטיאן 700",sku:"GWS-3245999491805",unit:"יח'",cat:"אלכוהול",price:212.45},
-  {id:"gw00006",sid:"GWS",name:"קוניאק VS רגני 700",sku:"GWS-3245995960015",unit:"יח'",cat:"אלכוהול",price:110.70},
-  // קיל ביל
-  {id:"kb00001",sid:"KILLBILL",name:"ערק עלית",sku:"KB-19000",unit:"יח'",cat:"אלכוהול",price:null},
-  {id:"kb00002",sid:"KILLBILL",name:"וודרן סירופ אבטיח",sku:"KB-900580",unit:"יח'",cat:"סירופים",price:null},
-  {id:"kb00003",sid:"KILLBILL",name:"וודרן סירופ אננס",sku:"KB-900350",unit:"יח'",cat:"סירופים",price:null},
-  {id:"kb00004",sid:"KILLBILL",name:"וודרן סירופ תות",sku:"KB-900450",unit:"יח'",cat:"סירופים",price:null},
-  {id:"kb00005",sid:"KILLBILL",name:"הרד'ס VR קברנה סוביניון",sku:"KB-18637",unit:"יח'",cat:"יינות",price:null},
-  // צור (מזרח ומערב)
-  {id:"zr00001",sid:"ZUR",name:"וילה קייף רוזב שרדונה",sku:"ZUR-767",unit:"יח'",cat:"יינות",price:19.80},
-  {id:"zr00002",sid:"ZUR",name:"וילה קייף קברנה סוביניון",sku:"ZUR-763",unit:"יח'",cat:"יינות",price:19.80},
-  {id:"zr00003",sid:"ZUR",name:"מבעבע בלאן דה בלאן",sku:"ZUR-70",unit:"יח'",cat:"יינות",price:18.00},
-  // רוני תבלינים
-  {id:"rn00001",sid:"RONI",name:"אננס מיובש",sku:"RONI-ANANAS",unit:'ק"ג',cat:"תבלינים",price:null},
-  {id:"rn00002",sid:"RONI",name:"פרחי ורדים",sku:"RONI-ROSES",unit:"גרם",cat:"תבלינים",price:null},
-  {id:"rn00003",sid:"RONI",name:"פלפל",sku:"RONI-PEPPER",unit:"גרם",cat:"תבלינים",price:null},
-  {id:"rn00004",sid:"RONI",name:"היביסקוס",sku:"RONI-HIBISCUS",unit:"גרם",cat:"תבלינים",price:null},
-  {id:"rn00005",sid:"RONI",name:"שקד טחון",sku:"RONI-ALMOND",unit:"גרם",cat:"תבלינים",price:null},
-  {id:"rn00006",sid:"RONI",name:"תפוז מיובש",sku:"RONI-ORANGE",unit:"שקית",cat:"תבלינים",price:null},
-  {id:"rn00007",sid:"RONI",name:"קינמון",sku:"RONI-CINNAMON",unit:"גרם",cat:"תבלינים",price:null},
-  {id:"rn00008",sid:"RONI",name:"אניס",sku:"RONI-ANIS",unit:"גרם",cat:"תבלינים",price:null},
-  {id:"rn00009",sid:"RONI",name:"מקל וניל",sku:"RONI-VANILLA",unit:"יח'",cat:"תבלינים",price:null},
-];
-
-// ═══════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════
-const cart = {};
-let activeTab = 'order';
-let orderFilter = 'all';
-let priceFilter = 'all';
-let expandedSups = new Set();
-let pendingOrder = null;
-
-// ═══════════════════════════════════════
-// UTILS
-// ═══════════════════════════════════════
-function fmt(n) { return n != null ? '₪' + n.toFixed(2) : '—'; }
-function fmtDate(d) { return d ? d.slice(0,7) : ''; }
-
-function getOrderCats() {
-  const s = new Set(SUPPLIERS.map(s => s.cat));
-  return Array.from(s).sort();
-}
-
-function getPriceCats() {
-  const s = new Set(PRODUCTS.map(p => p.cat));
-  return Array.from(s).sort();
-}
-
-// ═══════════════════════════════════════
-// TAB SWITCHING
-// ═══════════════════════════════════════
-function switchTab(tab) {
-  activeTab = tab;
-  document.getElementById('view-order').style.display = tab === 'order' ? 'block' : 'none';
-  document.getElementById('view-week').style.display = tab === 'week' ? 'block' : 'none';
-  document.getElementById('view-history').style.display = tab === 'history' ? 'block' : 'none';
-  document.getElementById('view-budget').style.display = tab === 'budget' ? 'block' : 'none';
-  document.getElementById('view-anomalies').style.display = tab === 'anomalies' ? 'block' : 'none';
-  document.getElementById('view-prices').style.display = tab === 'prices' ? 'block' : 'none';
-  document.getElementById('view-insights').style.display = tab === 'insights' ? 'block' : 'none';
-  document.getElementById('tab-order').className = 'tab' + (tab === 'order' ? ' active' : '');
-  document.getElementById('tab-week').className = 'tab' + (tab === 'week' ? ' active' : '');
-  document.getElementById('tab-history').className = 'tab' + (tab === 'history' ? ' active' : '');
-  document.getElementById('tab-budget').className = 'tab' + (tab === 'budget' ? ' active' : '');
-  document.getElementById('tab-anomalies').className = 'tab' + (tab === 'anomalies' ? ' active' : '');
-  document.getElementById('tab-prices').className = 'tab' + (tab === 'prices' ? ' active' : '');
-  document.getElementById('tab-insights').className = 'tab' + (tab === 'insights' ? ' active' : '');
-  if (tab === 'week') renderWeek();
-  if (tab === 'history') renderHistory();
-  if (tab === 'budget') renderBudget();
-  if (tab === 'anomalies') renderAnomalies();
-  if (tab === 'insights') renderInsights();
-}
-
-// ═══════════════════════════════════════
-// ORDER TAB
-// ═══════════════════════════════════════
-function renderOrderPills() {
-  const cats = getOrderCats();
-  let h = `<div class="pill ${orderFilter==='all'?'active':''}" onclick="setOrderFilter('all')">הכל</div>`;
-  cats.forEach(c => {
-    h += `<div class="pill ${orderFilter===c?'active':''}" onclick="setOrderFilter('${c}')">${c}</div>`;
+async function sbFetch(table, query='') {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
+    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
   });
-  document.getElementById('orderPills').innerHTML = h;
+  return r.json();
 }
 
-function setOrderFilter(f) { orderFilter = f; renderOrderPills(); renderOrder(); }
-
-// ═══════════════════════════════════════
-// SUPPLIER STATUS
-// ═══════════════════════════════════════
-const DAY_HE_MAP = {0:'א', 1:'ב', 2:'ג', 3:'ד', 4:'ה', 5:'ו', 6:'ש'};
-const DAY_FULL = {0:'ראשון', 1:'שני', 2:'שלישי', 3:'רביעי', 4:'חמישי', 5:'שישי', 6:'שבת'};
-const DAYS_ORDER = [0,1,2,3,4,5];
-
-function getSupplierStatus(sup) {
-  const now = new Date();
-  const todayHe = DAY_HE_MAP[now.getDay()];
-  const [ch, cm] = (sup.cutoff || '23:59').split(':').map(Number);
-  const cutoffMins = ch * 60 + cm;
-  const nowMins = now.getHours() * 60 + now.getMinutes();
-  const orderToday = !sup.days || sup.days.includes(todayHe);
-
-  if (!orderToday) return { dot: 'status-off', label: '', cls: '' };
-  if (nowMins < cutoffMins) return { dot: 'status-open', label: 'פתוח עד ' + sup.cutoff, cls: 'badge-open' };
-  return { dot: 'status-late', label: 'פג תוקף', cls: 'badge-late' };
+async function loadData() {
+  try {
+    const [s, p] = await Promise.all([
+      sbFetch('suppliers', 'active=eq.true&order=name.asc'),
+      sbFetch('products', 'active=eq.true&discontinued=not.eq.true&order=category.asc,name.asc')
+    ]);
+    suppliers = s;
+    products = p;
+    renderIndex();
+  } catch(e) {
+    document.getElementById('loading').innerHTML = '<span style="color:var(--red)">שגיאה בטעינה. בדוק חיבור אינטרנט.</span>';
+  }
 }
 
-// ═══════════════════════════════════════
-// WEEKLY VIEW
-// ═══════════════════════════════════════
-function renderWeek() {
-  const now = new Date();
-  const todayNum = now.getDay();
-  let html = '';
-  DAYS_ORDER.forEach(function(dayNum) {
-    const dayHe = DAY_HE_MAP[dayNum];
-    const isToday = dayNum === todayNum;
-    const arriving = SUPPLIERS.filter(function(s) { return s.delivery && s.delivery.includes(dayHe); });
-    const ordering = SUPPLIERS.filter(function(s) { return s.days && s.days.includes(dayHe) && !(s.delivery && s.delivery.includes(dayHe)); });
-    if (arriving.length === 0 && ordering.length === 0) return;
-    html += '<div class="week-day-block">';
-    html += '<div class="week-header ' + (isToday ? 'week-today-header' : '') + '">';
-    html += (isToday ? '📍 ' : '') + 'יום ' + DAY_FULL[dayNum] + (isToday ? ' — היום' : '');
-    html += '</div>';
-    if (arriving.length > 0) {
-      html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:#22c55e;letter-spacing:0.5px;">📦 מגיע</div>';
-      arriving.forEach(function(sup) {
-        var prods = PRODUCTS.filter(function(p) { return p.sid === sup.id; });
-        var badge = '';
-        if (isToday) {
-          badge = '<span class="week-cutoff-badge" style="background:rgba(34,197,94,0.13);color:#22c55e;">📦 אספקה היום</span>';
-        }
-        html += '<div class="week-sup-row" onclick="switchTab(\'order\');setTimeout(function(){expandedSups.add(\'' + sup.id + '\');renderOrder();},50)">';
-        html += '<div><div class="week-sup-name">' + sup.name + '</div>';
-        html += '<div class="week-sup-meta">' + prods.length + ' פריטים · ' + (sup.phone || '') + '</div></div>';
-        html += badge + '</div>';
-      });
-    }
-    if (ordering.length > 0) {
-      html += '<div style="padding:6px 16px 2px;font-size:11px;font-weight:700;color:#3b82f6;letter-spacing:0.5px;">📋 להזמין (אספקה: ' + (dayNum < 5 ? 'יום ' + DAY_FULL[(dayNum+1) % 7] : 'לפי הספק') + ')</div>';
-      ordering.forEach(function(sup) {
-        var prods = PRODUCTS.filter(function(p) { return p.sid === sup.id; });
-        var parts = (sup.cutoff || '23:59').split(':');
-        var cutoffMins = parseInt(parts[0]) * 60 + parseInt(parts[1]);
-        var nowMins = now.getHours() * 60 + now.getMinutes();
-        var badge = '';
-        if (isToday) {
-          if (nowMins < cutoffMins) badge = '<span class="week-cutoff-badge badge-open">עד ' + sup.cutoff + '</span>';
-          else badge = '<span class="week-cutoff-badge badge-late">פג תוקף</span>';
-        } else {
-          badge = '<span style="font-size:11px;color:#52525b;">עד ' + sup.cutoff + '</span>';
-        }
-        html += '<div class="week-sup-row" onclick="switchTab(\'order\');setTimeout(function(){expandedSups.add(\'' + sup.id + '\');renderOrder();},50)">';
-        html += '<div><div class="week-sup-name">' + sup.name + '</div>';
-        html += '<div class="week-sup-meta">' + prods.length + ' פריטים · ' + (sup.phone || '') + '</div></div>';
-        html += badge + '</div>';
-      });
-    }
-    html += '</div>';
-  });
-  document.getElementById('weekList').innerHTML = html;
-}
-
-function renderOrder() {
-  const q = document.getElementById('orderSearch').value.trim().toLowerCase();
-  let html = '';
-  let any = false;
-  SUPPLIERS.forEach(sup => {
-    if (orderFilter !== 'all' && sup.cat !== orderFilter) return;
-    let prods = PRODUCTS.filter(p => p.sid === sup.id);
-    if (q) {
-      const supMatch = sup.name.toLowerCase().includes(q);
-      if (!supMatch) {
-        prods = prods.filter(p => p.name.toLowerCase().includes(q) || (p.sku && p.sku.toLowerCase().includes(q)));
-        if (!prods.length) return;
-      }
-    }
-    any = true;
-    const isOpen = expandedSups.has(sup.id) || (q.length > 0);
-    const inCart = prods.filter(p => cart[p.id] > 0).length;
-    const daysStr = sup.days ? sup.days.join(' ') : 'לפי צורך';
-    const st = getSupplierStatus(sup);
-    html += `<div class="supplier-block">
-      <div class="supplier-header" onclick="toggleSup('${sup.id}')">
-        <div class="sup-left">
-          <div class="sup-name"><span class="status-dot ${st.dot}"></span>${sup.name}</div>
-          <div class="sup-meta">${sup.phone} &nbsp;·&nbsp; עד ${sup.cutoff} &nbsp;·&nbsp; ${daysStr}${sup.channel && sup.channel !== 'וואטסאפ' ? ' &nbsp;·&nbsp; <span style="color:#3b82f6">' + sup.channel + '</span>' : ''}</div>
+function renderIndex() {
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('indexView').style.display = 'block';
+  
+  const grid = document.getElementById('supplierGrid');
+  // Only show suppliers that have products
+  const withProducts = suppliers.filter(s => products.some(p => p.supplier_id === s.id));
+  
+  grid.innerHTML = withProducts.map(s => {
+    const count = products.filter(p => p.supplier_id === s.id).length;
+    const emoji = EMOJI_MAP[s.category] || '📦';
+    const days = s.order_days ? s.order_days.map(d => DAY_MAP[d]||d).join(' ') : '';
+    const cutoff = s.order_cutoff ? s.order_cutoff.slice(0,5) : '';
+    const dayLine = days ? `${days}${cutoff ? ' עד '+cutoff : ''}` : '';
+    return `
+      <div class="card" onclick="openSupplier('${s.id}')">
+        <div class="card-top">
+          <span class="card-emoji">${emoji}</span>
+          <span class="card-count">${count}</span>
         </div>
-        <div class="sup-right">
-          ${st.label ? `<span class="week-cutoff-badge ${st.cls}">${st.label}</span>` : ''}
-          ${inCart > 0 ? `<span class="badge badge-accent">${inCart}</span>` : ''}
-          <span class="chevron ${isOpen?'open':''}">▶</span>
-        </div>
-      </div>
-      <div class="products ${isOpen?'open':''}">`;
-    prods.forEach(p => {
-      const qty = cart[p.id] || 0;
-      const step = p.step || 1;
-      const min = p.min || step;
-      const unitLabel = p.unit;
-      const minLabel = min === step ? `מינ׳ ${min} ${unitLabel}` : `מינ׳ ${min}`;
-      html += `<div class="product-row">
-        <div class="prod-info">
-          <div class="prod-name">${p.name}</div>
-          <div class="prod-sub">${p.cat} · <span style="color:#f59e0b">${minLabel}</span> · קפיצה ${step}</div>
-        </div>
-        <div class="prod-price">${p.price != null ? fmt(p.price) : '—'}</div>
-        <div class="qty-ctrl">
-          <button class="qty-btn" onclick="chQty('${p.id}',-1,${step},${min})">−</button>
-          <span class="qty-num ${qty>0?'pos':''}" id="q${p.id}">${qty > 0 ? qty + ' ' + unitLabel : '0'}</span>
-          <button class="qty-btn" onclick="chQty('${p.id}',1,${step},${min})">+</button>
-        </div>
+        <div class="card-name">${s.name}</div>
+        <div class="card-contact">${s.contact_name||''}</div>
+        ${dayLine ? `<div class="card-days">${dayLine}</div>` : ''}
       </div>`;
-    });
-    html += `</div></div>`;
-  });
-  if (!any) html = `<div class="no-data">לא נמצאו תוצאות</div>`;
-  document.getElementById('orderList').innerHTML = html;
+  }).join('');
 }
 
-function toggleSup(sid) {
-  expandedSups.has(sid) ? expandedSups.delete(sid) : expandedSups.add(sid);
-  renderOrder();
+function openSupplier(id) {
+  currentSupplier = suppliers.find(s => s.id === id);
+  if (!currentSupplier) return;
+  
+  document.getElementById('indexView').style.display = 'none';
+  document.getElementById('supplierView').style.display = 'block';
+  document.getElementById('bottomBar').classList.add('show');
+  
+  document.getElementById('sTitle').textContent = currentSupplier.name;
+  const days = currentSupplier.order_days ? currentSupplier.order_days.map(d => DAY_MAP[d]||d).join(' ') : '';
+  const cutoff = currentSupplier.order_cutoff ? currentSupplier.order_cutoff.slice(0,5) : '';
+  document.getElementById('sMeta').textContent = days ? `${days}${cutoff ? ' עד '+cutoff : ''}` : '';
+  
+  // Contact buttons
+  const contactBar = document.getElementById('sContact');
+  let contactHTML = '';
+  const phone = cleanPhone(currentSupplier.phone);
+  if (phone) {
+    contactHTML += `<a href="tel:${phone}">📞 חייג</a>`;
+  }
+  contactBar.innerHTML = contactHTML;
+  
+  renderItems();
 }
 
-function chQty(pid, d, step, min) {
-  step = step || 1; min = min || step;
-  const cur = cart[pid] || 0;
-  let next;
-  if (d > 0) { next = cur === 0 ? min : cur + step; }
-  else { next = cur - step; if (next < min) next = 0; }
-  next = Math.round(next * 100) / 100;
-  if (next <= 0) { delete cart[pid]; next = 0; } else { cart[pid] = next; }
-  const p = PRODUCTS.find(x => x.id === pid);
-  const unitLabel = p ? p.unit : '';
-  const el = document.getElementById('q' + pid);
-  if (el) { el.textContent = next > 0 ? next + ' ' + unitLabel : '0'; el.className = 'qty-num' + (next > 0 ? ' pos' : ''); }
-  updateCartBar();
-}
-
-function updateCartBar() {
-  const total = Object.keys(cart).length;
-  const bar = document.getElementById('cartBar');
-  bar.className = 'cart-bar' + (total > 0 ? ' vis' : '');
-  document.getElementById('cartCount').textContent = total + ' מוצרים';
-}
-
-// ═══════════════════════════════════════
-// MODAL / DRAFTS
-// ═══════════════════════════════════════
-function openModal() {
-  const bySup = {};
-  Object.keys(cart).forEach(pid => {
-    const p = PRODUCTS.find(x => x.id === pid);
-    if (!p || !cart[pid]) return;
-    if (!bySup[p.sid]) bySup[p.sid] = [];
-    bySup[p.sid].push({...p, qty: cart[pid]});
+function renderItems() {
+  const items = products.filter(p => p.supplier_id === currentSupplier.id);
+  const cats = {};
+  items.forEach(i => {
+    const cat = i.category || 'כללי';
+    if (!cats[cat]) cats[cat] = [];
+    cats[cat].push(i);
   });
-  const supIds = Object.keys(bySup);
-  const today = new Date().toLocaleDateString('he-IL');
-  document.getElementById('modalSub').textContent = `${supIds.length} ספקים · ${today}`;
-  window._pendingOrders = [];
-  let draftsHtml = '';
-  supIds.forEach(sid => {
-    const sup = SUP_MAP[sid];
-    const prods = bySup[sid];
-    let txt = `הזמנה מפסאו גג על הים\nתאריך: ${today}\n\n`;
-    prods.forEach(p => { txt += `• ${p.name} — ${p.qty} ${p.unit}\n`; });
-    txt += `\nתודה`;
-    const phone = sup ? sup.phone.replace(/[^0-9]/g, '') : '';
-    const waPhone = phone.startsWith('0') ? '972' + phone.slice(1) : phone;
-    const waUrl = 'https://wa.me/' + waPhone + '?text=' + encodeURIComponent(txt);
-    window._pendingOrders.push({
-      supplier_id: sid, supplier_name: sup ? sup.name : sid,
-      items: prods.map(function(p) { return {name: p.name, qty: p.qty, unit: p.unit}; }),
-      text: txt, waUrl: waUrl
-    });
-    draftsHtml += `<div class="sup-draft">
-      <div class="sup-draft-header">
-        <div class="sup-draft-name">${sup ? sup.name : sid}</div>
-        <div class="sup-draft-phone">${sup ? sup.phone : ''}</div>
-      </div>
-      <div class="draft-text" id="dt${sid}">${txt}</div>
-      <div style="display:flex;gap:8px;">
-        <a href="${waUrl}" target="_blank" style="flex:1;text-decoration:none;">
-          <button class="copy-btn" style="background:#25d366;border-color:#25d366;color:#fff;font-size:14px;width:100%;" id="cb${sid}">
-            📲 וואטסאפ
-          </button>
-        </a>
-        ${sup && sup.appUrl ? `<a href="${sup.appUrl}" target="_blank" style="flex:1;text-decoration:none;">
-          <button class="copy-btn" style="background:#3b82f6;border-color:#3b82f6;color:#fff;font-size:14px;width:100%;">
-            🔗 ${sup.appName || 'אפליקציה'}
-          </button>
-        </a>` : ''}
-      </div>
-    </div>`;
-  });
-  document.getElementById('draftsContainer').innerHTML = draftsHtml;
-  document.getElementById('modalOverlay').className = 'modal-overlay vis';
-  document.body.style.overflow = 'hidden';
-}
-
-function toggleTheme() {
-  const isLight = document.documentElement.classList.toggle('light-mode');
-  document.body.classList.toggle('light-mode', isLight);
-  document.getElementById('themeBtn').textContent = isLight ? '🌑' : '🌙';
-  try { localStorage.setItem('paseo-theme', isLight ? 'light' : 'dark'); } catch(e) {}
-}
-
-function closeModal() {
-  document.getElementById('modalOverlay').className = 'modal-overlay';
-  document.body.style.overflow = '';
-  if (window._pendingOrders && window._pendingOrders.length > 0) { showConfirmBar(); }
-}
-function closeModalOutside(e) { if (e.target.id === 'modalOverlay') closeModal(); }
-
-// ═══════════════════════════════════════
-// PRICES TAB
-// ═══════════════════════════════════════
-function renderPricePills() {
-  const cats = getPriceCats();
-  let h = `<div class="pill ${priceFilter==='all'?'active':''}" onclick="setPriceFilter('all')">הכל</div>`;
-  cats.forEach(c => { h += `<div class="pill ${priceFilter===c?'active':''}" onclick="setPriceFilter('${c}')">${c}</div>`; });
-  document.getElementById('pricePills').innerHTML = h;
-}
-function setPriceFilter(f) { priceFilter = f; renderPricePills(); renderPrices(); }
-
-// ═══════════════════════════════════════
-// INSIGHTS TAB
-// ═══════════════════════════════════════
-function renderInsights() {
-  // Find duplicate products across suppliers
-  var dupGroups = [
-    {name:"יגרמייסטר ליטר",items:[
-      {sup:"123 אלכוהול",price:82.00,note:""},
-      {sup:"הכרם",price:99.28,note:"32% הנחה"},
-    ]},
-    {name:"ליפמנס און דה רוקס 250 מ\"ל",items:[
-      {sup:"הכרם",price:7.35,note:"₪176.40/ארגז 24"},
-      {sup:"123 אלכוהול",price:7.88,note:"₪189/ארגז 24"},
-    ]},
-    {name:"ליקר תאנים 70 ס\"ל",items:[
-      {sup:"הכרם",price:43.88,note:"25% הנחה"},
-      {sup:"123 אלכוהול",price:57.00,note:""},
-    ]},
-  ];
-
-  var priceAlerts = [
-    {name:"עגבניה חממה",sup:"מרינה",from:6,to:15,pct:"+150%",dir:"up"},
-    {name:"שרי צהוב",sup:"מרינה",from:10,to:22,pct:"+120%",dir:"up"},
-    {name:"La Vie Castel",sup:"קסטל",from:45,to:47,pct:"+4.4%",dir:"up"},
-    {name:"ג'ק דניאלס 1L",sup:"גלובל",from:112.50,to:114.75,pct:"+2%",dir:"up"},
-    {name:"רום נגריטה",sup:"הכרם",from:58.48,to:60.52,pct:"+3.5%",dir:"up"},
-    {name:"פלפל צ'ילי",sup:"מרינה",from:18.50,to:4.50,pct:"-75%",dir:"down"},
-    {name:"ליקר תאנים",sup:"הכרם",from:57,to:43.88,pct:"-23%",dir:"down"},
-    {name:"יגרמייסטר",sup:"123",from:86,to:82,pct:"-4.7%",dir:"down"},
-  ];
-
-  var stableProducts = [
-    {name:"שוארמה פרגיות",sup:"גינדי",price:"₪55",count:6},
-    {name:"ערק עלית",sup:"123 אלכוהול",price:"₪53",count:9},
-    {name:"אמיסרו סילבר",sup:"123 אלכוהול",price:"₪78",count:9},
-    {name:"בירה סטלה 1/24",sup:"123 אלכוהול",price:"₪105",count:9},
-    {name:"פינו גריג'ו",sup:"הכרם",price:"₪32.85",count:8},
-    {name:"מקאלן 12",sup:"אקרמן",price:"₪263.61",count:5},
-    {name:"אלבר בישו",sup:"אספיריט",price:"₪51",count:5},
-    {name:"וילה קייף",sup:"צור",price:"₪19.80",count:5},
-  ];
-
-  var volatileProducts = [
-    {name:"שרי צהוב",sup:"מרינה",range:"₪6.50-₪22",spread:"238%"},
-    {name:"עגבניה חממה",sup:"מרינה",range:"₪6-₪15",spread:"150%"},
-    {name:"תירס",sup:"מרינה",range:"₪6.75-₪17",spread:"152%"},
-    {name:"כפות אדום שק",sup:"מרינה",range:"₪6.75-₪17",spread:"152%"},
-    {name:"מלפפון פרימיום",sup:"מרינה",range:"₪3.50-₪7.50",spread:"114%"},
-  ];
-
-  var html = '';
-
-  // Stats
-  html += '<div style="display:flex;gap:8px;padding:12px 16px;overflow-x:auto;scrollbar-width:none">';
-  html += '<div style="flex:0 0 auto;background:linear-gradient(135deg,#1a1a2e,#16162a);border:1px solid rgba(99,102,241,0.15);border-radius:14px;padding:12px 16px;min-width:100px"><div style="font-size:22px;font-weight:900;color:#6366f1">' + SUPPLIERS.length + '</div><div style="font-size:10px;color:#71717a;margin-top:2px">ספקים</div></div>';
-  html += '<div style="flex:0 0 auto;background:linear-gradient(135deg,#1a1a2e,#16162a);border:1px solid rgba(99,102,241,0.15);border-radius:14px;padding:12px 16px;min-width:100px"><div style="font-size:22px;font-weight:900;color:#6366f1">' + PRODUCTS.length + '</div><div style="font-size:10px;color:#71717a;margin-top:2px">מוצרים</div></div>';
-  html += '<div style="flex:0 0 auto;background:linear-gradient(135deg,#1a1a2e,#16162a);border:1px solid rgba(99,102,241,0.15);border-radius:14px;padding:12px 16px;min-width:100px"><div style="font-size:22px;font-weight:900;color:#6366f1">3</div><div style="font-size:10px;color:#71717a;margin-top:2px">כפילויות</div></div>';
-  html += '</div>';
-
-  // Duplicates
-  html += '<div style="padding:16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">⚡ כפילויות בין ספקים — חסוך כסף</div>';
-  dupGroups.forEach(function(g) {
-    var sorted = g.items.slice().sort(function(a,b){return a.price-b.price});
-    var saving = (sorted[sorted.length-1].price - sorted[0].price).toFixed(2);
-    html += '<div style="background:#111118;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:14px;margin-bottom:10px">';
-    html += '<div style="font-size:14px;font-weight:700;margin-bottom:8px">' + g.name + '</div>';
-    sorted.forEach(function(item, i) {
-      var cls = i === 0 ? 'color:#22c55e' : 'color:#ef4444';
-      html += '<div style="display:flex;justify-content:space-between;padding:4px 0"><span style="font-size:12px;color:#a1a1aa">' + item.sup + (item.note ? ' (' + item.note + ')' : '') + '</span><span style="font-size:14px;font-weight:700;' + cls + '">₪' + item.price.toFixed(2) + '</span></div>';
-    });
-    html += '<div style="font-size:11px;color:#22c55e;background:rgba(34,197,94,0.1);padding:3px 10px;border-radius:20px;margin-top:6px;display:inline-block">💰 חסוך ₪' + saving + ' ליחידה ב-' + sorted[0].sup + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Price alerts
-  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">📈 שינויי מחירים אחרונים</div>';
-  priceAlerts.forEach(function(a) {
-    var isUp = a.dir === 'up';
-    var iconBg = isUp ? 'rgba(239,68,68,0.12)' : 'rgba(34,197,94,0.12)';
-    var iconColor = isUp ? '#ef4444' : '#22c55e';
-    var arrow = isUp ? '↑' : '↓';
-    html += '<div style="display:flex;align-items:center;gap:12px;background:#111118;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px;margin-bottom:8px">';
-    html += '<div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;background:' + iconBg + ';color:' + iconColor + '">' + arrow + '</div>';
-    html += '<div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + a.name + '</div><div style="font-size:11px;color:#71717a">' + a.sup + ' · ₪' + a.from + '→₪' + a.to + '</div></div>';
-    html += '<div style="font-size:14px;font-weight:800;color:' + iconColor + '">' + a.pct + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Stable products
-  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">🔒 מוצרים יציבים (אפס שינוי)</div>';
-  stableProducts.forEach(function(p) {
-    html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">';
-    html += '<span style="flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + ' <span style="color:#52525b">(' + p.sup + ')</span></span>';
-    html += '<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(34,197,94,0.12);color:#22c55e;white-space:nowrap">' + p.price + ' × ' + p.count + '</span>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Volatile products
-  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">⚠️ מוצרים תנודתיים</div>';
-  volatileProducts.forEach(function(p) {
-    html += '<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.04)">';
-    html += '<span style="flex:1;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + p.name + ' <span style="color:#52525b">(' + p.sup + ')</span></span>';
-    html += '<span style="padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:rgba(239,68,68,0.12);color:#ef4444;white-space:nowrap">' + p.range + '</span>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  // Insights
-  html += '<div style="padding:0 16px 16px"><div style="font-size:13px;font-weight:700;color:#a1a1aa;margin-bottom:10px">💡 תובנות</div>';
-  var insights = [
-    {title:"ירקות עונתיים = תנודות גדולות",text:"שרי צהוב, עגבניות, תירס — עד 238% הבדל. בדוק מחירים לפני הזמנה גדולה."},
-    {title:"אלכוהול יציב — אבל יש הבדלים",text:"יגרמייסטר זול ב-₪17 ב-123 אלכוהול. ליקר תאנים זול ב-₪13 בהכרם."},
-    {title:"הנחות שמשתלמות",text:"אקרמן 48%, הכרם 32%, אספיריט ללא הנחה (יינות). שווה לנהל מו\"מ ב-123 אלכוהול."},
-  ];
-  insights.forEach(function(ins) {
-    html += '<div style="background:linear-gradient(135deg,#1a1a2e,#0f172a);border:1px solid rgba(99,102,241,0.2);border-radius:14px;padding:14px;margin-bottom:10px">';
-    html += '<div style="font-size:12px;font-weight:700;color:#818cf8;margin-bottom:4px">' + ins.title + '</div>';
-    html += '<div style="font-size:13px;color:#d4d4d8;line-height:1.6">' + ins.text + '</div>';
-    html += '</div>';
-  });
-  html += '</div>';
-
-  document.getElementById('insightsContent').innerHTML = html;
-}
-
-function renderPrices() {
-  const q = document.getElementById('priceSearch').value.trim().toLowerCase();
-  const byCat = {};
-  PRODUCTS.forEach(p => {
-    if (priceFilter !== 'all' && p.cat !== priceFilter) return;
-    if (q && !p.name.toLowerCase().includes(q) && !(SUP_MAP[p.sid] && SUP_MAP[p.sid].name.toLowerCase().includes(q))) return;
-    if (!byCat[p.cat]) byCat[p.cat] = {};
-    const key = p.name + '|' + p.unit;
-    if (!byCat[p.cat][key]) byCat[p.cat][key] = [];
-    byCat[p.cat][key].push(p);
-  });
-  const cats = Object.keys(byCat).sort();
+  
   let html = '';
-  if (!cats.length) { html = `<div class="no-data">לא נמצאו מוצרים</div>`; }
-  else {
-    cats.forEach(cat => {
-      html += `<div class="price-section"><div class="price-cat-header">${cat}</div>`;
-      const products = byCat[cat];
-      Object.keys(products).sort().forEach(key => {
-        const entries = products[key];
-        const prices = entries.map(e => e.price).filter(p => p != null);
-        const minP = prices.length ? Math.min(...prices) : null;
-        const maxP = prices.length ? Math.max(...prices) : null;
-        const hasMulti = entries.length > 1;
-        entries.forEach((p, i) => {
-          const sup = SUP_MAP[p.sid];
-          let priceClass = 'solo';
-          if (hasMulti && p.price != null) {
-            if (p.price === minP) priceClass = 'best';
-            else if (p.price === maxP) priceClass = 'high';
-            else priceClass = 'mid';
-          }
-          html += `<div class="price-row">
-            <div class="pr-name">${p.name}</div>
-            <div class="pr-meta">
-              <span class="pr-sup">${sup ? sup.name : p.sid}</span>
-              <span class="pr-price ${priceClass}">${p.price != null ? fmt(p.price) : '—'}<span class="pr-unit"> / ${p.unit}</span></span>
-            </div>
-          </div>`;
-        });
-      });
-      html += `</div>`;
+  for (const [cat, catItems] of Object.entries(cats)) {
+    html += `<div class="cat-title">${cat}</div>`;
+    catItems.forEach(item => {
+      const qty = state[item.id] || 0;
+      const isActive = qty > 0;
+      html += `
+        <div class="item ${isActive?'active':''}" id="row-${item.id}">
+          <div class="item-check" onclick="toggleItem('${item.id}')">${isActive?'✓':''}</div>
+          <div class="item-info" onclick="toggleItem('${item.id}')">
+            <div class="item-name">${item.name}</div>
+            <div class="item-unit">${item.unit||'יח׳'}</div>
+          </div>
+          <div class="item-qty">
+            <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
+            <span class="qty-val">${qty}</span>
+            <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
+          </div>
+        </div>`;
     });
   }
-  document.getElementById('priceList').innerHTML = html;
+  document.getElementById('itemsList').innerHTML = html;
+  updateBadge();
 }
 
-// ═══════════════════════════════════════
-// CONFIRM BAR & ORDER HISTORY
-// ═══════════════════════════════════════
-function showConfirmBar() {
-  const orders = window._pendingOrders || [];
-  if (orders.length === 0) return;
-  var supNames = orders.map(function(o) { return o.supplier_name; }).join(', ');
-  document.getElementById('confirmTitle').textContent = 'ההזמנות נשלחו?';
-  document.getElementById('confirmSub').textContent = supNames;
-  document.getElementById('confirmBar').className = 'confirm-bar vis';
-}
-function dismissConfirm() {
-  document.getElementById('confirmBar').className = 'confirm-bar';
-  window._pendingOrders = [];
-}
-function confirmOrder() {
-  var orders = window._pendingOrders || [];
-  if (orders.length === 0) return;
-  var today = new Date().toISOString().slice(0, 10);
-  var history = [];
-  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
-  orders.forEach(function(o) {
-    history.unshift({
-      id: Date.now() + '_' + o.supplier_id, supplier_id: o.supplier_id,
-      supplier_name: o.supplier_name, date: today,
-      time: new Date().toLocaleTimeString('he-IL', {hour:'2-digit', minute:'2-digit'}),
-      items: o.items, status: 'sent'
-    });
-  });
-  if (history.length > 200) history = history.slice(0, 200);
-  try { localStorage.setItem('paseo-orders', JSON.stringify(history)); } catch(e) {}
-  window._pendingOrders = [];
-  document.getElementById('confirmBar').className = 'confirm-bar';
-  Object.keys(cart).forEach(function(k) { delete cart[k]; });
-  updateCartBar(); renderOrder(); switchTab('history');
-}
-function updateOrderStatus(btn) {
-  var orderId = btn.getAttribute('data-id');
-  var status = btn.getAttribute('data-status');
-  var history = [];
-  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
-  history.forEach(function(o) { if (o.id === orderId) o.status = status; });
-  try { localStorage.setItem('paseo-orders', JSON.stringify(history)); } catch(e) {}
-  renderHistory();
-}
-function renderHistory() {
-  var searchEl = document.getElementById('historySearch');
-  var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
-  var history = [];
-  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
-  if (q) {
-    history = history.filter(function(o) {
-      return o.supplier_name.toLowerCase().indexOf(q) !== -1 ||
-        o.items.some(function(item) { return item.name.toLowerCase().indexOf(q) !== -1; });
-    });
-  }
-  if (history.length === 0) {
-    document.getElementById('historyList').innerHTML = '<div class="no-data">אין הזמנות שמורות עדיין</div>';
-    return;
-  }
-  var statusLabel = {sent:'נשלח', received:'התקבל ✓', partial:'חלקי', issue:'בעיה'};
-  var statusCls = {sent:'status-sent', received:'status-received', partial:'status-partial', issue:'status-issue'};
-  var html = '';
-  history.forEach(function(o) {
-    var itemsHtml = o.items.map(function(item) {
-      return '<div class="order-card-item"><span class="order-card-item-name">' + item.name + '</span><span class="order-card-item-qty">' + item.qty + ' ' + item.unit + '</span></div>';
-    }).join('');
-    var st = o.status || 'sent';
-    html += '<div class="order-card"><div class="order-card-header"><div><div class="order-card-sup">' + o.supplier_name + '</div>';
-    html += '<div class="order-card-date">' + o.date + (o.time ? ' · ' + o.time : '') + '</div></div>';
-    html += '<span class="order-status ' + (statusCls[st] || 'status-sent') + '">' + (statusLabel[st] || st) + '</span></div>';
-    html += '<div class="order-card-items">' + itemsHtml + '</div>';
-    html += '<div class="order-actions">';
-    html += '<button class="order-action-btn green" onclick="updateOrderStatus(this)" data-id="' + o.id + '" data-status="received">✓ התקבל</button>';
-    html += '<button class="order-action-btn amber" onclick="updateOrderStatus(this)" data-id="' + o.id + '" data-status="partial">חלקי</button>';
-    html += '<button class="order-action-btn red" onclick="updateOrderStatus(this)" data-id="' + o.id + '" data-status="issue">בעיה</button>';
-    html += '</div></div>';
-  });
-  document.getElementById('historyList').innerHTML = html;
-}
-
-// ═══════════════════════════════════════
-// BUDGET TRACKER
-// ═══════════════════════════════════════
-var budgetMonth = new Date().getMonth();
-var budgetYear = new Date().getFullYear();
-var SUP_COLORS = ['#3b82f6','#22c55e','#f59e0b','#ef4444','#a855f7','#06b6d4','#f97316','#84cc16','#ec4899','#14b8a6','#8b5cf6','#fb923c','#10b981'];
-
-function renderBudget() {
-  var history = [];
-  try { history = JSON.parse(localStorage.getItem('paseo-orders') || '[]'); } catch(e) {}
-  var monthNames = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
-  var monthStr = budgetYear + '-' + String(budgetMonth + 1).padStart(2, '0');
-  var filtered = history.filter(function(o) { return o.date && o.date.startsWith(monthStr); });
-  var supTotals = {}; var supCounts = {};
-  filtered.forEach(function(o) {
-    var cost = 0;
-    o.items.forEach(function(item) {
-      var prod = PRODUCTS.find(function(p) { return p.name === item.name && p.sid === o.supplier_id; });
-      if (prod && prod.price) cost += (prod.price * parseFloat(item.qty || 0));
-    });
-    if (!supTotals[o.supplier_name]) { supTotals[o.supplier_name] = 0; supCounts[o.supplier_name] = 0; }
-    supTotals[o.supplier_name] += cost; supCounts[o.supplier_name]++;
-  });
-  var totalCost = Object.values(supTotals).reduce(function(a,b){ return a+b; }, 0);
-  var totalOrders = filtered.length;
-  var supList = Object.keys(supTotals).sort(function(a,b){ return supTotals[b] - supTotals[a]; });
-  var maxCost = supList.length ? supTotals[supList[0]] : 1;
-  var prevMonth = budgetMonth === 0 ? 11 : budgetMonth - 1;
-  var prevYear = budgetMonth === 0 ? budgetYear - 1 : budgetYear;
-  var prevStr = prevYear + '-' + String(prevMonth + 1).padStart(2, '0');
-  var prevFiltered = history.filter(function(o) { return o.date && o.date.startsWith(prevStr); });
-  var prevCost = 0;
-  prevFiltered.forEach(function(o) {
-    o.items.forEach(function(item) {
-      var prod = PRODUCTS.find(function(p) { return p.name === item.name && p.sid === o.supplier_id; });
-      if (prod && prod.price) prevCost += (prod.price * parseFloat(item.qty || 0));
-    });
-  });
-  var diff = totalCost - prevCost;
-  var diffStr = diff === 0 ? '' : (diff > 0 ? '▲ +₪' : '▼ ₪') + Math.abs(diff).toFixed(0) + ' לעומת חודש קודם';
-  var diffColor = diff > 0 ? '#ef4444' : '#22c55e';
-  var html = '<div class="budget-wrap">';
-  html += '<div class="budget-month-selector"><button class="budget-month-btn" onclick="budgetPrevMonth()">‹</button>';
-  html += '<div class="budget-month-label">' + monthNames[budgetMonth] + ' ' + budgetYear + '</div>';
-  html += '<button class="budget-month-btn" onclick="budgetNextMonth()">›</button></div>';
-  html += '<div class="budget-total-big">₪' + (totalCost > 0 ? totalCost.toFixed(0) : '—') + '</div>';
-  html += '<div class="budget-total-sub">' + totalOrders + ' הזמנות';
-  if (diffStr) html += ' &nbsp;·&nbsp; <span style="color:' + diffColor + '">' + diffStr + '</span>';
-  html += '</div>';
-  if (supList.length === 0) {
-    html += '<div style="color:#52525b;font-size:13px;padding:20px 0 10px;">אין נתונים לחודש זה עדיין</div>';
+function toggleItem(id) {
+  if (state[id]) {
+    delete state[id];
   } else {
-    html += '<div class="budget-title">פירוט לפי ספק</div><div class="budget-suppliers">';
-    supList.forEach(function(name, i) {
-      var pct = maxCost > 0 ? (supTotals[name] / maxCost * 100) : 0;
-      var color = SUP_COLORS[i % SUP_COLORS.length];
-      html += '<div class="budget-sup-row"><div class="budget-sup-dot" style="background:' + color + '"></div>';
-      html += '<div class="budget-sup-name">' + name + '</div>';
-      html += '<div class="budget-sup-bar"><div class="budget-sup-fill" style="width:' + pct + '%;background:' + color + '"></div></div>';
-      html += '<div class="budget-sup-amt">₪' + supTotals[name].toFixed(0) + '</div></div>';
-    });
-    html += '</div>';
+    state[id] = 1;
   }
-  html += '</div>';
-  html += '<div class="budget-wrap"><div class="budget-title">ספקים פעילים החודש</div>';
-  if (supList.length === 0) { html += '<div style="color:#52525b;font-size:13px;">—</div>'; }
-  else { supList.forEach(function(name) { html += '<div class="budget-row"><span class="budget-label">' + name + ' (' + supCounts[name] + ' הזמנות)</span><span class="budget-amount">₪' + supTotals[name].toFixed(0) + '</span></div>'; }); }
-  html += '</div>';
-  document.getElementById('budgetContent').innerHTML = html;
-}
-function budgetPrevMonth() { if (budgetMonth === 0) { budgetMonth = 11; budgetYear -= 1; } else budgetMonth -= 1; renderBudget(); }
-function budgetNextMonth() {
-  var now = new Date();
-  if (budgetYear > now.getFullYear() || (budgetYear === now.getFullYear() && budgetMonth >= now.getMonth())) return;
-  if (budgetMonth === 11) { budgetMonth = 0; budgetYear++; } else budgetMonth++;
-  renderBudget();
+  renderItems();
 }
 
-// ═══════════════════════════════════════
-// PRICE ANOMALIES TAB
-// ═══════════════════════════════════════
-var anmFilter = 'all';
-var anmData   = [];
-var anmAckSet = new Set();
-
-async function renderAnomalies() {
-  var el = document.getElementById('anomaliesContent');
-  el.innerHTML = '<div class="no-data" style="padding:40px 0">טוען...</div>';
-  try {
-    var r = await fetch('https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/rpc/get_price_anomalies', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk',
-        'Prefer': 'return=representation'
-      },
-      body: '{}'
-    });
-    if (!r.ok) { var errText = await r.text(); el.innerHTML = '<div class="no-data">שגיאה ' + r.status + '</div>'; return; }
-    anmData = await r.json();
-    if (!Array.isArray(anmData)) { el.innerHTML = '<div class="no-data">תגובה לא צפויה</div>'; return; }
-  } catch(e) { el.innerHTML = '<div class="no-data">שגיאת רשת: ' + e.message + '</div>'; return; }
-  buildAnmHTML();
-}
-
-function buildAnmHTML() {
-  var data = anmData;
-  var unacked = data.filter(function(a){ return !a.acknowledged && !anmAckSet.has(a.product_id + a.invoice_ref); });
-  var acked = data.filter(function(a){ return a.acknowledged || anmAckSet.has(a.product_id + a.invoice_ref); });
-  var showList = anmFilter === 'acked' ? acked :
-                 anmFilter === 'up' ? unacked.filter(function(a){ return parseFloat(a.pct_change)>0; }) :
-                 anmFilter === 'dn' ? unacked.filter(function(a){ return parseFloat(a.pct_change)<0; }) :
-                 anmFilter === 'high' ? unacked.filter(function(a){ return a.anomaly_level==='high'; }) :
-                 anmFilter.indexOf('sup:') === 0 ? unacked.filter(function(a){ return a.supplier_name === anmFilter.slice(4); }) :
-                 unacked;
-  // Get unique suppliers from unacked
-  var supNames = [];
-  unacked.forEach(function(a){ if (supNames.indexOf(a.supplier_name) === -1) supNames.push(a.supplier_name); });
-
-  var h = '<div class="anm-filters">';
-  [{k:'all',label:'הכל ('+unacked.length+')'},{k:'high',label:'⚠️ חמורות'},{k:'up',label:'↑ עלייה'},{k:'dn',label:'↓ ירידה'},{k:'acked',label:'✓ ידועות ('+acked.length+')'}].forEach(function(p){
-    h += '<button class="anm-pill '+(anmFilter===p.k?'active':'')+'" onclick="setAnmFilter(\''+p.k+'\')">'+p.label+'</button>';
-  });
-  // Supplier filters
-  supNames.forEach(function(sn){
-    var key = 'sup:' + sn;
-    h += '<button class="anm-pill '+(anmFilter===key?'active':'')+'" onclick="setAnmFilter(\''+key.replace(/'/g,"\\'")+'\')">' + sn + '</button>';
-  });
-  h += '</div>';
-  if (showList.length === 0) { h += '<div class="no-data" style="padding:40px 0">'+(anmFilter==='acked'?'אין חריגות מאושרות':'אין חריגות פעילות')+'</div>'; }
-  else {
-    var lastSupplier = '';
-    showList.forEach(function(a) {
-      if (a.supplier_name !== lastSupplier) {
-        lastSupplier = a.supplier_name;
-        var supCount = showList.filter(function(x){ return x.supplier_name === a.supplier_name; }).length;
-        h += '<div style="padding:10px 16px 6px;font-size:12px;font-weight:700;color:#a1a1aa;letter-spacing:0.5px;background:#18181b;border-bottom:1px solid rgba(255,255,255,0.07);position:sticky;top:42px;z-index:4;">' + a.supplier_name + ' <span style="color:#52525b;font-weight:400;">(' + supCount + ')</span></div>';
-      }
-      var isAck = a.acknowledged || anmAckSet.has(a.product_id + a.invoice_ref);
-      var pct = parseFloat(a.pct_change); var isUp = pct > 0;
-      var pctStr = (isUp ? '↑ +' : '↓ ') + Math.abs(pct) + '%';
-      var level = a.anomaly_level || 'medium';
-      var prev = parseFloat(a.prev_price || a.avg_3_invoices);
-      var curr = parseFloat(a.current_price);
-      var avg = parseFloat(a.avg_3_invoices);
-      var maxV = Math.max(prev, curr, avg, 0.01);
-      var hP = Math.round(prev/maxV*44); var hC = Math.round(curr/maxV*44); var hA = Math.round(avg/maxV*44);
-      var colC = isUp ? '#ef4444' : '#3b82f6';
-      var hist = (a.price_history || []).slice().sort(function(x,y){ return x.d < y.d ? -1 : 1; });
-      var sparkHTML = '';
-      hist.forEach(function(pt, i) {
-        var isCurr = (pt.d === a.invoice_date && parseFloat(pt.p) === curr);
-        var col = isCurr ? colC : '#52525b';
-        sparkHTML += '<div class="anm-spark-dot"><div class="anm-spark-date">'+pt.d.slice(5)+'</div>';
-        sparkHTML += '<div class="anm-spark-circle'+(isCurr?(isUp?' curr':' curr dn'):'')+'" style="background:'+col+'"></div>';
-        sparkHTML += '<div class="anm-spark-price" style="color:'+col+'">₪'+parseFloat(pt.p)+'</div></div>';
-        if (i < hist.length - 1) sparkHTML += '<div class="anm-spark-line"></div>';
-      });
-      var waMsg = 'שלום,\nבחשבונית '+a.invoice_ref+' מתאריך '+a.invoice_date+'\nשימתי לב שמחיר '+a.product_name+' עלה ל₪'+curr+' לעומת מחיר רגיל של ₪'+avg+'.\nאשמח להבנין. תודה';
-      var phone = (a.supplier_phone || '').replace(/[^0-9]/g,'');
-      if (phone.startsWith('0')) phone = '972' + phone.slice(1);
-      var waUrl = 'https://wa.me/'+phone+'?text='+encodeURIComponent(waMsg);
-      h += '<div class="anm-card '+level+(isAck?' ack':'')+'">';
-      h += '<div class="anm-top"><div class="anm-name">'+a.product_name+'</div>';
-      h += '<div class="anm-pct '+(isUp?'up':'dn')+'">'+pctStr+'</div></div>';
-      h += '<div class="anm-meta">'+a.supplier_name+' · '+a.invoice_date+' · '+a.invoice_ref+'</div>';
-      h += '<div class="anm-bars">';
-      h += '<div class="anm-bar-col"><div class="anm-bar-rect" style="height:'+hP+'px;background:#52525b"></div><div class="anm-bar-val" style="color:#a1a1aa">₪'+prev+'</div><div class="anm-bar-lbl">קודם</div></div>';
-      h += '<div class="anm-bar-col"><div class="anm-bar-rect" style="height:'+hC+'px;background:'+colC+'"></div><div class="anm-bar-val" style="color:'+colC+'">₪'+curr+'</div><div class="anm-bar-lbl">נוכחי</div></div>';
-      h += '<div class="anm-bar-col"><div class="anm-bar-rect" style="height:'+hA+'px;background:rgba(59,130,246,0.15);border:1px dashed #3b82f6"></div><div class="anm-bar-val" style="color:#a1a1aa">₪'+avg+'</div><div class="anm-bar-lbl">ממוצע</div></div>';
-      h += '</div>';
-      if (sparkHTML) h += '<div class="anm-spark-row">'+sparkHTML+'</div>';
-      if (!isAck) {
-        h += '<div class="anm-actions">';
-        h += '<button class="anm-btn wa" onclick="window.open(\''+waUrl+'\',\'_blank\')">📲 שלח לספק</button>';
-        h += '<button class="anm-btn ok" data-pid="'+a.product_id+'" data-ref="'+a.invoice_ref+'" onclick="acknowledgeAnomaly(this)">✓ ידוע</button>';
-        h += '</div>';
-      } else { h += '<div style="font-size:11px;color:#22c55e;padding:4px 0">✓ אושרה'+(a.ack_note?' — '+a.ack_note:'')+'</div>'; }
-      h += '</div>';
-    });
+function changeQty(id, delta) {
+  const current = state[id] || 0;
+  const next = current + delta;
+  if (next <= 0) {
+    delete state[id];
+  } else {
+    state[id] = next;
   }
-  document.getElementById('anomaliesContent').innerHTML = h;
-}
-function setAnmFilter(f) { anmFilter = f; buildAnmHTML(); }
-
-async function acknowledgeAnomaly(btn) {
-  var pid = btn.getAttribute('data-pid'); var ref = btn.getAttribute('data-ref');
-  anmAckSet.add(pid + '||' + ref);
-  buildAnmHTML();
-  try {
-    await fetch('https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/price_anomalies_acknowledged', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk',
-        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk',
-        'Prefer': 'resolution=ignore-duplicates'
-      },
-      body: JSON.stringify({product_id: pid, invoice_ref: ref})
-    });
-  } catch(e) {}
+  renderItems();
 }
 
-function exportEmail() {
-  try {
-    var q = document.getElementById('priceSearch').value.trim();
-    var filter = priceFilter !== 'all' ? ' — ' + priceFilter : '';
-    var subject = 'מחירון פסאו גג על הים' + filter;
-    var body = 'מחירון פסאו גג על הים' + filter + '\n' + new Date().toLocaleDateString('he-IL') + '\n================================\n\n';
-    var byCat = {};
-    PRODUCTS.forEach(function(p) {
-      if (priceFilter !== 'all' && p.cat !== priceFilter) return;
-      if (q && p.name.toLowerCase().indexOf(q.toLowerCase()) === -1) return;
-      if (!byCat[p.cat]) byCat[p.cat] = [];
-      byCat[p.cat].push(p);
-    });
-    Object.keys(byCat).sort().forEach(function(cat) {
-      body += '[ ' + cat + ' ]\n';
-      byCat[cat].forEach(function(p) {
-        var sup = SUP_MAP[p.sid];
-        var price = p.price != null ? '₪' + p.price.toFixed(2) : '—';
-        body += p.name + ' | ' + (sup ? sup.name : '') + ' | ' + price + ' / ' + p.unit + '\n';
-      });
-      body += '\n';
-    });
-    var a = document.createElement('a');
-    a.href = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
-    a.style.display = 'none'; document.body.appendChild(a); a.click();
-    setTimeout(function() { document.body.removeChild(a); }, 200);
-  } catch(e) { alert('שגיאה: ' + e.message); }
+function updateBadge() {
+  const count = Object.keys(state).length;
+  const badge = document.getElementById('badge');
+  if (count > 0) {
+    badge.textContent = `${count} פריטים בהזמנה`;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
 }
 
-// ═══════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════
-function init() {
-  try { document.getElementById('todayDate').textContent = new Date().toLocaleDateString('he-IL'); } catch(e) {}
-  try {
-    if (localStorage.getItem('paseo-theme') === 'light') {
-      document.documentElement.classList.add('light-mode');
-      document.body.classList.add('light-mode');
-      document.getElementById('themeBtn').textContent = '🌑';
-    } else {
-      document.documentElement.classList.remove('light-mode');
-      document.body.classList.remove('light-mode');
-      document.getElementById('themeBtn').textContent = '🌙';
+function buildText() {
+  const lines = [];
+  const items = products.filter(p => p.supplier_id === currentSupplier.id);
+  items.forEach(item => {
+    if (state[item.id]) {
+      lines.push({ name: item.name, qty: state[item.id], unit: item.order_unit || item.unit || 'יח׳' });
     }
-  } catch(e) {}
-  if (SUPPLIERS.length > 0) expandedSups.add(SUPPLIERS[0].id);
-  renderOrderPills(); renderOrder(); renderPricePills(); renderPrices();
+  });
+  if (!lines.length) return null;
+  
+  const d = new Date();
+  const dateStr = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
+  let text = `הזמנה מפסאו גג על הים\nתאריך: ${dateStr}\n\n`;
+  lines.forEach(l => {
+    text += `• ${l.name} — ${l.qty} ${l.unit}\n`;
+  });
+  text += `\nתודה`;
+  return text;
 }
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', init); } else { init(); }
+
+function cleanPhone(ph) {
+  if (!ph) return '';
+  let clean = ph.replace(/[^0-9+]/g, '');
+  if (clean.startsWith('0') && !clean.startsWith('+')) {
+    clean = '972' + clean.slice(1);
+  }
+  if (clean.startsWith('+')) clean = clean.slice(1);
+  return clean;
+}
+
+document.getElementById('btnWa').onclick = () => {
+  const text = buildText();
+  if (!text) return toast('סמן לפחות פריט אחד');
+  const phone = cleanPhone(currentSupplier.phone);
+  const encoded = encodeURIComponent(text);
+  const url = phone ? `https://wa.me/${phone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
+  window.open(url, '_blank');
+};
+
+document.getElementById('btnCopy').onclick = () => {
+  const text = buildText();
+  if (!text) return toast('סמן לפחות פריט אחד');
+  navigator.clipboard.writeText(text).then(() => toast('הועתק ✓'));
+};
+
+document.getElementById('btnReset').onclick = () => {
+  for (const k in state) delete state[k];
+  renderItems();
+  toast('אופס');
+};
+
+document.getElementById('backBtn').onclick = () => {
+  document.getElementById('supplierView').style.display = 'none';
+  document.getElementById('bottomBar').classList.remove('show');
+  document.getElementById('indexView').style.display = 'block';
+  for (const k in state) delete state[k];
+  currentSupplier = null;
+};
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 1800);
+}
+
+// Init
+loadData();
 </script>
 
 </body>
