@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>פסאו — הזמנות ספקים</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="פסאו">
+<meta name="theme-color" content="#09090B">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>">
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{font-family:'Heebo',sans-serif;background:#09090B;color:#F0F0F4;min-height:100dvh;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes enter{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
+input::placeholder{color:#55555F}
+button{font-family:inherit}
+#loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px}
+.spinner{width:24px;height:24px;border:2px solid rgba(255,255,255,.06);border-top-color:#C9A84C;border-radius:50%;animation:spin .6s linear infinite}
+#idx{display:none}
+.hero{text-align:center;padding:48px 20px 20px;position:relative}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:300px;height:200px;background:radial-gradient(circle,rgba(201,168,76,.12) 0%,transparent 70%);pointer-events:none}
+.hero-label{font-size:10px;font-weight:700;color:#C9A84C;letter-spacing:4px;text-transform:uppercase;position:relative}
+.hero h1{font-size:28px;font-weight:900;margin:6px 0 0;letter-spacing:-1px;position:relative}
+.hero-sub{font-size:12px;color:#8A8A96;margin-top:4px;position:relative}
+.tabs{display:flex;gap:4px;padding:6px 14px;position:sticky;top:0;z-index:15;background:#09090B;border-bottom:1px solid rgba(255,255,255,.06)}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:10px 4px;border-radius:14px;border:none;background:transparent;color:#55555F;font-size:11px;font-weight:500;cursor:pointer;transition:all .2s}
+.tab.on{background:rgba(201,168,76,.12);color:#C9A84C;font-weight:700}
+.tab .ti{font-size:18px;line-height:1}
+.tab .tc{font-size:9px;opacity:.5;font-weight:400}
+.list{padding:10px 14px 40px}
+.grp-title{font-size:13px;font-weight:800;color:#C9A84C;padding:16px 6px 8px;letter-spacing:.3px;border-bottom:1px solid rgba(201,168,76,.15);margin-bottom:8px;margin-top:8px}
+.grp-title:first-child{margin-top:0}
+.scard{background:linear-gradient(135deg,#14141A 0%,#1C1C24 100%);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:18px 20px;margin-bottom:10px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;animation:enter .35s ease both}
+.scard:active{transform:scale(.97)}
+.scard::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle at top right,rgba(201,168,76,.12),transparent 70%);pointer-events:none}
+.scard-row{display:flex;justify-content:space-between;align-items:flex-start;position:relative}
+.scard-name{font-size:18px;font-weight:800;letter-spacing:-0.3px}
+.scard-contact{font-size:12px;color:#8A8A96;margin-top:2px}
+.scard-badge{background:rgba(201,168,76,.2);color:#C9A84C;padding:4px 12px;border-radius:20px;font-size:10px;font-weight:700}
+.scard-meta{font-size:11px;color:#55555F;margin-top:10px;display:flex;flex-direction:column;gap:3px}
+.scard-meta span{display:flex;align-items:center;gap:6px}
+#sv{display:none}
+.sh{padding:16px 20px 12px;position:sticky;top:0;z-index:20;background:linear-gradient(180deg,#1C1C24,#09090B);border-bottom:1px solid rgba(255,255,255,.06)}
+.sh-top{display:flex;justify-content:space-between;align-items:center}
+.sh-back{background:none;border:none;color:#C9A84C;font-size:14px;cursor:pointer;padding:0;font-weight:600}
+.sh-call{background:#14141A;border:1px solid rgba(255,255,255,.06);border-radius:12px;padding:7px 14px;font-size:12px;color:#F0F0F4;text-decoration:none;display:flex;align-items:center;gap:5px}
+.sh-name{font-size:24px;font-weight:900;margin-top:8px;letter-spacing:-0.5px}
+.sh-info{font-size:12px;color:#8A8A96;margin-top:3px;display:flex;gap:14px;flex-wrap:wrap}
+.sh-search{margin-top:12px;position:relative}
+.sh-search input{width:100%;padding:10px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:#14141A;color:#F0F0F4;font-size:14px;outline:none}
+.sh-search input:focus{border-color:rgba(201,168,76,.2)}
+.sh-x{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;color:#8A8A96;font-size:16px;cursor:pointer;display:none}
+.cat{font-size:11px;font-weight:700;color:#C9A84C;padding:16px 20px 6px;letter-spacing:.8px;text-transform:uppercase;position:sticky;top:112px;z-index:5;background:#09090B}
+.it{display:flex;align-items:center;padding:12px 20px;gap:14px;border-bottom:1px solid rgba(255,255,255,.06);transition:all .15s}
+.it.on{background:rgba(201,168,76,.12);border-bottom-color:rgba(201,168,76,.08)}
+.it-chk{width:24px;height:24px;border-radius:7px;border:2px solid #55555F;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;flex-shrink:0;font-size:13px;color:transparent;font-weight:800}
+.it.on .it-chk{border-color:#C9A84C;background:#C9A84C;color:#09090B}
+.it-body{flex:1;min-width:0;cursor:pointer}
+.it-name{font-size:14px;font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.it.on .it-name{font-weight:600;color:#fff}
+.it-unit{font-size:10px;color:#55555F;margin-top:1px}
+.it-qty{display:flex;align-items:center;gap:5px}
+.qb{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:#14141A;color:#F0F0F4;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
+.qb:active{transform:scale(.92)}
+.it.on .qb.plus{border-color:#C9A84C;background:rgba(201,168,76,.12);color:#C9A84C}
+.qv{width:40px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:#14141A;color:#F0F0F4;font-size:16px;font-weight:700;text-align:center;font-family:'Heebo',sans-serif;outline:none}
+.it.on .qv{color:#C9A84C;border-color:rgba(201,168,76,.2)}
+.bar{position:fixed;bottom:0;left:0;right:0;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.06);padding:10px 16px 14px;display:none;gap:8px;z-index:30;align-items:center}
+.bar.show{display:flex}
+.bar-n{background:#C9A84C;color:#09090B;width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:pop .2s ease}
+.bwa{flex:1;padding:14px 0;border-radius:14px;border:none;background:#25D366;color:#fff;font-size:15px;font-weight:700;cursor:pointer}
+.bcp,.brs{padding:14px 16px;border-radius:14px;border:1px solid rgba(255,255,255,.06);background:#14141A;font-size:15px;cursor:pointer}
+.bcp{color:#F0F0F4}
+.brs{color:#F87171}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#1C1C24;color:#C9A84C;padding:10px 24px;border-radius:30px;font-size:13px;font-weight:600;z-index:50;border:1px solid rgba(255,255,255,.06);box-shadow:0 8px 32px rgba(0,0,0,.4);animation:pop .2s ease;display:none;white-space:nowrap}
+.toast.show{display:block}
+.empty{text-align:center;padding:48px 20px;color:#55555F;font-size:14px}
+</style>
+</head>
+<body>
+<div id="loader"><div class="spinner"></div><p style="color:#8A8A96;font-size:12px">טוען ספקים...</p></div>
+<div id="idx">
+<div class="hero"><div class="hero-label">PASEO</div><h1>גג על הים</h1><p class="hero-sub">הזמנות ספקים</p></div>
+<div class="tabs" id="tabs"></div>
+<div class="list" id="cards"></div>
+</div>
+<div id="sv">
+<div class="sh">
+<div class="sh-top"><button class="sh-back" onclick="goBack()">חזרה ←</button><span id="shPh"></span></div>
+<div class="sh-name" id="shNm"></div>
+<div class="sh-info" id="shNf"></div>
+<div class="sh-search"><input id="sbox" placeholder="חיפוש מוצר..." oninput="renderItems()"><button class="sh-x" id="sx" onclick="document.getElementById('sbox').value='';renderItems()">✕</button></div>
+</div>
+<div id="items" style="padding-bottom:120px"></div>
+</div>
+<div class="bar" id="bar">
+<span class="bar-n" id="bn" style="display:none"></span>
+<button class="bwa" onclick="sendWA()">וואטסאפ</button>
+<button class="bcp" onclick="copyOrd()">📋</button>
+<button class="brs" onclick="resetCart()">↩</button>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var SB="https://vzeowbriddhvhpishmhn.supabase.co",
+SK="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk",
+DH={sun:"א׳",mon:"ב׳",tue:"ג׳",wed:"ד׳",thu:"ה׳",fri:"ו׳"},
+TABS=[
+{key:"food",label:"אוכל",icon:"🥩",cats:["food"]},
+{key:"drinks",label:"בר",icon:"🍷",cats:["אלכוהול","יינות"]},
+{key:"spice",label:"תבלינים",icon:"🌿",cats:["תבלינים"]},
+{key:"equip",label:"חד פעמי",icon:"🧹",cats:["equipment"]}
+];
+
+var FOOD_GROUPS = {
+“🥩 בשרים ועוף”: [“בקר”,“עוף”],
+“🐟 דגים”: [“דגים”],
+“🧀 חלב וגבינות”: [“חלב”,“גבינות”,“ביצים”],
+“🥬 ירקות ופירות”: [“ירקות”,“עשבי תיבול”,“פירות”],
+“🍞 לחמים ופסטה”: [“לחם”,“פסטה”],
+“🍰 קינוחים”: [“קינוחים”],
+“🥫 יבשים ושימורים”: [“יבשים”,“שימורים”,“אגוזים”,“שמנים”,“תבלינים”],
+“🧃 משקאות”: [“משקאות”,“פיקדון”]
+};
+
+var DRINK_GROUPS = {
+“🥃 אלכוהול”: [“אלכוהול”],
+“🍷 יינות”: [“יינות”],
+“🍺 בירות”: [“בירות”],
+“🧉 סירופים ומשקאות”: [“סירופים”,“משקאות”]
+};
+
+var EQUIP_GROUPS = {
+“📦 חד פעמי”: [“חד פעמי”],
+“🧽 ניקיון”: [“ניקיון”],
+“🔧 ציוד”: [“ציוד”]
+};
+
+var suppliers=[],products=[],curTab=“food”,curSup=null,cart={};
+
+function api(t,q){return fetch(SB+”/rest/v1/”+t+”?”+(q||””),{headers:{apikey:SK,Authorization:“Bearer “+SK}}).then(function(r){return r.json()});}
+
+function load(){
+Promise.all([api(“suppliers”,“active=eq.true&order=name.asc”),api(“products”,“active=eq.true&order=category.asc,name.asc”)])
+.then(function(r){
+suppliers=r[0];products=r[1].filter(function(x){return x.discontinued!==true});
+document.getElementById(“loader”).style.display=“none”;
+document.getElementById(“idx”).style.display=“block”;
+renderTabs();renderCards();
+}).catch(function(){
+document.getElementById(“loader”).innerHTML=’<p style="color:#F87171;font-size:13px">שגיאה בטעינה. בדוק חיבור.</p>’;
+});}
+
+function renderTabs(){
+var h=””;TABS.forEach(function(t){
+var on=curTab===t.key;
+var cnt=suppliers.filter(function(s){return t.cats.indexOf(s.category)!==-1&&products.some(function(p){return p.supplier_id===s.id})}).length;
+h+=’<button class=“tab’+(on?” on”:””)+’” onclick=“curTab='’+t.key+’';renderTabs();renderCards()”><span class="ti">’+t.icon+’</span><span>’+t.label+’</span><span class="tc">’+cnt+’</span></button>’;
+});document.getElementById(“tabs”).innerHTML=h;}
+
+function getGroups(){
+if(curTab===“food”) return FOOD_GROUPS;
+if(curTab===“drinks”) return DRINK_GROUPS;
+if(curTab===“equip”) return EQUIP_GROUPS;
+return {“תבלינים”:[“תבלינים”]};
+}
+
+function renderCards(){
+var tab=TABS.filter(function(t){return t.key===curTab})[0];
+var list=suppliers.filter(function(s){return tab.cats.indexOf(s.category)!==-1&&products.some(function(p){return p.supplier_id===s.id})});
+var el=document.getElementById(“cards”);
+if(!list.length){el.innerHTML=’<div class="empty">אין ספקים בקטגוריה</div>’;return;}
+
+var groups=getGroups();
+var h=””;
+var usedSuppliers={};
+
+Object.keys(groups).forEach(function(grpName){
+var grpCats=groups[grpName];
+var grpSuppliers=list.filter(function(s){
+return products.some(function(p){
+return p.supplier_id===s.id && grpCats.indexOf(p.category)!==-1;
+});
+});
+if(!grpSuppliers.length) return;
+
+h+=’<div class="grp-title">’+grpName+’</div>’;
+grpSuppliers.forEach(function(s,i){
+usedSuppliers[s.id]=true;
+var cnt=products.filter(function(p){return p.supplier_id===s.id && grpCats.indexOf(p.category)!==-1}).length;
+var totalCnt=products.filter(function(p){return p.supplier_id===s.id}).length;
+var days=s.order_days?s.order_days.map(function(d){return DH[d]||d}).join(” “):””;
+var cut=s.order_cutoff?s.order_cutoff.slice(0,5):””;
+h+=’<div class="scard" style="animation-delay:'+i*40+'ms" onclick="openSup(\''+s.id+'\')">’;
+h+=’<div class="scard-row"><div><div class="scard-name">’+s.name+’</div>’;
+if(s.contact_name)h+=’<div class="scard-contact">’+s.contact_name+’</div>’;
+h+=’</div><div class="scard-badge">’+totalCnt+’ פריטים</div></div>’;
+if(days||s.phone){h+=’<div class="scard-meta">’;
+if(days)h+=’<span>📅 ‘+days+(cut?’ · עד ‘+cut:’’)+’</span>’;
+if(s.phone)h+=’<span>📞 ‘+s.phone+’</span>’;
+h+=’</div>’;}h+=’</div>’;
+});
+});
+
+el.innerHTML=h;
+}
+
+function openSup(id){
+curSup=suppliers.filter(function(s){return s.id===id})[0];if(!curSup)return;cart={};
+document.getElementById(“idx”).style.display=“none”;
+document.getElementById(“sv”).style.display=“block”;
+document.getElementById(“bar”).classList.add(“show”);
+document.getElementById(“shNm”).textContent=curSup.name;
+var days=curSup.order_days?curSup.order_days.map(function(d){return DH[d]}).join(” “):””;
+var cut=curSup.order_cutoff?curSup.order_cutoff.slice(0,5):””;
+var info=””;if(curSup.contact_name)info+=’<span>’+curSup.contact_name+’</span>’;
+if(days)info+=’<span>📅 ‘+days+(cut?’ עד ‘+cut:’’)+’</span>’;
+document.getElementById(“shNf”).innerHTML=info;
+if(curSup.phone){document.getElementById(“shPh”).innerHTML=’<a class="sh-call" href="tel:'+curSup.phone+'">📞 ‘+(curSup.contact_name||“חייג”)+’</a>’;}
+else{document.getElementById(“shPh”).innerHTML=””;}
+document.getElementById(“sbox”).value=””;renderItems();window.scrollTo(0,0);}
+
+function renderItems(){
+var q=document.getElementById(“sbox”).value;
+document.getElementById(“sx”).style.display=q?“block”:“none”;
+var items=products.filter(function(p){return p.supplier_id===curSup.id});
+if(q)items=items.filter(function(i){return i.name.indexOf(q)!==-1});
+var cats={},order=[];
+items.forEach(function(p){var c=p.category||“כללי”;if(!cats[c]){cats[c]=[];order.push(c);}cats[c].push(p);});
+var h=””;order.forEach(function(cat){
+h+=’<div class="cat">’+cat+’</div>’;
+cats[cat].forEach(function(item){
+var qty=cart[item.id]||0;var on=qty>0;
+h+=’<div class=“it’+(on?” on”:””)+’”>’;
+h+=’<div class="it-chk" onclick="toggle(\''+item.id+'\')">✓</div>’;
+h+=’<div class="it-body" onclick="toggle(\''+item.id+'\')">’;
+h+=’<div class="it-name">’+item.name+’</div>’;
+h+=’<div class="it-unit">’+(item.order_unit||item.unit||“יח׳”)+’</div></div>’;
+h+=’<div class="it-qty"><button class="qb" onclick="chg(\''+item.id+'\',-1)">−</button>’;
+h+=’<input class="qv" type="number" inputmode="numeric" pattern="[0-9]*" value="'+qty+'" onfocus="this.select()" onchange="setQ(\''+item.id+'\',this.value)" onblur="setQ(\''+item.id+'\',this.value)">’;
+h+=’<button class="qb plus" onclick="chg(\''+item.id+'\',1)">+</button></div></div>’;
+});});
+if(!order.length)h=’<div class="empty">’+(q?“לא נמצאו מוצרים”:“אין מוצרים”)+’</div>’;
+document.getElementById(“items”).innerHTML=h;updateBadge();}
+
+function toggle(id){if(cart[id])delete cart[id];else cart[id]=1;renderItems();}
+function chg(id,d){var c=(cart[id]||0)+d;if(c<=0)delete cart[id];else cart[id]=c;renderItems();}
+function setQ(id,v){var n=parseInt(v)||0;if(n<=0)delete cart[id];else cart[id]=n;renderItems();}
+
+function updateBadge(){var n=Object.keys(cart).length;var b=document.getElementById(“bn”);if(n>0){b.textContent=n;b.style.display=“flex”;}else{b.style.display=“none”;}}
+
+function buildTxt(){
+var items=products.filter(function(p){return p.supplier_id===curSup.id});
+var lines=items.filter(function(p){return cart[p.id]>0}).map(function(p){return “• “+p.name+” — “+cart[p.id]+” “+(p.order_unit||p.unit||“יח׳”)});
+if(!lines.length)return null;var d=new Date();
+return “הזמנה מפסאו גג על הים\nתאריך: “+d.getDate()+”.”+(d.getMonth()+1)+”.”+d.getFullYear()+”\n\n”+lines.join(”\n”)+”\n\nתודה”;}
+
+function cleanPh(s){if(!s)return””;var c=s.replace(/[^0-9+]/g,””);if(c.charAt(0)===“0”)c=“972”+c.slice(1);if(c.charAt(0)===”+”)c=c.slice(1);return c;}
+function sendWA(){var t=buildTxt();if(!t)return flash(“סמן לפחות פריט אחד”);var p=cleanPh(curSup.phone),e=encodeURIComponent(t);window.open(p?“https://wa.me/”+p+”?text=”+e:“https://wa.me/?text=”+e,”_blank”);}
+function copyOrd(){var t=buildTxt();if(!t)return flash(“סמן לפחות פריט אחד”);navigator.clipboard.writeText(t).then(function(){flash(“✓ הועתק”)});}
+function resetCart(){cart={};renderItems();flash(“אופס”);}
+function goBack(){document.getElementById(“sv”).style.display=“none”;document.getElementById(“bar”).classList.remove(“show”);document.getElementById(“idx”).style.display=“block”;curSup=null;cart={};}
+function flash(m){var t=document.getElementById(“toast”);t.textContent=m;t.classList.add(“show”);setTimeout(function(){t.classList.remove(“show”)},2200);}
+load();
+</script>
+
+</body>
+</html> 
