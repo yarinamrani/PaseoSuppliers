@@ -229,7 +229,7 @@ function renderItems(){
     list.forEach(item=>{
       const qty=cart[item.id]||0;
       const on=qty>0;
-      html+=`<div class="item${on?" on":"}" id="r-${item.id}">
+      html+=`<div class="item${on?" on":""}" id="r-${item.id}">
         <div class="item-chk" onclick="toggle('${item.id}')">✓</div>
         <div class="item-info" onclick="toggle('${item.id}')">
           <div class="item-name">${item.name}</div>
