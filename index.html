@@ -1,336 +1,198 @@
-<!DOCTYPE html>
+import { useState, useEffect, useCallback, useRef } from “react”;
 
-<html lang="he" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>פסאו — הזמנות ספקים</title>
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="הזמנות">
-<meta name="theme-color" content="#0C0C0E">
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔶</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;900&display=swap" rel="stylesheet">
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{--bg:#0C0C0E;--card:#1A1A1F;--card-active:#22222A;--border:#2A2A33;--text:#E8E8EC;--dim:#7A7A88;--accent:#C4A265;--accent-dim:rgba(196,162,101,0.15);--green:#4ADE80;--red:#F87171}
-body{font-family:'Heebo',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;overflow-x:hidden}
+const SB = “https://vzeowbriddhvhpishmhn.supabase.co”;
+const SK = “eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk”;
+const DH = { sun:“א׳”, mon:“ב׳”, tue:“ג׳”, wed:“ד׳”, thu:“ה׳”, fri:“ו׳” };
+const TABS = [
+{ key:“food”, label:“אוכל”, icon:“🍳”, cats:[“food”] },
+{ key:“drinks”, label:“בר”, icon:“🍸”, cats:[“אלכוהול”,“יינות”] },
+{ key:“spice”, label:“תבלינים”, icon:“🌿”, cats:[“תבלינים”] },
+{ key:“equip”, label:“ציוד”, icon:“🧴”, cats:[“equipment”] },
+];
+const ph = s => { if (!s) return “”; let c = s.replace(/[^0-9+]/g,””); if (c.startsWith(“0”)) c = “972”+c.slice(1); if (c.startsWith(”+”)) c = c.slice(1); return c; };
+const api = async (t,q=””) => { const r = await fetch(`${SB}/rest/v1/${t}?${q}`,{headers:{apikey:SK,Authorization:`Bearer ${SK}`}}); return r.json(); };
 
-/* Loading */
-.loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:80vh;gap:16px}
-.loader .spin{width:36px;height:36px;border:3px solid var(–border);border-top-color:var(–accent);border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
+export default function App() {
+const [sup,setSup] = useState([]);
+const [prod,setProd] = useState([]);
+const [loading,setLoading] = useState(true);
+const [err,setErr] = useState(null);
+const [tab,setTab] = useState(“food”);
+const [cur,setCur] = useState(null);
+const [cart,setCart] = useState({});
+const [toast,setToast] = useState(””);
+const [search,setSearch] = useState(””);
 
-/* Index */
-#indexView{padding:16px 12px 40px;display:none}
-#indexView h1{font-size:26px;font-weight:900;color:var(–accent);text-align:center;margin:20px 0 4px}
-.idx-sub{text-align:center;color:var(–dim);font-size:13px;margin-bottom:24px}
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.card{background:var(–card);border:1px solid var(–border);border-radius:14px;padding:14px;cursor:pointer;transition:all .15s}
-.card:active{transform:scale(.97);border-color:var(–accent)}
-.card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
-.card-emoji{font-size:28px}
-.card-count{font-size:11px;color:var(–dim);background:var(–card-active);padding:2px 8px;border-radius:20px}
-.card-name{font-size:14px;font-weight:700;margin-bottom:2px;line-height:1.3}
-.card-contact{font-size:11px;color:var(–dim)}
-.card-days{font-size:10px;color:var(–accent);margin-top:4px;opacity:.8}
+useEffect(() => {
+Promise.all([api(“suppliers”,“active=eq.true&order=name.asc”),api(“products”,“active=eq.true&order=category.asc,name.asc”)])
+.then(([s,p]) => { setSup(s); setProd(p.filter(x=>x.discontinued!==true)); setLoading(false); })
+.catch(() => { setErr(true); setLoading(false); });
+},[]);
 
-/* Supplier View */
-#supplierView{padding:0 0 120px;display:none}
-.s-header{position:sticky;top:0;z-index:10;background:var(–bg);padding:14px 16px 10px;border-bottom:1px solid var(–border)}
-.s-back{background:none;border:none;color:var(–accent);font-size:14px;font-family:inherit;cursor:pointer;margin-bottom:6px;padding:0}
-.s-title{font-size:22px;font-weight:900}
-.s-meta{font-size:12px;color:var(–dim);margin-top:2px}
-.s-contact-bar{display:flex;gap:8px;margin-top:8px}
-.s-contact-bar a,.s-contact-bar button{background:var(–card);border:1px solid var(–border);border-radius:10px;padding:6px 14px;font-size:12px;color:var(–text);text-decoration:none;font-family:inherit;cursor:pointer}
-.s-contact-bar a:active,.s-contact-bar button:active{background:var(–accent-dim)}
-.cat-title{font-size:13px;font-weight:700;color:var(–accent);padding:14px 16px 6px;position:sticky;top:96px;background:var(–bg);z-index:5}
-.item{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(–border);gap:12px;transition:background .1s}
-.item.active{background:var(–accent-dim)}
-.item-check{width:22px;height:22px;border-radius:6px;border:2px solid var(–border);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;font-size:13px;color:transparent}
-.item.active .item-check{border-color:var(–accent);background:var(–accent);color:#000}
-.item-info{flex:1;min-width:0}
-.item-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.item-unit{font-size:11px;color:var(–dim)}
-.item-qty{display:flex;align-items:center;gap:8px}
-.qty-btn{width:30px;height:30px;border-radius:8px;border:1px solid var(–border);background:var(–card);color:var(–text);font-size:18px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-family:inherit}
-.qty-btn:active{background:var(–accent-dim)}
-.qty-val{font-size:16px;font-weight:700;min-width:24px;text-align:center}
+const flash = useCallback(m => { setToast(m); setTimeout(()=>setToast(””),2200); },[]);
+const setQty = (id,v) => setCart(p => { const n={…p}; if(v<=0) delete n[id]; else n[id]=v; return n; });
 
-/* Bottom Bar */
-.bottom-bar{position:fixed;bottom:0;left:0;right:0;background:var(–bg);border-top:1px solid var(–border);padding:10px 16px;display:none;gap:8px;z-index:20}
-.bottom-bar.show{display:flex}
-.btn{flex:1;padding:12px;border-radius:12px;border:none;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;text-align:center}
-.btn-wa{background:#25D366;color:#fff}
-.btn-copy{background:var(–card);color:var(–text);border:1px solid var(–border)}
-.btn-reset{background:var(–card);color:var(–red);border:1px solid var(–border);flex:.5}
+const items = cur ? prod.filter(p=>p.supplier_id===cur.id) : [];
+const cats = {};
+items.forEach(p => { const c=p.category||“כללי”; if(!cats[c]) cats[c]=[]; cats[c].push(p); });
+const cc = Object.values(cart).filter(v=>v>0).length;
 
-/* Badge */
-.badge{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(–accent);color:#000;padding:6px 16px;border-radius:20px;font-size:13px;font-weight:700;opacity:0;transition:opacity .3s;pointer-events:none;z-index:25}
-.badge.show{opacity:1}
-
-/* Toast */
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:var(–card);color:var(–text);padding:8px 20px;border-radius:20px;font-size:13px;border:1px solid var(–border);opacity:0;transition:opacity .3s;pointer-events:none;z-index:30}
-.toast.show{opacity:1}
-
-/* Dark mode toggle area */
-.mode-toggle{position:absolute;top:20px;left:16px;background:none;border:none;font-size:20px;cursor:pointer;padding:4px}
-</style>
-
-</head>
-<body>
-
-<div id="loading" class="loader">
-  <div class="spin"></div>
-  <span style="color:var(--dim);font-size:13px">טוען ספקים...</span>
-</div>
-
-<div id="indexView">
-  <h1>פסאו גג על הים</h1>
-  <p class="idx-sub">הזמנות ספקים</p>
-  <div class="grid" id="supplierGrid"></div>
-</div>
-
-<div id="supplierView">
-  <div class="s-header">
-    <button class="s-back" id="backBtn">→ חזרה</button>
-    <div class="s-title" id="sTitle"></div>
-    <div class="s-meta" id="sMeta"></div>
-    <div class="s-contact-bar" id="sContact"></div>
-  </div>
-  <div id="itemsList"></div>
-</div>
-
-<div class="bottom-bar" id="bottomBar">
-  <button class="btn btn-wa" id="btnWa">📲 וואטסאפ</button>
-  <button class="btn btn-copy" id="btnCopy">📋 העתק</button>
-  <button class="btn btn-reset" id="btnReset">↩</button>
-</div>
-
-<div class="badge" id="badge"></div>
-<div class="toast" id="toast"></div>
-
-<script>
-const SUPABASE_URL = 'https://vzeowbriddhvhpishmhn.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ6ZW93YnJpZGRodmhwaXNobWhuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI4MTAyNDUsImV4cCI6MjA4ODM4NjI0NX0.PWvjFj41l0wB9awroZdDsMhCJ0yJXdrf1-k-45n0Rwk';
-
-const EMOJI_MAP = {
-  'food': '🍽️', 'אלכוהול': '🥃', 'יינות': '🍷', 'תבלינים': '🌶️', 'equipment': '🧹'
+const txt = () => {
+const ls = items.filter(p=>cart[p.id]>0).map(p=>`• ${p.name} — ${cart[p.id]} ${p.order_unit||p.unit||"יח׳"}`);
+if(!ls.length) return null;
+const d=new Date();
+return `הזמנה מפסאו גג על הים\nתאריך: ${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}\n\n${ls.join("\n")}\n\nתודה`;
 };
-const DAY_MAP = {sun:'א׳',mon:'ב׳',tue:'ג׳',wed:'ד׳',thu:'ה׳',fri:'ו׳',sat:'ש׳'};
 
-let suppliers = [];
-let products = [];
-let currentSupplier = null;
-let state = {}; // { productId: qty }
+const wa = () => { const t=txt(); if(!t) return flash(“סמן לפחות פריט אחד”); const p=ph(cur?.phone); const e=encodeURIComponent(t); window.open(p?`https://wa.me/${p}?text=${e}`:`https://wa.me/?text=${e}`,”_blank”); };
+const cp = () => { const t=txt(); if(!t) return flash(“סמן לפחות פריט אחד”); navigator.clipboard.writeText(t).then(()=>flash(“✓ הועתק”)); };
 
-async function sbFetch(table, query='') {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?${query}`, {
-    headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` }
-  });
-  return r.json();
-}
+const C = { bg:”#0A0A0C”, sf:”#131316”, sfh:”#1A1A1F”, bd:”#222228”, g:”#D4AF5A”, gd:“rgba(212,175,90,0.1)”, gm:“rgba(212,175,90,0.25)”, tx:”#EAEAEE”, dm:”#6E6E7A”, gn:”#22C55E”, rd:”#EF4444”, w:”#fff” };
+const f = “‘Heebo’,sans-serif”;
+const ff = “‘Frank Ruhl Libre’,serif”;
 
-async function loadData() {
-  try {
-    const [s, p] = await Promise.all([
-      sbFetch('suppliers', 'active=eq.true&order=name.asc'),
-      sbFetch('products', 'active=eq.true&discontinued=not.eq.true&order=category.asc,name.asc')
-    ]);
-    suppliers = s;
-    products = p;
-    renderIndex();
-  } catch(e) {
-    document.getElementById('loading').innerHTML = '<span style="color:var(--red)">שגיאה בטעינה. בדוק חיבור אינטרנט.</span>';
-  }
-}
+const CSS = `@keyframes spin{to{transform:rotate(360deg)}}@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}@keyframes scaleIn{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:scale(1)}}input::placeholder{color:${C.dm}}*{-webkit-tap-highlight-color:transparent;box-sizing:border-box}`;
 
-function renderIndex() {
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('indexView').style.display = 'block';
-  
-  const grid = document.getElementById('supplierGrid');
-  // Only show suppliers that have products
-  const withProducts = suppliers.filter(s => products.some(p => p.supplier_id === s.id));
-  
-  grid.innerHTML = withProducts.map(s => {
-    const count = products.filter(p => p.supplier_id === s.id).length;
-    const emoji = EMOJI_MAP[s.category] || '📦';
-    const days = s.order_days ? s.order_days.map(d => DAY_MAP[d]||d).join(' ') : '';
-    const cutoff = s.order_cutoff ? s.order_cutoff.slice(0,5) : '';
-    const dayLine = days ? `${days}${cutoff ? ' עד '+cutoff : ''}` : '';
-    return `
-      <div class="card" onclick="openSupplier('${s.id}')">
-        <div class="card-top">
-          <span class="card-emoji">${emoji}</span>
-          <span class="card-count">${count}</span>
+if(loading) return (
+<div style={{display:“flex”,flexDirection:“column”,alignItems:“center”,justifyContent:“center”,height:“100vh”,background:C.bg,fontFamily:f}}>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet"/>
+<style>{CSS}</style>
+<div style={{width:28,height:28,border:`2.5px solid ${C.bd}`,borderTopColor:C.g,borderRadius:“50%”,animation:“spin .7s linear infinite”}}/>
+<p style={{color:C.dm,fontSize:13,marginTop:14}}>טוען…</p>
+</div>
+);
+
+if(err) return (<div style={{display:“flex”,alignItems:“center”,justifyContent:“center”,height:“100vh”,background:C.bg,fontFamily:f}}><p style={{color:C.rd,fontSize:14}}>שגיאה בטעינה</p></div>);
+
+// ══════════ SUPPLIER DETAIL ══════════
+if(cur){
+const days = cur.order_days?.map(d=>DH[d]).join(” “)||””;
+const cut = cur.order_cutoff?.slice(0,5)||””;
+const fc = search ? Object.fromEntries(Object.entries(cats).map(([k,v])=>[k,v.filter(i=>i.name.includes(search))]).filter(([,v])=>v.length)) : cats;
+
+```
+return (
+  <div style={{background:C.bg,minHeight:"100vh",fontFamily:f,direction:"rtl",color:C.tx}}>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet"/>
+    <style>{CSS}</style>
+
+    {/* HEADER */}
+    <div style={{background:`linear-gradient(180deg,${C.sfh} 0%,${C.bg} 100%)`,padding:"16px 18px 12px",borderBottom:`1px solid ${C.bd}`,position:"sticky",top:0,zIndex:20}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+        <button onClick={()=>{setCur(null);setCart({});setSearch("");}} style={{background:"none",border:"none",color:C.g,fontSize:13,fontFamily:f,cursor:"pointer",padding:0,fontWeight:600}}>→ חזרה</button>
+        {cur.phone && <a href={`tel:${cur.phone}`} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:10,padding:"5px 12px",fontSize:12,color:C.tx,textDecoration:"none",fontFamily:f}}>📞 {cur.contact_name||"חייג"}</a>}
+      </div>
+      <div style={{fontSize:26,fontWeight:900,fontFamily:ff,marginTop:6,letterSpacing:"-0.5px"}}>{cur.name}</div>
+      {(days||cur.contact_name)&&<div style={{fontSize:12,color:C.dm,marginTop:4,display:"flex",gap:12}}>{cur.contact_name&&<span>{cur.contact_name}</span>}{days&&<span>📅 {days}{cut?` עד ${cut}`:""}</span>}</div>}
+      <div style={{marginTop:10,position:"relative"}}>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 חיפוש מוצר..." style={{width:"100%",padding:"9px 14px",borderRadius:10,border:`1px solid ${C.bd}`,background:C.sf,color:C.tx,fontSize:14,fontFamily:f,outline:"none",direction:"rtl"}}/>
+        {search&&<button onClick={()=>setSearch("")} style={{position:"absolute",left:10,top:"50%",transform:"translateY(-50%)",background:"none",border:"none",color:C.dm,fontSize:16,cursor:"pointer"}}>✕</button>}
+      </div>
+    </div>
+
+    {/* ITEMS */}
+    <div style={{paddingBottom:120}}>
+      {Object.entries(fc).map(([cat,citems],ci)=>(
+        <div key={cat} style={{animation:`fadeUp .3s ease ${ci*0.05}s both`}}>
+          <div style={{fontSize:12,fontWeight:700,color:C.g,padding:"14px 18px 5px",letterSpacing:"0.5px",position:"sticky",top:118,zIndex:5,background:C.bg}}>{cat}</div>
+          {citems.map((item,ii)=>{
+            const q=cart[item.id]||0; const on=q>0;
+            return (
+              <div key={item.id} style={{display:"flex",alignItems:"center",padding:"10px 18px",gap:12,borderBottom:`1px solid ${on?C.gd:C.bd}`,background:on?C.gd:"transparent",transition:"background .15s",animation:`fadeUp .25s ease ${ci*0.05+ii*0.02}s both`}}>
+                <div onClick={()=>setQty(item.id,q>0?0:1)} style={{width:26,height:26,borderRadius:8,border:on?`2px solid ${C.g}`:`2px solid ${C.bd}`,background:on?C.g:"transparent",display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",transition:"all .15s",flexShrink:0,color:on?C.bg:"transparent",fontSize:14,fontWeight:800}}>✓</div>
+                <div style={{flex:1,minWidth:0,cursor:"pointer"}} onClick={()=>setQty(item.id,q>0?0:1)}>
+                  <div style={{fontSize:14,fontWeight:on?600:400,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",color:on?C.w:C.tx}}>{item.name}</div>
+                  <div style={{fontSize:11,color:C.dm,marginTop:1}}>{item.order_unit||item.unit||"יח׳"}</div>
+                </div>
+                <div style={{display:"flex",alignItems:"center",gap:4}}>
+                  <button onClick={()=>setQty(item.id,q-1)} style={{width:34,height:34,borderRadius:9,border:`1px solid ${C.bd}`,background:C.sf,color:C.tx,fontSize:20,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontFamily:f}}>−</button>
+                  <span style={{fontSize:17,fontWeight:700,minWidth:28,textAlign:"center",color:on?C.g:C.tx}}>{q}</span>
+                  <button onClick={()=>setQty(item.id,q+1)} style={{width:34,height:34,borderRadius:9,border:on?`1px solid ${C.g}`:`1px solid ${C.bd}`,background:on?C.gd:C.sf,color:on?C.g:C.tx,fontSize:20,display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",fontFamily:f}}>+</button>
+                </div>
+              </div>
+            );
+          })}
         </div>
-        <div class="card-name">${s.name}</div>
-        <div class="card-contact">${s.contact_name||''}</div>
-        ${dayLine ? `<div class="card-days">${dayLine}</div>` : ''}
-      </div>`;
-  }).join('');
+      ))}
+      {Object.keys(fc).length===0&&<div style={{textAlign:"center",padding:40,color:C.dm,fontSize:14}}>{search?"לא נמצאו מוצרים":"אין מוצרים"}</div>}
+    </div>
+
+    {/* BOTTOM BAR */}
+    <div style={{position:"fixed",bottom:0,left:0,right:0,background:C.bg,borderTop:`1px solid ${C.bd}`,padding:"10px 16px 12px",display:"flex",gap:8,zIndex:30,alignItems:"center"}}>
+      {cc>0&&<div style={{background:C.g,color:C.bg,padding:"5px 14px",borderRadius:20,fontSize:12,fontWeight:800,flexShrink:0,animation:"scaleIn .2s ease"}}>{cc}</div>}
+      <button onClick={wa} style={{flex:1,padding:"13px 0",borderRadius:12,border:"none",background:"#25D366",color:"#fff",fontSize:15,fontWeight:700,cursor:"pointer",fontFamily:f}}>וואטסאפ 📲</button>
+      <button onClick={cp} style={{padding:"13px 18px",borderRadius:12,border:`1px solid ${C.bd}`,background:C.sf,color:C.tx,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:f}}>📋</button>
+      <button onClick={()=>{setCart({});flash("אופס");}} style={{padding:"13px 14px",borderRadius:12,border:`1px solid ${C.bd}`,background:C.sf,color:C.rd,fontSize:14,fontWeight:600,cursor:"pointer",fontFamily:f}}>↩</button>
+    </div>
+
+    {toast&&<div style={{position:"fixed",bottom:76,left:"50%",transform:"translateX(-50%)",background:C.sfh,color:C.g,padding:"8px 22px",borderRadius:24,fontSize:13,fontWeight:600,zIndex:40,border:`1px solid ${C.bd}`,animation:"scaleIn .2s ease",fontFamily:f}}>{toast}</div>}
+  </div>
+);
+```
+
 }
 
-function openSupplier(id) {
-  currentSupplier = suppliers.find(s => s.id === id);
-  if (!currentSupplier) return;
-  
-  document.getElementById('indexView').style.display = 'none';
-  document.getElementById('supplierView').style.display = 'block';
-  document.getElementById('bottomBar').classList.add('show');
-  
-  document.getElementById('sTitle').textContent = currentSupplier.name;
-  const days = currentSupplier.order_days ? currentSupplier.order_days.map(d => DAY_MAP[d]||d).join(' ') : '';
-  const cutoff = currentSupplier.order_cutoff ? currentSupplier.order_cutoff.slice(0,5) : '';
-  document.getElementById('sMeta').textContent = days ? `${days}${cutoff ? ' עד '+cutoff : ''}` : '';
-  
-  // Contact buttons
-  const contactBar = document.getElementById('sContact');
-  let contactHTML = '';
-  const phone = cleanPhone(currentSupplier.phone);
-  if (phone) {
-    contactHTML += `<a href="tel:${phone}">📞 חייג</a>`;
-  }
-  contactBar.innerHTML = contactHTML;
-  
-  renderItems();
-}
+// ══════════ INDEX HOME ══════════
+const at = TABS.find(t=>t.key===tab);
+const ts = sup.filter(s=>at.cats.includes(s.category)&&prod.some(p=>p.supplier_id===s.id));
 
-function renderItems() {
-  const items = products.filter(p => p.supplier_id === currentSupplier.id);
-  const cats = {};
-  items.forEach(i => {
-    const cat = i.category || 'כללי';
-    if (!cats[cat]) cats[cat] = [];
-    cats[cat].push(i);
-  });
-  
-  let html = '';
-  for (const [cat, catItems] of Object.entries(cats)) {
-    html += `<div class="cat-title">${cat}</div>`;
-    catItems.forEach(item => {
-      const qty = state[item.id] || 0;
-      const isActive = qty > 0;
-      html += `
-        <div class="item ${isActive?'active':''}" id="row-${item.id}">
-          <div class="item-check" onclick="toggleItem('${item.id}')">${isActive?'✓':''}</div>
-          <div class="item-info" onclick="toggleItem('${item.id}')">
-            <div class="item-name">${item.name}</div>
-            <div class="item-unit">${item.unit||'יח׳'}</div>
+return (
+<div style={{background:C.bg,minHeight:“100vh”,fontFamily:f,direction:“rtl”,color:C.tx}}>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&family=Frank+Ruhl+Libre:wght@700;900&display=swap" rel="stylesheet"/>
+<style>{CSS}</style>
+
+```
+  {/* HERO */}
+  <div style={{textAlign:"center",padding:"40px 20px 16px",background:`radial-gradient(ellipse at center top,${C.gd} 0%,transparent 70%)`}}>
+    <div style={{fontSize:11,fontWeight:600,color:C.g,letterSpacing:"3px",textTransform:"uppercase",marginBottom:6}}>PASEO</div>
+    <h1 style={{fontSize:32,fontWeight:900,margin:0,letterSpacing:"-1px",fontFamily:ff,lineHeight:1.1}}>גג על הים</h1>
+    <p style={{fontSize:13,color:C.dm,marginTop:6}}>הזמנות ספקים</p>
+  </div>
+
+  {/* TABS */}
+  <div style={{display:"flex",padding:"0 12px",position:"sticky",top:0,zIndex:15,background:C.bg,paddingTop:8,paddingBottom:8,borderBottom:`1px solid ${C.bd}`}}>
+    {TABS.map(t=>{
+      const on=tab===t.key;
+      const cnt=sup.filter(s=>t.cats.includes(s.category)&&prod.some(p=>p.supplier_id===s.id)).length;
+      return (
+        <button key={t.key} onClick={()=>setTab(t.key)} style={{flex:1,padding:"10px 0",borderRadius:12,border:"none",background:on?C.gd:"transparent",color:on?C.g:C.dm,fontSize:13,fontWeight:on?700:500,cursor:"pointer",fontFamily:f,transition:"all .15s",display:"flex",flexDirection:"column",alignItems:"center",gap:3}}>
+          <span style={{fontSize:20}}>{t.icon}</span>
+          <span>{t.label}</span>
+          <span style={{fontSize:10,opacity:0.6}}>{cnt}</span>
+        </button>
+      );
+    })}
+  </div>
+
+  {/* CARDS */}
+  <div style={{padding:"8px 14px 40px"}}>
+    {ts.length===0&&<div style={{textAlign:"center",padding:40,color:C.dm,fontSize:14}}>אין ספקים</div>}
+    {ts.map((s,i)=>{
+      const cnt=prod.filter(p=>p.supplier_id===s.id).length;
+      const days=s.order_days?.map(d=>DH[d]).join(" ")||"";
+      const cut=s.order_cutoff?.slice(0,5)||"";
+      return (
+        <div key={s.id} onClick={()=>setCur(s)} style={{background:C.sf,border:`1px solid ${C.bd}`,borderRadius:16,padding:"16px 18px",marginBottom:8,cursor:"pointer",transition:"transform .1s",animation:`fadeUp .3s ease ${i*0.04}s both`}}
+          onPointerDown={e=>e.currentTarget.style.transform="scale(0.98)"}
+          onPointerUp={e=>e.currentTarget.style.transform="scale(1)"}
+          onPointerLeave={e=>e.currentTarget.style.transform="scale(1)"}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+            <div>
+              <div style={{fontSize:17,fontWeight:700,lineHeight:1.2}}>{s.name}</div>
+              {s.contact_name&&<div style={{fontSize:12,color:C.dm,marginTop:2}}>{s.contact_name}</div>}
+            </div>
+            <div style={{background:C.gd,color:C.g,padding:"3px 10px",borderRadius:20,fontSize:11,fontWeight:700}}>{cnt} פריטים</div>
           </div>
-          <div class="item-qty">
-            <button class="qty-btn" onclick="changeQty('${item.id}',-1)">−</button>
-            <span class="qty-val">${qty}</span>
-            <button class="qty-btn" onclick="changeQty('${item.id}',1)">+</button>
-          </div>
-        </div>`;
-    });
-  }
-  document.getElementById('itemsList').innerHTML = html;
-  updateBadge();
+          {days&&<div style={{fontSize:11,color:C.dm,marginTop:8,display:"flex",gap:6,alignItems:"center"}}><span>📅</span><span>{days}{cut?` · עד ${cut}`:""}</span></div>}
+          {s.phone&&<div style={{fontSize:11,color:C.dm,marginTop:3,display:"flex",gap:6,alignItems:"center"}}><span>📞</span><span>{s.phone}</span></div>}
+        </div>
+      );
+    })}
+  </div>
+
+  {toast&&<div style={{position:"fixed",bottom:30,left:"50%",transform:"translateX(-50%)",background:C.sfh,color:C.g,padding:"8px 22px",borderRadius:24,fontSize:13,fontWeight:600,zIndex:40,border:`1px solid ${C.bd}`,animation:"scaleIn .2s ease",fontFamily:f}}>{toast}</div>}
+</div>
+```
+
+);
 }
-
-function toggleItem(id) {
-  if (state[id]) {
-    delete state[id];
-  } else {
-    state[id] = 1;
-  }
-  renderItems();
-}
-
-function changeQty(id, delta) {
-  const current = state[id] || 0;
-  const next = current + delta;
-  if (next <= 0) {
-    delete state[id];
-  } else {
-    state[id] = next;
-  }
-  renderItems();
-}
-
-function updateBadge() {
-  const count = Object.keys(state).length;
-  const badge = document.getElementById('badge');
-  if (count > 0) {
-    badge.textContent = `${count} פריטים בהזמנה`;
-    badge.classList.add('show');
-  } else {
-    badge.classList.remove('show');
-  }
-}
-
-function buildText() {
-  const lines = [];
-  const items = products.filter(p => p.supplier_id === currentSupplier.id);
-  items.forEach(item => {
-    if (state[item.id]) {
-      lines.push({ name: item.name, qty: state[item.id], unit: item.order_unit || item.unit || 'יח׳' });
-    }
-  });
-  if (!lines.length) return null;
-  
-  const d = new Date();
-  const dateStr = `${d.getDate()}.${d.getMonth()+1}.${d.getFullYear()}`;
-  let text = `הזמנה מפסאו גג על הים\nתאריך: ${dateStr}\n\n`;
-  lines.forEach(l => {
-    text += `• ${l.name} — ${l.qty} ${l.unit}\n`;
-  });
-  text += `\nתודה`;
-  return text;
-}
-
-function cleanPhone(ph) {
-  if (!ph) return '';
-  let clean = ph.replace(/[^0-9+]/g, '');
-  if (clean.startsWith('0') && !clean.startsWith('+')) {
-    clean = '972' + clean.slice(1);
-  }
-  if (clean.startsWith('+')) clean = clean.slice(1);
-  return clean;
-}
-
-document.getElementById('btnWa').onclick = () => {
-  const text = buildText();
-  if (!text) return toast('סמן לפחות פריט אחד');
-  const phone = cleanPhone(currentSupplier.phone);
-  const encoded = encodeURIComponent(text);
-  const url = phone ? `https://wa.me/${phone}?text=${encoded}` : `https://wa.me/?text=${encoded}`;
-  window.open(url, '_blank');
-};
-
-document.getElementById('btnCopy').onclick = () => {
-  const text = buildText();
-  if (!text) return toast('סמן לפחות פריט אחד');
-  navigator.clipboard.writeText(text).then(() => toast('הועתק ✓'));
-};
-
-document.getElementById('btnReset').onclick = () => {
-  for (const k in state) delete state[k];
-  renderItems();
-  toast('אופס');
-};
-
-document.getElementById('backBtn').onclick = () => {
-  document.getElementById('supplierView').style.display = 'none';
-  document.getElementById('bottomBar').classList.remove('show');
-  document.getElementById('indexView').style.display = 'block';
-  for (const k in state) delete state[k];
-  currentSupplier = null;
-};
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 1800);
-}
-
-// Init
-loadData();
-</script>
-
-</body>
-</html>
