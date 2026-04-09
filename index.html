@@ -33,6 +33,8 @@ button{font-family:inherit}
 .tab .ti{font-size:18px;line-height:1}
 .tab .tc{font-size:9px;opacity:.5;font-weight:400}
 .list{padding:10px 14px 40px}
+.grp-title{font-size:13px;font-weight:800;color:#C9A84C;padding:16px 6px 8px;letter-spacing:.3px;border-bottom:1px solid rgba(201,168,76,.15);margin-bottom:8px;margin-top:8px}
+.grp-title:first-child{margin-top:0}
 .scard{background:linear-gradient(135deg,#14141A 0%,#1C1C24 100%);border:1px solid rgba(255,255,255,.06);border-radius:18px;padding:18px 20px;margin-bottom:10px;cursor:pointer;transition:transform .15s;position:relative;overflow:hidden;animation:enter .35s ease both}
 .scard:active{transform:scale(.97)}
 .scard::after{content:'';position:absolute;top:0;right:0;width:80px;height:80px;background:radial-gradient(circle at top right,rgba(201,168,76,.12),transparent 70%);pointer-events:none}
@@ -66,8 +68,8 @@ button{font-family:inherit}
 .qb{width:36px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:#14141A;color:#F0F0F4;font-size:20px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s}
 .qb:active{transform:scale(.92)}
 .it.on .qb.plus{border-color:#C9A84C;background:rgba(201,168,76,.12);color:#C9A84C}
-.qv{font-size:16px;font-weight:700;min-width:26px;text-align:center}
-.it.on .qv{color:#C9A84C}
+.qv{width:40px;height:36px;border-radius:10px;border:1px solid rgba(255,255,255,.06);background:#14141A;color:#F0F0F4;font-size:16px;font-weight:700;text-align:center;font-family:'Heebo',sans-serif;outline:none}
+.it.on .qv{color:#C9A84C;border-color:rgba(201,168,76,.2)}
 .bar{position:fixed;bottom:0;left:0;right:0;background:rgba(9,9,11,.92);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-top:1px solid rgba(255,255,255,.06);padding:10px 16px 14px;display:none;gap:8px;z-index:30;align-items:center}
 .bar.show{display:flex}
 .bar-n{background:#C9A84C;color:#09090B;width:28px;height:28px;border-radius:50%;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;animation:pop .2s ease}
@@ -111,95 +113,160 @@ TABS=[
 {key:"food",label:"אוכל",icon:"🥩",cats:["food"]},
 {key:"drinks",label:"בר",icon:"🍷",cats:["אלכוהול","יינות"]},
 {key:"spice",label:"תבלינים",icon:"🌿",cats:["תבלינים"]},
-{key:"equip",label:"ציוד",icon:"🧹",cats:["equipment"]}
+{key:"equip",label:"חד פעמי",icon:"🧹",cats:["equipment"]}
 ];
-var suppliers=[],products=[],curTab="food",curSup=null,cart={};
-function api(t,q){return fetch(SB+"/rest/v1/"+t+"?"+(q||""),{headers:{apikey:SK,Authorization:"Bearer "+SK}}).then(function(r){return r.json()});}
+
+var FOOD_GROUPS = {
+“🥩 בשרים ועוף”: [“בקר”,“עוף”],
+“🐟 דגים”: [“דגים”],
+“🧀 חלב וגבינות”: [“חלב”,“גבינות”,“ביצים”],
+“🥬 ירקות ופירות”: [“ירקות”,“עשבי תיבול”,“פירות”],
+“🍞 לחמים ופסטה”: [“לחם”,“פסטה”],
+“🍰 קינוחים”: [“קינוחים”],
+“🥫 יבשים ושימורים”: [“יבשים”,“שימורים”,“אגוזים”,“שמנים”,“תבלינים”],
+“🧃 משקאות”: [“משקאות”,“פיקדון”]
+};
+
+var DRINK_GROUPS = {
+“🥃 אלכוהול”: [“אלכוהול”],
+“🍷 יינות”: [“יינות”],
+“🍺 בירות”: [“בירות”],
+“🧉 סירופים ומשקאות”: [“סירופים”,“משקאות”]
+};
+
+var EQUIP_GROUPS = {
+“📦 חד פעמי”: [“חד פעמי”],
+“🧽 ניקיון”: [“ניקיון”],
+“🔧 ציוד”: [“ציוד”]
+};
+
+var suppliers=[],products=[],curTab=“food”,curSup=null,cart={};
+
+function api(t,q){return fetch(SB+”/rest/v1/”+t+”?”+(q||””),{headers:{apikey:SK,Authorization:“Bearer “+SK}}).then(function(r){return r.json()});}
+
 function load(){
-Promise.all([api("suppliers","active=eq.true&order=name.asc"),api("products","active=eq.true&order=category.asc,name.asc")])
+Promise.all([api(“suppliers”,“active=eq.true&order=name.asc”),api(“products”,“active=eq.true&order=category.asc,name.asc”)])
 .then(function(r){
 suppliers=r[0];products=r[1].filter(function(x){return x.discontinued!==true});
-document.getElementById("loader").style.display="none";
-document.getElementById("idx").style.display="block";
+document.getElementById(“loader”).style.display=“none”;
+document.getElementById(“idx”).style.display=“block”;
 renderTabs();renderCards();
 }).catch(function(){
-document.getElementById("loader").innerHTML='<p style="color:#F87171;font-size:13px">שגיאה בטעינה. בדוק חיבור.</p>';
+document.getElementById(“loader”).innerHTML=’<p style="color:#F87171;font-size:13px">שגיאה בטעינה. בדוק חיבור.</p>’;
 });}
+
 function renderTabs(){
-var h="";TABS.forEach(function(t){
+var h=””;TABS.forEach(function(t){
 var on=curTab===t.key;
 var cnt=suppliers.filter(function(s){return t.cats.indexOf(s.category)!==-1&&products.some(function(p){return p.supplier_id===s.id})}).length;
-h+='<button class="tab'+(on?" on":"")+'" onclick="curTab=\''+t.key+'\';renderTabs();renderCards()"><span class="ti">'+t.icon+'</span><span>'+t.label+'</span><span class="tc">'+cnt+'</span></button>';
-});document.getElementById("tabs").innerHTML=h;}
+h+=’<button class=“tab’+(on?” on”:””)+’” onclick=“curTab='’+t.key+’';renderTabs();renderCards()”><span class="ti">’+t.icon+’</span><span>’+t.label+’</span><span class="tc">’+cnt+’</span></button>’;
+});document.getElementById(“tabs”).innerHTML=h;}
+
+function getGroups(){
+if(curTab===“food”) return FOOD_GROUPS;
+if(curTab===“drinks”) return DRINK_GROUPS;
+if(curTab===“equip”) return EQUIP_GROUPS;
+return {“תבלינים”:[“תבלינים”]};
+}
+
 function renderCards(){
 var tab=TABS.filter(function(t){return t.key===curTab})[0];
 var list=suppliers.filter(function(s){return tab.cats.indexOf(s.category)!==-1&&products.some(function(p){return p.supplier_id===s.id})});
-var el=document.getElementById("cards");
-if(!list.length){el.innerHTML='<div class="empty">אין ספקים בקטגוריה</div>';return;}
-var h="";list.forEach(function(s,i){
-var cnt=products.filter(function(p){return p.supplier_id===s.id}).length;
-var days=s.order_days?s.order_days.map(function(d){return DH[d]||d}).join(" "):"";
-var cut=s.order_cutoff?s.order_cutoff.slice(0,5):"";
-h+='<div class="scard" style="animation-delay:'+i*40+'ms" onclick="openSup(\''+s.id+'\')">';
-h+='<div class="scard-row"><div><div class="scard-name">'+s.name+'</div>';
-if(s.contact_name)h+='<div class="scard-contact">'+s.contact_name+'</div>';
-h+='</div><div class="scard-badge">'+cnt+' פריטים</div></div>';
-if(days||s.phone){h+='<div class="scard-meta">';
-if(days)h+='<span>📅 '+days+(cut?' · עד '+cut:'')+'</span>';
-if(s.phone)h+='<span>📞 '+s.phone+'</span>';
-h+='</div>';}h+='</div>';
-});el.innerHTML=h;}
+var el=document.getElementById(“cards”);
+if(!list.length){el.innerHTML=’<div class="empty">אין ספקים בקטגוריה</div>’;return;}
+
+var groups=getGroups();
+var h=””;
+var usedSuppliers={};
+
+Object.keys(groups).forEach(function(grpName){
+var grpCats=groups[grpName];
+var grpSuppliers=list.filter(function(s){
+return products.some(function(p){
+return p.supplier_id===s.id && grpCats.indexOf(p.category)!==-1;
+});
+});
+if(!grpSuppliers.length) return;
+
+h+=’<div class="grp-title">’+grpName+’</div>’;
+grpSuppliers.forEach(function(s,i){
+usedSuppliers[s.id]=true;
+var cnt=products.filter(function(p){return p.supplier_id===s.id && grpCats.indexOf(p.category)!==-1}).length;
+var totalCnt=products.filter(function(p){return p.supplier_id===s.id}).length;
+var days=s.order_days?s.order_days.map(function(d){return DH[d]||d}).join(” “):””;
+var cut=s.order_cutoff?s.order_cutoff.slice(0,5):””;
+h+=’<div class="scard" style="animation-delay:'+i*40+'ms" onclick="openSup(\''+s.id+'\')">’;
+h+=’<div class="scard-row"><div><div class="scard-name">’+s.name+’</div>’;
+if(s.contact_name)h+=’<div class="scard-contact">’+s.contact_name+’</div>’;
+h+=’</div><div class="scard-badge">’+totalCnt+’ פריטים</div></div>’;
+if(days||s.phone){h+=’<div class="scard-meta">’;
+if(days)h+=’<span>📅 ‘+days+(cut?’ · עד ‘+cut:’’)+’</span>’;
+if(s.phone)h+=’<span>📞 ‘+s.phone+’</span>’;
+h+=’</div>’;}h+=’</div>’;
+});
+});
+
+el.innerHTML=h;
+}
+
 function openSup(id){
 curSup=suppliers.filter(function(s){return s.id===id})[0];if(!curSup)return;cart={};
-document.getElementById("idx").style.display="none";
-document.getElementById("sv").style.display="block";
-document.getElementById("bar").classList.add("show");
-document.getElementById("shNm").textContent=curSup.name;
-var days=curSup.order_days?curSup.order_days.map(function(d){return DH[d]}).join(" "):"";
-var cut=curSup.order_cutoff?curSup.order_cutoff.slice(0,5):"";
-var info="";if(curSup.contact_name)info+='<span>'+curSup.contact_name+'</span>';
-if(days)info+='<span>📅 '+days+(cut?' עד '+cut:'')+'</span>';
-document.getElementById("shNf").innerHTML=info;
-if(curSup.phone){document.getElementById("shPh").innerHTML='<a class="sh-call" href="tel:'+curSup.phone+'">📞 '+(curSup.contact_name||"חייג")+'</a>';}
-else{document.getElementById("shPh").innerHTML="";}
-document.getElementById("sbox").value="";renderItems();window.scrollTo(0,0);}
+document.getElementById(“idx”).style.display=“none”;
+document.getElementById(“sv”).style.display=“block”;
+document.getElementById(“bar”).classList.add(“show”);
+document.getElementById(“shNm”).textContent=curSup.name;
+var days=curSup.order_days?curSup.order_days.map(function(d){return DH[d]}).join(” “):””;
+var cut=curSup.order_cutoff?curSup.order_cutoff.slice(0,5):””;
+var info=””;if(curSup.contact_name)info+=’<span>’+curSup.contact_name+’</span>’;
+if(days)info+=’<span>📅 ‘+days+(cut?’ עד ‘+cut:’’)+’</span>’;
+document.getElementById(“shNf”).innerHTML=info;
+if(curSup.phone){document.getElementById(“shPh”).innerHTML=’<a class="sh-call" href="tel:'+curSup.phone+'">📞 ‘+(curSup.contact_name||“חייג”)+’</a>’;}
+else{document.getElementById(“shPh”).innerHTML=””;}
+document.getElementById(“sbox”).value=””;renderItems();window.scrollTo(0,0);}
+
 function renderItems(){
-var q=document.getElementById("sbox").value;
-document.getElementById("sx").style.display=q?"block":"none";
+var q=document.getElementById(“sbox”).value;
+document.getElementById(“sx”).style.display=q?“block”:“none”;
 var items=products.filter(function(p){return p.supplier_id===curSup.id});
 if(q)items=items.filter(function(i){return i.name.indexOf(q)!==-1});
 var cats={},order=[];
-items.forEach(function(p){var c=p.category||"כללי";if(!cats[c]){cats[c]=[];order.push(c);}cats[c].push(p);});
-var h="";order.forEach(function(cat){
-h+='<div class="cat">'+cat+'</div>';
+items.forEach(function(p){var c=p.category||“כללי”;if(!cats[c]){cats[c]=[];order.push(c);}cats[c].push(p);});
+var h=””;order.forEach(function(cat){
+h+=’<div class="cat">’+cat+’</div>’;
 cats[cat].forEach(function(item){
 var qty=cart[item.id]||0;var on=qty>0;
-h+='<div class="it'+(on?" on":"")+'">';
-h+='<div class="it-chk" onclick="toggle(\''+item.id+'\')">✓</div>';
-h+='<div class="it-body" onclick="toggle(\''+item.id+'\')">';
-h+='<div class="it-name">'+item.name+'</div>';
-h+='<div class="it-unit">'+(item.order_unit||item.unit||"יח׳")+'</div></div>';
-h+='<div class="it-qty"><button class="qb" onclick="chg(\''+item.id+'\',-1)">−</button>';
-h+='<span class="qv">'+qty+'</span>';
-h+='<button class="qb plus" onclick="chg(\''+item.id+'\',1)">+</button></div></div>';
+h+=’<div class=“it’+(on?” on”:””)+’”>’;
+h+=’<div class="it-chk" onclick="toggle(\''+item.id+'\')">✓</div>’;
+h+=’<div class="it-body" onclick="toggle(\''+item.id+'\')">’;
+h+=’<div class="it-name">’+item.name+’</div>’;
+h+=’<div class="it-unit">’+(item.order_unit||item.unit||“יח׳”)+’</div></div>’;
+h+=’<div class="it-qty"><button class="qb" onclick="chg(\''+item.id+'\',-1)">−</button>’;
+h+=’<input class="qv" type="number" inputmode="numeric" pattern="[0-9]*" value="'+qty+'" onfocus="this.select()" onchange="setQ(\''+item.id+'\',this.value)" onblur="setQ(\''+item.id+'\',this.value)">’;
+h+=’<button class="qb plus" onclick="chg(\''+item.id+'\',1)">+</button></div></div>’;
 });});
-if(!order.length)h='<div class="empty">'+(q?"לא נמצאו מוצרים":"אין מוצרים")+'</div>';
-document.getElementById("items").innerHTML=h;updateBadge();}
+if(!order.length)h=’<div class="empty">’+(q?“לא נמצאו מוצרים”:“אין מוצרים”)+’</div>’;
+document.getElementById(“items”).innerHTML=h;updateBadge();}
+
 function toggle(id){if(cart[id])delete cart[id];else cart[id]=1;renderItems();}
 function chg(id,d){var c=(cart[id]||0)+d;if(c<=0)delete cart[id];else cart[id]=c;renderItems();}
-function updateBadge(){var n=Object.keys(cart).length;var b=document.getElementById("bn");if(n>0){b.textContent=n;b.style.display="flex";}else{b.style.display="none";}}
+function setQ(id,v){var n=parseInt(v)||0;if(n<=0)delete cart[id];else cart[id]=n;renderItems();}
+
+function updateBadge(){var n=Object.keys(cart).length;var b=document.getElementById(“bn”);if(n>0){b.textContent=n;b.style.display=“flex”;}else{b.style.display=“none”;}}
+
 function buildTxt(){
 var items=products.filter(function(p){return p.supplier_id===curSup.id});
-var lines=items.filter(function(p){return cart[p.id]>0}).map(function(p){return "• "+p.name+" — "+cart[p.id]+" "+(p.order_unit||p.unit||"יח׳")});
+var lines=items.filter(function(p){return cart[p.id]>0}).map(function(p){return “• “+p.name+” — “+cart[p.id]+” “+(p.order_unit||p.unit||“יח׳”)});
 if(!lines.length)return null;var d=new Date();
-return "הזמנה מפסאו גג על הים\nתאריך: "+d.getDate()+"."+(d.getMonth()+1)+"."+d.getFullYear()+"\n\n"+lines.join("\n")+"\n\nתודה";}
-function cleanPh(s){if(!s)return"";var c=s.replace(/[^0-9+]/g,"");if(c.charAt(0)==="0")c="972"+c.slice(1);if(c.charAt(0)==="+")c=c.slice(1);return c;}
-function sendWA(){var t=buildTxt();if(!t)return flash("סמן לפחות פריט אחד");var p=cleanPh(curSup.phone),e=encodeURIComponent(t);window.open(p?"https://wa.me/"+p+"?text="+e:"https://wa.me/?text="+e,"_blank");}
-function copyOrd(){var t=buildTxt();if(!t)return flash("סמן לפחות פריט אחד");navigator.clipboard.writeText(t).then(function(){flash("✓ הועתק")});}
-function resetCart(){cart={};renderItems();flash("אופס");}
-function goBack(){document.getElementById("sv").style.display="none";document.getElementById("bar").classList.remove("show");document.getElementById("idx").style.display="block";curSup=null;cart={};}
-function flash(m){var t=document.getElementById("toast");t.textContent=m;t.classList.add("show");setTimeout(function(){t.classList.remove("show")},2200);}
+return “הזמנה מפסאו גג על הים\nתאריך: “+d.getDate()+”.”+(d.getMonth()+1)+”.”+d.getFullYear()+”\n\n”+lines.join(”\n”)+”\n\nתודה”;}
+
+function cleanPh(s){if(!s)return””;var c=s.replace(/[^0-9+]/g,””);if(c.charAt(0)===“0”)c=“972”+c.slice(1);if(c.charAt(0)===”+”)c=c.slice(1);return c;}
+function sendWA(){var t=buildTxt();if(!t)return flash(“סמן לפחות פריט אחד”);var p=cleanPh(curSup.phone),e=encodeURIComponent(t);window.open(p?“https://wa.me/”+p+”?text=”+e:“https://wa.me/?text=”+e,”_blank”);}
+function copyOrd(){var t=buildTxt();if(!t)return flash(“סמן לפחות פריט אחד”);navigator.clipboard.writeText(t).then(function(){flash(“✓ הועתק”)});}
+function resetCart(){cart={};renderItems();flash(“אופס”);}
+function goBack(){document.getElementById(“sv”).style.display=“none”;document.getElementById(“bar”).classList.remove(“show”);document.getElementById(“idx”).style.display=“block”;curSup=null;cart={};}
+function flash(m){var t=document.getElementById(“toast”);t.textContent=m;t.classList.add(“show”);setTimeout(function(){t.classList.remove(“show”)},2200);}
 load();
 </script>
+
 </body>
 </html>
