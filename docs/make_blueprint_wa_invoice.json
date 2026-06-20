@@ -1,0 +1,199 @@
+{
+  "name": "WA Invoice Agent (Pilot)",
+  "flow": [
+    {
+      "id": 1,
+      "module": "gateway:CustomWebHook",
+      "version": 1,
+      "parameters": { "hook": null, "maxResults": 1 },
+      "mapper": {},
+      "metadata": {
+        "designer": { "x": 0, "y": 0 },
+        "restore": { "parameters": { "hook": { "label": "WA Invoice Webhook (create on import)" } } },
+        "notes": "Whapi.Cloud ישלח לכאן webhook. אחרי הייבוא לחץ Add ליצירת ה-URL והדבק אותו ב-Whapi."
+      }
+    },
+    {
+      "id": 2,
+      "module": "builtin:BasicRouter",
+      "version": 1,
+      "mapper": null,
+      "metadata": { "designer": { "x": 300, "y": 0 } },
+      "routes": [
+        {
+          "flow": [
+            {
+              "id": 10,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": true, "useNewZLibDeFlate": true },
+              "filter": {
+                "name": "חשבונית (תמונה/קובץ)",
+                "conditions": [[
+                  { "a": "{{1.type}}", "o": "text:equal", "b": "image" }
+                ],[
+                  { "a": "{{1.type}}", "o": "text:equal", "b": "document" }
+                ]]
+              },
+              "mapper": {
+                "url": "{{1.image.link}}",
+                "method": "get",
+                "headers": [],
+                "qs": [],
+                "bodyType": "raw",
+                "parseResponse": false,
+                "followRedirect": true
+              },
+              "metadata": { "designer": { "x": 600, "y": -150 }, "notes": "הורדת קובץ התמונה מ-Whapi (link מה-webhook). אם השדה שונה — עדכן את ה-URL." }
+            },
+            {
+              "id": 11,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": true, "useNewZLibDeFlate": true },
+              "mapper": {
+                "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=__GEMINI_API_KEY__",
+                "method": "post",
+                "headers": [],
+                "qs": [],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "parseResponse": true,
+                "data": "{\n  \"contents\": [{\n    \"parts\": [\n      {\"text\": \"אתה מקבל תמונה/סריקה של חשבונית ספק בעברית. החזר אך ורק JSON תקין, ללא טקסט נוסף: {\\\"supplier\\\":\\\"<שם הספק>\\\",\\\"invoice_ref\\\":\\\"<מספר חשבונית>\\\",\\\"invoice_date\\\":\\\"<YYYY-MM-DD>\\\",\\\"subtotal\\\":<לפני מעמ או null>,\\\"vat_rate\\\":<אחוז מעמ או null>,\\\"vat_amount\\\":<או null>,\\\"discount_amount\\\":<או null>,\\\"total\\\":<סהכ לתשלום>,\\\"lines\\\":[{\\\"name\\\":\\\"<פריט>\\\",\\\"sku\\\":\\\"<מקט או null>\\\",\\\"qty\\\":<כמות>,\\\"unit\\\":\\\"<יחידה>\\\",\\\"pack_size\\\":<יחב או null>,\\\"unit_price\\\":<מחיר ליחידה לפני מעמ>,\\\"total\\\":<סהכ שורה>}]} כללים: מספרים בלבד בלי שקל, תאריך ISO, שדה חסר=null, אל תמציא, אל תכלול שורות מעמ/סיכום כפריטים.\"},\n      {\"inline_data\": {\"mime_type\": \"image/jpeg\", \"data\": \"{{base64(10.data)}}\"}}\n    ]\n  }],\n  \"generationConfig\": { \"response_mime_type\": \"application/json\" }\n}"
+              },
+              "metadata": { "designer": { "x": 900, "y": -150 }, "notes": "Gemini Vision. החלף __GEMINI_API_KEY__ במפתח Google AI Studio שלך. אפשר גם gemini-1.5-flash." }
+            },
+            {
+              "id": 12,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": true, "useNewZLibDeFlate": true },
+              "mapper": {
+                "url": "https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/rpc/wa_ingest_invoice",
+                "method": "post",
+                "headers": [
+                  { "name": "apikey", "value": "__SUPABASE_ANON_KEY__" },
+                  { "name": "Authorization", "value": "Bearer __SUPABASE_ANON_KEY__" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "parseResponse": true,
+                "data": "{\n  \"p_secret\": \"__WA_INGEST_SECRET__\",\n  \"p_payload\": {{11.candidates[1].content.parts[1].text}},\n  \"p_chat_id\": \"{{1.chat_id}}\",\n  \"p_msg_id\": \"{{1.id}}\",\n  \"p_image_url\": \"{{1.image.link}}\"\n}"
+              },
+              "metadata": { "designer": { "x": 1200, "y": -150 }, "notes": "קליטה ל-Supabase. p_payload = ה-JSON מ-Gemini (מועבר כאובייקט, בלי מרכאות)." }
+            },
+            {
+              "id": 13,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeFlate": true },
+              "mapper": {
+                "url": "https://gate.whapi.cloud/messages/text",
+                "method": "post",
+                "headers": [
+                  { "name": "Authorization", "value": "Bearer __WHAPI_TOKEN__" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "parseResponse": true,
+                "data": "{ \"to\": \"{{1.chat_id}}\", \"body\": {{12.body.summary}} }"
+              },
+              "metadata": { "designer": { "x": 1500, "y": -150 }, "notes": "שליחת הסיכום חזרה לקבוצה. החלף __WHAPI_TOKEN__ בטוקן Whapi שלך." }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 20,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": true, "useNewZLibDeFlate": true },
+              "filter": {
+                "name": "אישור",
+                "conditions": [[ { "a": "{{1.text.body}}", "o": "text:startwith", "b": "אישור" } ]]
+              },
+              "mapper": {
+                "url": "https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/rpc/wa_confirm_invoice",
+                "method": "post",
+                "headers": [
+                  { "name": "apikey", "value": "__SUPABASE_ANON_KEY__" },
+                  { "name": "Authorization", "value": "Bearer __SUPABASE_ANON_KEY__" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "parseResponse": true,
+                "data": "{ \"p_secret\": \"__WA_INGEST_SECRET__\", \"p_chat_id\": \"{{1.chat_id}}\", \"p_token\": \"{{trim(replace(1.text.body; \"אישור\"; \"\"))}}\" }"
+              },
+              "metadata": { "designer": { "x": 600, "y": 150 } }
+            },
+            {
+              "id": 21,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": false, "useNewZLibDeFlate": true },
+              "mapper": {
+                "url": "https://gate.whapi.cloud/messages/text",
+                "method": "post",
+                "headers": [ { "name": "Authorization", "value": "Bearer __WHAPI_TOKEN__" } ],
+                "qs": [],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "parseResponse": true,
+                "data": "{ \"to\": \"{{1.chat_id}}\", \"body\": {{20.body.summary}} }"
+              },
+              "metadata": { "designer": { "x": 900, "y": 150 } }
+            }
+          ]
+        },
+        {
+          "flow": [
+            {
+              "id": 30,
+              "module": "http:ActionSendData",
+              "version": 3,
+              "parameters": { "handleErrors": true, "useNewZLibDeFlate": true },
+              "filter": {
+                "name": "ביטול",
+                "conditions": [[ { "a": "{{1.text.body}}", "o": "text:startwith", "b": "ביטול" } ]]
+              },
+              "mapper": {
+                "url": "https://vzeowbriddhvhpishmhn.supabase.co/rest/v1/rpc/wa_reject_invoice",
+                "method": "post",
+                "headers": [
+                  { "name": "apikey", "value": "__SUPABASE_ANON_KEY__" },
+                  { "name": "Authorization", "value": "Bearer __SUPABASE_ANON_KEY__" }
+                ],
+                "qs": [],
+                "bodyType": "raw",
+                "contentType": "application/json",
+                "parseResponse": true,
+                "data": "{ \"p_secret\": \"__WA_INGEST_SECRET__\", \"p_chat_id\": \"{{1.chat_id}}\", \"p_token\": \"{{trim(replace(1.text.body; \"ביטול\"; \"\"))}}\" }"
+              },
+              "metadata": { "designer": { "x": 600, "y": 350 } }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "instant": true,
+    "version": 1,
+    "scenario": {
+      "roundtrips": 1,
+      "maxErrors": 3,
+      "autoCommit": true,
+      "sequential": false,
+      "confidential": false,
+      "dataloss": false,
+      "dlq": false
+    },
+    "designer": { "orphans": [] },
+    "zone": "us2.make.com",
+    "notes": "פיילוט סוכן חשבוניות. שדות לעדכון אחרי ייבוא: __GEMINI_API_KEY__, __WHAPI_TOKEN__, ונתיבי השדות של Whapi (1.chat_id / 1.type / 1.image.link / 1.id / 1.text.body) לפי ה-payload האמיתי."
+  }
+}
