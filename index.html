@@ -8,4 +8,38 @@
 document.write(decodeURIComponent(escape(atob(document.getElementById(String.fromCharCode(100)).textContent))));
 </script>
 </body>
+  <!-- ===== Paseo Order Insights ===== -->
+<script>
+(function(){
+  function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+  function renderInsights(list){
+    var host=document.getElementById('sv')||document.getElementById('items'); if(!host) return;
+    var old=document.getElementById('ins-panel'); if(old) old.remove();
+    if(!list||!list.length) return;
+    var p=document.createElement('div'); p.id='ins-panel';
+    p.style.cssText='margin:12px;padding:12px 14px;border-radius:12px;background:#2a2410;border:1px solid #5a4a12;color:#f0e6c0;font-size:14px;line-height:1.7';
+    p.innerHTML='<div style="font-weight:700;margin-bottom:6px;color:#f5d020">🔔 שים לב לפני ההזמנה ('+list.length+')</div>'+
+      list.slice(0,8).map(function(x){return '• '+esc((x.text||'').replace(/\*/g,''));}).join('<br>');
+    host.insertAdjacentElement('afterbegin',p);
+  }
+  window.loadInsights=function(){
+    try{ var sup=(window.curSup&&window.curSup.id); if(!sup) return;
+      fetch(SB+"/rest/v1/rpc/order_insights",{method:"POST",
+        headers:{apikey:SK,Authorization:"Bearer "+SK,"Content-Type":"application/json"},
+        body:JSON.stringify({p_supplier_id:String(sup)})})
+      .then(function(r){return r.json();}).then(function(j){renderInsights(j&&j.insights||[]);}).catch(function(){});
+    }catch(e){}
+  };
+  var tries=0, iv=setInterval(function(){
+    tries++;
+    if(typeof window.openSup==='function' && !window.__insHooked){
+      window.__insHooked=true;
+      var _o=window.openSup;
+      window.openSup=function(){ var r=_o.apply(this,arguments); setTimeout(window.loadInsights,120); return r; };
+      clearInterval(iv);
+    }
+    if(tries>60) clearInterval(iv);
+  },300);
+})();
+</script>
 </html>
